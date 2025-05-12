@@ -29,6 +29,7 @@ export default function RegisterPage() {
       showToast('تم تسجيل الدخول بنجاح!', 'success');
     } catch (error) {
       console.error("Register Failed:", error);
+      showToast('فشل تسجيل الدخول', 'error');
     }
   };
 
