@@ -5,9 +5,11 @@ import { useTranslation } from "@/hooks/useTranslation";
 import RegisterForm from "@/components/molecules/RegisterForm";
 import Link from "next/link";
 import { register } from "@/services/auth-service";
+import { useToast } from "@/hooks/useToast";
 
 export default function RegisterPage() {
   const { t } = useTranslation();
+  const { showToast } = useToast();
 
   // ارسال الى الباك
   const handleRegister = async (data: {
@@ -24,6 +26,7 @@ export default function RegisterPage() {
         data.password
       );
       console.log("Register Response:", res);
+      showToast('تم تسجيل الدخول بنجاح!', 'success');
     } catch (error) {
       console.error("Register Failed:", error);
     }

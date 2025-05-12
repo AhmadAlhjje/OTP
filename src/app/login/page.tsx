@@ -5,9 +5,11 @@ import { useTranslation } from "@/hooks/useTranslation";
 import LoginForm from "@/components/molecules/LoginForm";
 import Link from "next/link";
 import { login } from "@/services/auth-service";
+import { useToast } from "@/hooks/useToast";
 
 export default function LoginPage() {
   const { t } = useTranslation();
+  const { showToast } = useToast();
   
   // ارسال الى الباك
   const handleLogin = async (data: {
@@ -17,8 +19,10 @@ export default function LoginPage() {
     try {
       const res = await login(data.emailOrName, data.password);
       console.log("Login Response:", res);
+      showToast('تم تسجيل الدخول بنجاح!', 'success');
     } catch (error) {
       console.error("Login Failed:", error);
+      showToast('فشل تسجيل الدخول', 'error');
     }
   };
 
