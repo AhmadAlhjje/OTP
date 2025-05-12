@@ -1,0 +1,10 @@
+{
+  "common": {
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "alreadyHaveAccount": "لديك حساب بالفعل؟",
+    "noAccountYet": "ليس لديك حساب بعد؟"
+  }
+}
