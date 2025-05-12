@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { useTranslation } from '@/hooks/useTranslation';
-import Input from '@/components/atoms/Input';
-import Button from '@/components/atoms/Button';
+import React, { useState } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
+import Input from "@/components/atoms/Input";
+import Button from "@/components/atoms/Button";
 
 interface LoginFormProps {
   onSubmit: (data: { emailOrName: string; password: string }) => void;
@@ -11,8 +11,8 @@ interface LoginFormProps {
 
 export default function LoginForm({ onSubmit }: LoginFormProps) {
   const { t } = useTranslation();
-  const [emailOrName, setEmailOrName] = useState('');
-  const [password, setPassword] = useState('');
+  const [emailOrName, setEmailOrName] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,7 +22,7 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <Input
-        label={t('email')}
+        label={t("email")}
         placeholder="example@example.com"
         type="text"
         value={emailOrName}
@@ -30,15 +30,18 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
       />
 
       <Input
-        label={t('password')}
+        label={t("password")}
         placeholder="••••••••"
         type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
 
-      <Button fullWidth type="submit">
-        {t('login')}
+      <Button
+        onClick={handleSubmit}
+        className="bg-green-600 hover:bg-green-700 text-white w-full mt-4"
+      >
+        {t("login")}
       </Button>
     </form>
   );
