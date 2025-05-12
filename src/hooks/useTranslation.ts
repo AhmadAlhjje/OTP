@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 // نوع بيانات الترجمة
 type Translation = {
@@ -17,7 +17,12 @@ const loadTranslations = async (lang: string): Promise<Translation> => {
 
 // الـ hook الأساسي
 export const useTranslation = () => {
-  const [lang, setLang] = useState<string>('en');
+  const [lang, setLang] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("lang") || "en";
+    }
+    return "en";
+  });
   const [translations, setTranslations] = useState<Translation>({});
   const [isRtl, setIsRtl] = useState(false);
 
@@ -25,8 +30,9 @@ export const useTranslation = () => {
   useEffect(() => {
     const loadLang = async () => {
       const data = await loadTranslations(lang);
+      localStorage.setItem('lang', lang);
       setTranslations(data);
-      setIsRtl(lang === 'ar');
+      setIsRtl(lang === "ar");
     };
 
     loadLang();
@@ -34,8 +40,13 @@ export const useTranslation = () => {
 
   // دالة للحصول على الكلمة المترجمة
   const t = (key: string): string => {
-    const [section, label] = key.split('.');
-    if (section && label && translations[section] && translations[section][label]) {
+    const [section, label] = key.split(".");
+    if (
+      section &&
+      label &&
+      translations[section] &&
+      translations[section][label]
+    ) {
       return translations[section][label];
     }
     return key; // إذا لم توجد الترجمة، نعيد المفتاح
