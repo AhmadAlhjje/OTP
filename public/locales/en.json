@@ -4,6 +4,8 @@
     "register": "Register",
     "email": "Email",
     "password": "Password",
+    "name": "Name",
+    "phone": "Phone",
     "alreadyHaveAccount": "Already have an account?",
     "noAccountYet": "Don't have an account yet?"
   }

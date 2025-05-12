@@ -8,13 +8,15 @@ import Link from 'next/link';
 
 export default function RegisterPage() {
   const { t } = useTranslation();
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // هنا ستتصل بالخدمة لاحقاً
-    console.log('Registering with:', email, password);
+    console.log('Registering:', { name, email, phone, password });
+    // هنا سيتم الاتصال بـ API لاحقاً
   };
 
   return (
@@ -24,11 +26,27 @@ export default function RegisterPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
+            label={t('name')}
+            placeholder="John Doe"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+
+          <Input
             label={t('email')}
             placeholder="example@example.com"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+          />
+
+          <Input
+            label={t('phone')}
+            placeholder="+962 79 123 4567"
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
           />
 
           <Input

@@ -4,6 +4,8 @@
     "register": "إنشاء حساب",
     "email": "البريد الإلكتروني",
     "password": "كلمة المرور",
+    "name": "الاسم",
+    "phone": "رقم الهاتف",
     "alreadyHaveAccount": "لديك حساب بالفعل؟",
     "noAccountYet": "ليس لديك حساب بعد؟"
   }

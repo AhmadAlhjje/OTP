@@ -8,13 +8,13 @@ import Link from 'next/link';
 
 export default function LoginPage() {
   const { t } = useTranslation();
-  const [email, setEmail] = useState('');
+  const [emailOrName, setEmailOrName] = useState('');
   const [password, setPassword] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // هنا ستتصل بالخدمة لاحقاً
-    console.log('Logging in with:', email, password);
+    console.log('Logging in with:', { emailOrName, password });
+    // هنا سيتم الاتصال بـ API لاحقاً
   };
 
   return (
@@ -24,11 +24,11 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
-            label={t('email')}
-            placeholder="example@example.com"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            label="Email or Name"
+            placeholder="example@example.com or JohnDoe"
+            type="text"
+            value={emailOrName}
+            onChange={(e) => setEmailOrName(e.target.value)}
           />
 
           <Input
