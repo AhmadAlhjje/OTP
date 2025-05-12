@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-  baseURL: 'https://whatsapp-project-gamma.vercel.app ',
+  baseURL: 'https://whatsapp-project-gamma.vercel.app',
+  withCredentials: true,
 });
 
 // تسجيل الدخول

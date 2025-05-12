@@ -3,11 +3,12 @@
 import React, { useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 import LoginForm from "@/components/molecules/LoginForm";
-import Link from "next/link";
 import { login } from "@/services/auth-service";
 import { useToast } from "@/hooks/useToast";
 import LoadingSpinner from "@/components/atoms/LoadingSpinner";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
+import Link from "next/link";
 
 export default function LoginPage() {
   const { t } = useTranslation();
@@ -24,6 +25,11 @@ export default function LoginPage() {
     try {
       const res = await login(data.emailOrName, data.password);
       console.log("Login Response:", res);
+      // حفظ التوكن في الكوكيز
+      if (res.access_token) {
+        Cookies.set("access_token", res.access_token, { expires: 7 }); // احتفظ به لمدة 7 أيام
+        Cookies.set("refresh_token", res.refresh_token, { expires: 30 }); // رفرش توكن لمدة 30 يوم
+      }
       showToast("تم تسجيل الدخول بنجاح!", "success");
       // إعادة التوجيه بعد النجاح
       setTimeout(() => {
@@ -32,8 +38,7 @@ export default function LoginPage() {
     } catch (error) {
       console.error("Login Failed:", error);
       showToast("فشل تسجيل الدخول", "error");
-    }
-    finally {
+    } finally {
       setIsLoading(false);
     }
   };
