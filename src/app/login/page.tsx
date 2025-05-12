@@ -1,28 +1,40 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 import LoginForm from "@/components/molecules/LoginForm";
 import Link from "next/link";
 import { login } from "@/services/auth-service";
 import { useToast } from "@/hooks/useToast";
+import LoadingSpinner from "@/components/atoms/LoadingSpinner";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const { t } = useTranslation();
   const { showToast } = useToast();
-  
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+
   // ارسال الى الباك
   const handleLogin = async (data: {
     emailOrName: string;
     password: string;
   }) => {
+    setIsLoading(true);
     try {
       const res = await login(data.emailOrName, data.password);
       console.log("Login Response:", res);
-      showToast('تم تسجيل الدخول بنجاح!', 'success');
+      showToast("تم تسجيل الدخول بنجاح!", "success");
+      // إعادة التوجيه بعد النجاح
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 1000);
     } catch (error) {
       console.error("Login Failed:", error);
-      showToast('فشل تسجيل الدخول', 'error');
+      showToast("فشل تسجيل الدخول", "error");
+    }
+    finally {
+      setIsLoading(false);
     }
   };
 
@@ -53,6 +65,7 @@ export default function LoginPage() {
           </p>
         </div>
       </div>
+      {isLoading && <LoadingSpinner />}
     </div>
   );
 }

@@ -1,15 +1,19 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 import RegisterForm from "@/components/molecules/RegisterForm";
 import Link from "next/link";
 import { register } from "@/services/auth-service";
 import { useToast } from "@/hooks/useToast";
+import LoadingSpinner from '@/components/atoms/LoadingSpinner';
+import { useRouter } from 'next/navigation';
 
 export default function RegisterPage() {
   const { t } = useTranslation();
   const { showToast } = useToast();
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
   // ارسال الى الباك
   const handleRegister = async (data: {
@@ -18,6 +22,7 @@ export default function RegisterPage() {
     phone: string;
     password: string;
   }) => {
+    setIsLoading(true);
     try {
       const res = await register(
         data.name,
@@ -27,9 +32,15 @@ export default function RegisterPage() {
       );
       console.log("Register Response:", res);
       showToast('تم تسجيل الدخول بنجاح!', 'success');
+      setTimeout(() => {
+        router.push('/login');
+      }, 1000);
     } catch (error) {
       console.error("Register Failed:", error);
       showToast('فشل تسجيل الدخول', 'error');
+    }
+    finally {
+      setIsLoading(false);
     }
   };
 
@@ -60,6 +71,7 @@ export default function RegisterPage() {
           </p>
         </div>
       </div>
+      {isLoading && <LoadingSpinner />}
     </div>
   );
 }
