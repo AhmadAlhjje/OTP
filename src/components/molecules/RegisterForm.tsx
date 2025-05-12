@@ -61,8 +61,9 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
       />
 
       <Button
-        onClick={handleSubmit}
-        className="bg-green-600 hover:bg-green-700 text-white w-full mt-4"
+        type="submit"
+        fullWidth
+        className="px-6 py-2 rounded-lg font-medium text-white bg-green-600 hover:bg-green-700 transition-colors"
       >
         {t("login")}
       </Button>
