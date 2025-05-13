@@ -2,7 +2,14 @@
 
 import React from "react";
 
-type ButtonVariant = "primary" | "secondary" | "ghost" | "success" | "danger" | "icon";
+type ButtonVariant =
+  | "primary"
+  | "secondary"
+  | "ghost"
+  | "success"
+  | "danger"
+  | "icon"
+  | "sidebar";
 
 interface ButtonProps {
   children: React.ReactNode;
@@ -28,8 +35,10 @@ export default function Button({
         return "bg-transparent text-green-500 hover:bg-green-500 hover:text-white border border-green-500";
       case "success":
         return "bg-green-600 hover:bg-green-700";
-        case 'icon':
-      return 'bg-transparent p-2 rounded-full hover:bg-gray-100 text-white';
+      case "sidebar":
+        return "bg-[#004d40] hover:bg-[#00695c] text-white w-full text-right";
+      case "icon":
+        return "bg-transparent p-2 rounded-full hover:bg-gray-100 text-white";
       case "danger":
         return "bg-red-600 hover:bg-red-700";
       case "secondary":

@@ -22,7 +22,13 @@
     "requestAccount": "Request WhatsApp Account",
     "sendMessages": "Send WhatsApp Messages",
     "statistics": "Statistics",
-    "tutorialVideo": "Tutorial Video"
+    "tutorialVideo": "Tutorial Video",
+     "whatsapp_send": "Send WhatsApp",
+    "send_messages": "Send Messages",
+    "from_excel": "Send From Excel",
+    "from_contacts": "Send From Contacts",
+    "contacts": "Contacts Book",
+    "help": "Help"
   },
   "notFound": {
     "title": "404 - Page Not Found",

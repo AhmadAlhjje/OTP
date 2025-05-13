@@ -22,7 +22,13 @@
     "requestAccount": "طلب حساب واتساب",
     "sendMessages": "إرسال رسائل واتساب",
     "statistics": "إحصائيات",
-    "tutorialVideo": "الفيديو التعليمي"
+    "tutorialVideo": "الفيديو التعليمي",
+    "whatsapp_send": "إرسال واتساب",
+    "send_messages": "إرسال رسائل واتساب",
+    "from_excel": "إرسال متغيرات من اكسل",
+    "from_contacts": "إرسال من دفتر العناوين",
+    "contacts": "دفتر العناوين",
+    "help": "مساعدة"
   },
   "notFound": {
     "title": "404 - الصفحة غير موجودة",
