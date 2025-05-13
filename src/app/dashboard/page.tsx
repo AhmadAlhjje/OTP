@@ -1,26 +1,15 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Card from '../../components/molecules/Card';
-import Button from '../../components/atoms/Button';
-import Link from 'next/link';
-import  useTranslation  from '@/hooks/useTranslation';
+import React from "react";
+import Card from "../../components/molecules/Card";
+import Button from "../../components/atoms/Button";
+import Link from "next/link";
+import useTranslation from "@/hooks/useTranslation";
 
 export default function DashboardPage() {
   const { t } = useTranslation();
   return (
     <div className="p-6">
-      {/* Breadcrumbs */}
-      <nav className="mb-6">
-        <ol className="list-none p-0">
-          <li>
-            <Link href="/dashboard">{t('dashboard')}</Link>
-          </li>
-          <li> / </li>
-          <li>{t('home')}</li>
-        </ol>
-      </nav>
-
       {/* Cards */}
       <div className="grid grid-cols-4 gap-4 mb-6">
         <Card
@@ -29,7 +18,7 @@ export default function DashboardPage() {
           color="red-500"
           icon={<span>🎫</span>}
           actionText="ارسل بطاقة الدعم"
-          onActionClick={() => alert('إرسال بطاقة الدعم')}
+          onActionClick={() => alert("إرسال بطاقة الدعم")}
         />
         <Card
           title="دفتر العناوين"
@@ -37,7 +26,7 @@ export default function DashboardPage() {
           color="yellow-500"
           icon={<span>📞</span>}
           actionText="إدارة المجموعات"
-          onActionClick={() => alert('إدارة المجموعات')}
+          onActionClick={() => alert("إدارة المجموعات")}
         />
         <Card
           title="الرصيد"
@@ -45,7 +34,7 @@ export default function DashboardPage() {
           color="teal-500"
           icon={<span>💰</span>}
           actionText="اضافة الرصيد"
-          onActionClick={() => alert('إضافة رصيد')}
+          onActionClick={() => alert("إضافة رصيد")}
         />
         <Card
           title="حسابات واتساب"
@@ -53,7 +42,7 @@ export default function DashboardPage() {
           color="green-500"
           icon={<span>💬</span>}
           actionText="طلب حساب واتساب"
-          onActionClick={() => alert('طلب حساب واتساب')}
+          onActionClick={() => alert("طلب حساب واتساب")}
         />
       </div>
 
