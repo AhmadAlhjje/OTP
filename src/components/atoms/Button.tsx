@@ -9,7 +9,11 @@ type ButtonVariant =
   | "success"
   | "danger"
   | "icon"
-  | "sidebar";
+  | "sidebar"
+  | "sidebar-item"
+  | "sidebar-parent"
+  | "sidebar-submenu"
+  | "logout";
 
 interface ButtonProps {
   children: React.ReactNode;
@@ -43,6 +47,16 @@ export default function Button({
         return "bg-red-600 hover:bg-red-700";
       case "secondary":
         return "bg-blue-600 hover:bg-blue-700";
+      case "primary":
+        return "bg-green-600 hover:bg-green-700 text-white";
+      case "sidebar-item":
+        return "bg-transparent hover:bg-[#00695c] text-white";
+      case "sidebar-parent":
+        return "bg-transparent hover:bg-[#00695c] text-white";
+      case "sidebar-submenu":
+        return "bg-transparent hover:bg-[#00796b] text-white text-sm";
+      case "logout":
+        return "bg-red-600 hover:bg-red-700 text-white";
       default:
         return "bg-green-600 hover:bg-green-700";
     }
