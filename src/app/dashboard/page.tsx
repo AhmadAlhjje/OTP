@@ -1,38 +1,68 @@
-"use client";
+'use client';
 
-import React from "react";
-import { useProtectedRoute } from "@/utils/authRedirects";
-import Button from "@/components/atoms/Button"; // استيراد الزر الذري
+import React from 'react';
+import Card from '../../components/molecules/Card';
+import Button from '../../components/atoms/Button';
+import Link from 'next/link';
+import  useTranslation  from '@/hooks/useTranslation';
 
 export default function DashboardPage() {
-  const { user, loading } = useProtectedRoute();
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-green-50">
-        <p className="text-green-700">جاري التحقق من الحساب...</p>
-      </div>
-    );
-  }
-
+  const { t } = useTranslation();
   return (
-    <div className="min-h-screen bg-green-50 p-6">
-      <div className="max-w-md mx-auto mt-10 bg-white shadow-lg rounded-xl p-6 text-center">
-        <h1 className="text-2xl font-bold text-green-700 mb-4">
-          مرحبًا بك في لوحة التحكم!
-        </h1>
-        <p className="text-gray-600 mb-6">أنت مسجل دخول باسم:</p>
-        <p className="font-medium text-green-600">{user?.email}</p>
+    <div className="p-6">
+      {/* Breadcrumbs */}
+      <nav className="mb-6">
+        <ol className="list-none p-0">
+          <li>
+            <Link href="/dashboard">{t('dashboard')}</Link>
+          </li>
+          <li> / </li>
+          <li>{t('home')}</li>
+        </ol>
+      </nav>
 
-        <Button
-          fullWidth
-          onClick={() => {
-            document.cookie = "access_token=; Max-Age=0; path=/";
-            window.location.href = "/login";
-          }}
-        >
-          تسجيل الخروج
-        </Button>
+      {/* Cards */}
+      <div className="grid grid-cols-4 gap-4 mb-6">
+        <Card
+          title="بطاقات الدعم"
+          count={0}
+          color="red-500"
+          icon={<span>🎫</span>}
+          actionText="ارسل بطاقة الدعم"
+          onActionClick={() => alert('إرسال بطاقة الدعم')}
+        />
+        <Card
+          title="دفتر العناوين"
+          count={0}
+          color="yellow-500"
+          icon={<span>📞</span>}
+          actionText="إدارة المجموعات"
+          onActionClick={() => alert('إدارة المجموعات')}
+        />
+        <Card
+          title="الرصيد"
+          count={0}
+          color="teal-500"
+          icon={<span>💰</span>}
+          actionText="اضافة الرصيد"
+          onActionClick={() => alert('إضافة رصيد')}
+        />
+        <Card
+          title="حسابات واتساب"
+          count={0}
+          color="green-500"
+          icon={<span>💬</span>}
+          actionText="طلب حساب واتساب"
+          onActionClick={() => alert('طلب حساب واتساب')}
+        />
+      </div>
+
+      {/* Buttons */}
+      <div className="grid grid-cols-4 gap-4 mb-6">
+        <Button className="bg-red-500 text-white">+ ارسل بطاقة الدعم</Button>
+        <Button className="bg-yellow-500 text-white">+ إدارة المجموعات</Button>
+        <Button className="bg-teal-500 text-white">+ اضافة الرصيد</Button>
+        <Button className="bg-green-500 text-white">+ طلب حساب واتساب</Button>
       </div>
     </div>
   );

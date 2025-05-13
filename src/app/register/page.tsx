@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useTranslation } from "@/hooks/useTranslation";
+import  useTranslation  from "@/hooks/useTranslation";
 import RegisterForm from "@/components/molecules/RegisterForm";
 import Link from "next/link";
 import { register } from "@/services/auth-service";

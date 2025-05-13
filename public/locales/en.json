@@ -1,5 +1,5 @@
 {
-  "common": {
+  "app_name":"whatsapp",
     "login": "Login",
     "register": "Register",
     "email": "Email",
@@ -28,8 +28,8 @@
     "from_excel": "Send From Excel",
     "from_contacts": "Send From Contacts",
     "contacts": "Contacts Book",
-    "help": "Help"
-  },
+    "help": "Help",
+    "sidebar_title":"sidebar",
   "notFound": {
     "title": "404 - Page Not Found",
     "description": "Sorry, the page you are looking for does not exist.",

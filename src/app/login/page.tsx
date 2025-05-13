@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useTranslation } from "@/hooks/useTranslation";
+import  useTranslation  from "@/hooks/useTranslation";
 import LoginForm from "@/components/molecules/LoginForm";
 import { login } from "@/services/auth-service";
 import { useToast } from "@/hooks/useToast";
