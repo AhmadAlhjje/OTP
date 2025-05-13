@@ -1,4 +1,5 @@
 import { ToastProvider } from '@/hooks/useToast';
+import { ThemeProvider } from '@/contexts/ThemeContext'; // ✅ أضف هذا
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
@@ -28,7 +29,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ToastProvider>{children}</ToastProvider>
+        <ThemeProvider> {/* ✅ لف كل المكونات بهذا المزود */}
+          <ToastProvider>
+            {children}
+          </ToastProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
