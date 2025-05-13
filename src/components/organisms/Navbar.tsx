@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import Button from "@/components/atoms/Button";
 import { Moon, Sun, Menu } from "lucide-react";
@@ -6,11 +6,7 @@ import useTheme from "@/hooks/useTheme";
 import useLanguage from "@/hooks/useLanguage";
 import useTranslation from "@/hooks/useTranslation";
 
-export default function Navbar({
-  onToggleNavbar,
-}: {
-  onToggleNavbar: () => void;
-}) {
+export default function Navbar({ onToggleNavbar }: { onToggleNavbar: () => void }) {
   const { theme, toggleTheme } = useTheme();
   const { language, toggleLanguage } = useLanguage();
   const { t } = useTranslation();
