@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useTranslation } from "@/hooks/useTranslation";
+import  useTranslation  from "@/hooks/useTranslation";
 import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
 
