@@ -56,7 +56,6 @@ export default function Sidebar({ isOpen }: { isOpen: boolean }) {
         isOpen ? 'translate-x-0' : '-translate-x-full'
       } md:relative md:translate-x-0`}
     >
-      <div className="text-lg font-semibold mb-6 text-center">{t('sidebar_title')}</div>
       <nav className="space-y-2">
         {mainItems.map((item, index) => (
           <React.Fragment key={index}>
