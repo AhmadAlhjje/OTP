@@ -7,7 +7,22 @@
     "name": "الاسم",
     "phone": "رقم الهاتف",
     "alreadyHaveAccount": "لديك حساب بالفعل؟",
-    "noAccountYet": "ليس لديك حساب بعد؟"
+    "noAccountYet": "ليس لديك حساب بعد؟",
+    "language": "اللغة",
+    "contactSupport": "تواصل مع خدمة العملاء",
+    "dashboard": "لوحة التحكم",
+    "home": "الرئيسية",
+    "sendMessage": "إرسال رسائل واتساب",
+    "accountsFromContacts": "إرسال من دفتر العناوين",
+    "supportCards": "بطاقات الدعم",
+    "contactsBook": "دفتر العناوين",
+    "balance": "الرصيد",
+    "whatsappAccounts": "حسابات واتساب",
+    "addBalance": "اضافة الرصيد",
+    "requestAccount": "طلب حساب واتساب",
+    "sendMessages": "إرسال رسائل واتساب",
+    "statistics": "إحصائيات",
+    "tutorialVideo": "الفيديو التعليمي"
   },
   "notFound": {
     "title": "404 - الصفحة غير موجودة",

@@ -7,7 +7,22 @@
     "name": "Name",
     "phone": "Phone",
     "alreadyHaveAccount": "Already have an account?",
-    "noAccountYet": "Don't have an account yet?"
+    "noAccountYet": "Don't have an account yet?",
+    "language": "Language",
+    "contactSupport": "Contact Support",
+    "dashboard": "Dashboard",
+    "home": "Home",
+    "sendMessage": "Send WhatsApp Messages",
+    "accountsFromContacts": "Send from Contacts",
+    "supportCards": "Support Cards",
+    "contactsBook": "Contacts Book",
+    "balance": "Balance",
+    "whatsappAccounts": "WhatsApp Accounts",
+    "addBalance": "Add Balance",
+    "requestAccount": "Request WhatsApp Account",
+    "sendMessages": "Send WhatsApp Messages",
+    "statistics": "Statistics",
+    "tutorialVideo": "Tutorial Video"
   },
   "notFound": {
     "title": "404 - Page Not Found",

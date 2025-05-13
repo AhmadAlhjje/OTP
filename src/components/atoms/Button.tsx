@@ -1,14 +1,17 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
+
+type ButtonVariant = "primary" | "secondary" | "ghost" | "success" | "danger";
 
 interface ButtonProps {
   children: React.ReactNode;
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   disabled?: boolean;
   fullWidth?: boolean;
-  type?: 'button' | 'submit' | 'reset';
-  className?: string; // ✨ تم إضافته هنا
+  type?: "button" | "submit" | "reset";
+  className?: string;
+  variant?: ButtonVariant; // ✅ إضافة هنا
 }
 
 export default function Button({
@@ -16,18 +19,32 @@ export default function Button({
   onClick,
   disabled,
   fullWidth = false,
-  type = 'button',
-  className = '', // ✨ قيمة افتراضية
+  type = "button",
+  variant = "primary", // افتراضياً primary
 }: ButtonProps) {
+  const getVariantStyles = () => {
+    switch (variant) {
+      case "ghost":
+        return "bg-transparent text-green-500 hover:bg-green-500 hover:text-white border border-green-500";
+      case "success":
+        return "bg-green-600 hover:bg-green-700";
+      case "danger":
+        return "bg-red-600 hover:bg-red-700";
+      case "secondary":
+        return "bg-blue-600 hover:bg-blue-700";
+      default:
+        return "bg-green-600 hover:bg-green-700";
+    }
+  };
+
   return (
     <button
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={` 
-        ${fullWidth ? 'w-full' : ''} 
-        ${disabled ? 'opacity-50 cursor-not-allowed' : ''} 
-        ${className}`} // ✨ دمج الكلاسات المخصصة
+      className={`${getVariantStyles()} px-6 py-2 rounded-lg font-medium text-white transition-colors ${
+        fullWidth ? "w-full" : ""
+      } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
     >
       {children}
     </button>
