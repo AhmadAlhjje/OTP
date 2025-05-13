@@ -11,7 +11,7 @@ interface ButtonProps {
   fullWidth?: boolean;
   type?: "button" | "submit" | "reset";
   className?: string;
-  variant?: ButtonVariant; // ✅ إضافة هنا
+  variant?: ButtonVariant;
 }
 
 export default function Button({
