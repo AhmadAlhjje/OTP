@@ -1,61 +1,31 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
+import useLanguage from './useLanguage';
 
-// نوع بيانات الترجمة
-type Translation = {
-  [key: string]: {
-    [key: string]: string;
-  };
-};
+type Translations = Record<string, string>;
 
-// تحميل ملفات الترجمة
-const loadTranslations = async (lang: string): Promise<Translation> => {
-  const response = await fetch(`/locales/${lang}.json`);
-  return await response.json();
-};
+export default function useTranslation() {
+  const { language } = useLanguage();
+  const [translations, setTranslations] = useState<Translations>({});
 
-// الـ hook الأساسي
-export const useTranslation = () => {
-  const [lang, setLang] = useState<string>(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("lang") || "en";
-    }
-    return "en";
-  });
-  const [translations, setTranslations] = useState<Translation>({});
-  const [isRtl, setIsRtl] = useState(false);
-
-  // تحميل الترجمة عند تغيير اللغة
   useEffect(() => {
-    const loadLang = async () => {
-      const data = await loadTranslations(lang);
-      localStorage.setItem('lang', lang);
-      setTranslations(data);
-      setIsRtl(lang === "ar");
+    const loadTranslations = async () => {
+      try {
+        const response = await fetch(`/locales/${language}.json`);
+        const data = await response.json();
+        setTranslations(data);
+      } catch (error) {
+        console.error('Failed to load translations', error);
+      }
     };
 
-    loadLang();
-  }, [lang]);
+    loadTranslations();
+  }, [language]);
 
-  // دالة للحصول على الكلمة المترجمة
   const t = (key: string): string => {
-    const [section, label] = key.split(".");
-    if (
-      section &&
-      label &&
-      translations[section] &&
-      translations[section][label]
-    ) {
-      return translations[section][label];
-    }
-    return key; // إذا لم توجد الترجمة، نعيد المفتاح
+    return translations[key] || key;
   };
 
-  return {
-    t,
-    lang,
-    setLang,
-    isRtl,
-  };
-};
+  return { t };
+}
