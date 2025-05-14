@@ -1,9 +1,5 @@
-import axios from 'axios';
+import {apiClient} from './apiClient'
 
-const apiClient = axios.create({
-  baseURL: 'https://whatsapp-project-gamma.vercel.app',
-  withCredentials: true,
-});
 
 // تسجيل الدخول
 export const login = async (emailOrName: string, password: string) => {
