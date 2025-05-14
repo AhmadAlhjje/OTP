@@ -36,5 +36,8 @@
     "home": "Go back home"
   },
   "acount_whatsapp": "Acount Whatsapp",
-  "getAcount_whatsapp": "Get Acount Whatsapp"
+  "getAcount_whatsapp": "Get Acount Whatsapp",
+  "accounts.title": "WhatsApp Accounts",
+  "accounts.enterPhone": "Enter phone number",
+  "accounts.connect": "Connect"
 }

@@ -36,5 +36,8 @@
     "home": "العودة إلى الصفحة الرئيسية"
   },
   "acount_whatsapp": "حسابات الواتساب ",
-  "getAcount_whatsapp": "طلب حساب واتساب"
+  "getAcount_whatsapp": "طلب حساب واتساب",
+  "accounts.title": "حسابات واتساب",
+  "accounts.enterPhone": "أدخل رقم الهاتف",
+  "accounts.connect": "اتصال"
 }
