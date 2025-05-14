@@ -62,7 +62,10 @@ export default function Sidebar({
     {
       label: t("acount_whatsapp"),
       icon: <MessageSquareText className="w-5 h-5" />,
-      subItems: [{ label: t("getAcount_whatsapp"), href: "/dashboard/add_accounts" }],
+      subItems: [
+        { label: t("getAcount_whatsapp"), href: "/dashboard/add_accounts" },
+        { label: t("my_accounts"), href: "/dashboard/my_accounts" },
+      ],
     },
     {
       label: t("contacts"),
