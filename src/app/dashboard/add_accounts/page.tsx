@@ -37,23 +37,23 @@ export default function AccountsPage() {
   return (
     <Card>
       <h1 className="text-xl dark:text-white font-semibold mb-4">
-        {t('messageTemplatestitle')}
+        ربط حساب واتساب
       </h1>
 
       <Input
         type="text"
-        placeholder={t('messageTemplatestemplateTitle')}
+        placeholder="رقم الهاتف"
         value={phoneNumber}
         onChange={(e) => setPhoneNumber(e.target.value)}
       />
 
       <Button className="mt-4 w-full" onClick={handleConnect}>
-         {t('messageTemplatesaddButton')}
+        اتصال
       </Button>
 
       {qrUrl && (
         <div className="mt-6">
-          <h2 className="text-lg mb-2">{t('scanCodeWhatsApp')}</h2>
+          <h2 className="text-lg mb-2">امسح الكود باستخدام واتساب</h2>
           <Image
             src={qrUrl}
             alt="QR Code"

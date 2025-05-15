@@ -5,6 +5,8 @@ import Input from "@/components/atoms/Input";
 import { Textarea } from "@/components/atoms/textarea";
 import Button from "@/components/atoms/Button";
 import { Pencil, Trash2 } from "lucide-react";
+import Card from "@/components/molecules/Card"; 
+import  useTranslation  from '@/hooks/useTranslation';
 
 type Template = {
   id: number;
@@ -16,6 +18,7 @@ export default function MessageTemplatesPage() {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const { t } = useTranslation();
 
   const handleAdd = () => {
     if (title && content) {
@@ -29,20 +32,30 @@ export default function MessageTemplatesPage() {
     setTemplates(templates.filter((t) => t.id !== id));
   };
 
+  const handleEdit = (id: number) => {
+    const template = templates.find((t) => t.id === id);
+    if (template) {
+      setTitle(template.title);
+      setContent(template.content);
+      setTemplates(templates.filter((t) => t.id !== id)); // احذف القديم وعدل عليه
+    }
+  };
+
   return (
     <div className="p-6 space-y-6">
       <h1 className="text-xl dark:text-white font-semibold mb-4">
-        قوالب الرسائل
+       {t('messageTemplatestitle')}
       </h1>
 
+      {/* إدخال القالب */}
       <div className="space-y-4">
         <Input
-          placeholder="عنوان القالب"
+          placeholder={t('messageTemplatestemplateTitle')}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
         <Textarea
-          placeholder="محتوى القالب"
+          placeholder={t('messageTemplatestemplateContent')}
           value={content}
           onChange={(e) => setContent(e.target.value)}
           className="border-green-500 focus:ring-green-600"
@@ -51,38 +64,21 @@ export default function MessageTemplatesPage() {
           onClick={handleAdd}
           className="bg-green-600 hover:bg-green-700 text-white"
         >
-          إضافة قالب
+         {t('messageTemplatesaddButton')}
         </Button>
       </div>
 
-      <div className="pt-6 space-y-4">
+      {/* عرض القوالب بشكل كاردات */}
+      <div className="pt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {templates.map((template) => (
-          <div
+          <Card
             key={template.id}
-            className="bg-white border border-green-600 rounded-xl p-4 shadow flex flex-col gap-2"
-          >
-            <div className="flex justify-between items-center">
-              <h2 className="text-lg font-semibold text-green-700">
-                {template.title}
-              </h2>
-              <div className="flex gap-2">
-                <Button
-                  variant="success"
-                  className="text-green-600 border-green-600"
-                >
-                  <Pencil size={16} />
-                </Button>
-                <Button
-                  variant="success"
-                  className="text-red-600 border-red-600"
-                  onClick={() => handleDelete(template.id)}
-                >
-                  <Trash2 size={16} />
-                </Button>
-              </div>
-            </div>
-            <p className="text-gray-700">{template.content}</p>
-          </div>
+            title={template.title}
+            content={template.content}
+            color="green-600"
+            onEdit={() => handleEdit(template.id)}
+            onDelete={() => handleDelete(template.id)}
+          />
         ))}
       </div>
     </div>
