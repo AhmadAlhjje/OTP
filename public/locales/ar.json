@@ -50,5 +50,10 @@
   "messageTemplatesaddButton": "إضافة قالب",
   "messageTemplatesedit": "تعديل",
   "messageTemplatesdelete": "حذف",
-  "scanCodeWhatsApp": "امسح الكود باستخدام واتساب"
+  "scanCodeWhatsApp": "امسح الكود باستخدام واتساب",
+
+  "accountsPagetitle": "ربط حساب واتساب",
+  "accountsPagephonePlaceholder": "رقم الهاتف",
+  "accountsPageconnectButton": "اتصال",
+  "accountsPagescanQrInstruction": "امسح الكود باستخدام واتساب"
 }

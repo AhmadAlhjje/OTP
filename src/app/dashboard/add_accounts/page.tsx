@@ -6,7 +6,7 @@ import Button from "@/components/atoms/Button";
 import { Card } from "@/components/ui/card";
 import Image from "next/image";
 import { wsService } from "@/services/add_accounts";
-import  useTranslation  from '@/hooks/useTranslation';
+import useTranslation from "@/hooks/useTranslation";
 
 export default function AccountsPage() {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -37,23 +37,23 @@ export default function AccountsPage() {
   return (
     <Card>
       <h1 className="text-xl dark:text-white font-semibold mb-4">
-        ربط حساب واتساب
+        {t("accountsPagetitle")}
       </h1>
 
       <Input
         type="text"
-        placeholder="رقم الهاتف"
+        placeholder={t("accountsPagephonePlaceholder")}
         value={phoneNumber}
         onChange={(e) => setPhoneNumber(e.target.value)}
       />
 
       <Button className="mt-4 w-full" onClick={handleConnect}>
-        اتصال
+        {t("accountsPageconnectButton")}
       </Button>
 
       {qrUrl && (
         <div className="mt-6">
-          <h2 className="text-lg mb-2">امسح الكود باستخدام واتساب</h2>
+          <h2 className="text-lg mb-2">{t("accountsPagescanQrInstruction")}</h2>
           <Image
             src={qrUrl}
             alt="QR Code"

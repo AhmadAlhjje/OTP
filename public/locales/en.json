@@ -50,5 +50,10 @@
   "messageTemplatesaddButton": "Add Template",
   "messageTemplatesedit": "Edit",
   "messageTemplatesdelete": "Delete",
-  "scanCodeWhatsApp": "Scan the code using WhatsApp"
+  "scanCodeWhatsApp": "Scan the code using WhatsApp",
+
+  "accountsPagetitle": "Connect WhatsApp Account",
+  "accountsPagephonePlaceholder": "Phone Number",
+  "accountsPageconnectButton": "Connect",
+  "accountsPagescanQrInstruction": "Scan the code using WhatsApp"
 }
