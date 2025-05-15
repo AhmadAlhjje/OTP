@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import Image from "next/image";
 import { wsService } from "@/services/add_accounts";
 import useTranslation from "@/hooks/useTranslation";
+import QRCode from "react-qr-code";
 
 export default function AccountsPage() {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -52,15 +53,17 @@ export default function AccountsPage() {
       </Button>
 
       {qrUrl && (
-        <div className="mt-6">
+        <div className="mt-6 text-center">
           <h2 className="text-lg mb-2">{t("accountsPagescanQrInstruction")}</h2>
-          <Image
-            src={qrUrl}
-            alt="QR Code"
-            width={250}
-            height={250}
-            className="mx-auto"
-          />
+          <div
+            style={{
+              background: "white",
+              padding: "16px",
+              display: "inline-block",
+            }}
+          >
+            <QRCode value={qrUrl} size={250} />
+          </div>
         </div>
       )}
     </Card>

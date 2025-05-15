@@ -9,7 +9,7 @@ class WebSocketService {
   private handlers: MessageHandler[] = [];
 
   // عنوان الخادم (ثابت داخل الكلاس)
-  private readonly serverUrl = 'ws://localhost:3001';
+  private readonly serverUrl = `${apiClient}/whatsapp/start`;
 
   // الاتصال بالخادم
   connect(onOpen?: () => void) {
