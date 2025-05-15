@@ -80,7 +80,7 @@ export default function Sidebar({
       label: t("message_templates"),
       icon: <ClipboardList className="w-5 h-5" />,
       subItems: [
-        { label: t("private_message_templates"), href: "/dashboard/templates" },
+        { label: t("private_message_templates"), href: "/dashboard/Messages" },
       ],
     },
     {
