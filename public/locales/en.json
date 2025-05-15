@@ -55,5 +55,14 @@
   "accountsPagetitle": "Connect WhatsApp Account",
   "accountsPagephonePlaceholder": "Phone Number",
   "accountsPageconnectButton": "Connect",
-  "accountsPagescanQrInstruction": "Scan the code using WhatsApp"
+  "accountsPagescanQrInstruction": "Scan the code using WhatsApp",
+
+  "templatePeoplePagetitle": "Templates with People",
+  "templatePeoplePagetemplateNamePlaceholder": "Template Name",
+  "templatePeoplePagepersonNamePlaceholder": "Person Name",
+  "templatePeoplePagepersonPhonePlaceholder": "Phone Number",
+  "templatePeoplePageaddPerson": "Add Person",
+  "templatePeoplePagesaveTemplate": "Save Template",
+  "templatePeoplePagesavedTemplates": "Saved Templates",
+  "templatePeoplePagepeopleCount": "person(s)"
 }

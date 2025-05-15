@@ -55,5 +55,14 @@
   "accountsPagetitle": "ربط حساب واتساب",
   "accountsPagephonePlaceholder": "رقم الهاتف",
   "accountsPageconnectButton": "اتصال",
-  "accountsPagescanQrInstruction": "امسح الكود باستخدام واتساب"
+  "accountsPagescanQrInstruction": "امسح الكود باستخدام واتساب",
+
+  "templatePeoplePagetitle": "قوالب بأسماء وأرقام",
+  "templatePeoplePagetemplateNamePlaceholder": "اسم القالب",
+  "templatePeoplePagepersonNamePlaceholder": "اسم الشخص",
+  "templatePeoplePagepersonPhonePlaceholder": "رقم الشخص",
+  "templatePeoplePageaddPerson": "إضافة شخص",
+  "templatePeoplePagesaveTemplate": "حفظ القالب",
+  "templatePeoplePagesavedTemplates": "القوالب المحفوظة",
+  "templatePeoplePagepeopleCount": "شخص"
 }
