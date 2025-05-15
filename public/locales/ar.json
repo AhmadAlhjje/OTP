@@ -40,5 +40,7 @@
   "my_accounts":"حساباتي",
   "accounts.title": "حسابات واتساب",
   "accounts.enterPhone": "أدخل رقم الهاتف",
-  "accounts.connect": "اتصال"
+  "accounts.connect": "اتصال",
+  "message_templates": "قوالب الرسائل",
+  "private_message_templates": "قوالب الرسائل الخاصة"
 }

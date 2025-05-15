@@ -40,5 +40,7 @@
   "my_accounts":"My Accounts",
   "accounts.title": "WhatsApp Accounts",
   "accounts.enterPhone": "Enter phone number",
-  "accounts.connect": "Connect"
+  "accounts.connect": "Connect",
+  "message_templates": "Message Templates",
+  "private_message_templates": "Private Message Templates"
 }
