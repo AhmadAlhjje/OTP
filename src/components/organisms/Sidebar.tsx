@@ -12,6 +12,10 @@ import {
   ChevronDown,
   ChevronRight,
   LogOut,
+  LayoutDashboard,
+  MessageCircle,
+  FileText,
+  ClipboardList,
 } from "lucide-react";
 
 import useTranslation from "@/hooks/useTranslation";
@@ -51,6 +55,11 @@ export default function Sidebar({
 
   const mainItems: SidebarItemProps[] = [
     {
+      label: t("dashboard"),
+      icon: <LayoutDashboard className="w-5 h-5" />,
+      href: "/dashboard",
+    },
+    {
       label: t("whatsapp_send"),
       icon: <MessageSquareText className="w-5 h-5" />,
       subItems: [
@@ -61,10 +70,17 @@ export default function Sidebar({
     },
     {
       label: t("acount_whatsapp"),
-      icon: <MessageSquareText className="w-5 h-5" />,
+      icon: <MessageCircle className="w-5 h-5" />,
       subItems: [
         { label: t("getAcount_whatsapp"), href: "/dashboard/add_accounts" },
         { label: t("my_accounts"), href: "/dashboard/my_accounts" },
+      ],
+    },
+    {
+      label: t("message_templates"),
+      icon: <ClipboardList className="w-5 h-5" />,
+      subItems: [
+        { label: t("private_message_templates"), href: "/dashboard/templates" },
       ],
     },
     {
