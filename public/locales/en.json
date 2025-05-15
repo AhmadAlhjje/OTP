@@ -37,10 +37,18 @@
   },
   "acount_whatsapp": "Acount Whatsapp",
   "getAcount_whatsapp": "Get Acount Whatsapp",
-  "my_accounts":"My Accounts",
+  "my_accounts": "My Accounts",
   "accounts.title": "WhatsApp Accounts",
   "accounts.enterPhone": "Enter phone number",
   "accounts.connect": "Connect",
   "message_templates": "Message Templates",
-  "private_message_templates": "Private Message Templates"
+  "private_message_templates": "Private Message Templates",
+
+  "messageTemplatestitle": "Message Templates",
+  "messageTemplatestemplateTitle": "Template Title",
+  "messageTemplatestemplateContent": "Template Content",
+  "messageTemplatesaddButton": "Add Template",
+  "messageTemplatesedit": "Edit",
+  "messageTemplatesdelete": "Delete",
+  "scanCodeWhatsApp": "Scan the code using WhatsApp"
 }
