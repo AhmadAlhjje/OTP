@@ -1,39 +1,53 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Input from "@/components/atoms/Input";
-import Button from "@/components/atoms/Button";
 import { Card } from "@/components/ui/card";
-import Image from "next/image";
-import { wsService } from "@/services/add_accounts";
+import Button from "@/components/atoms/Button";
 import useTranslation from "@/hooks/useTranslation";
-import QRCode from "react-qr-code";
+import Cookies from "js-cookie";
+import LoadingSpinner from "@/components/atoms/LoadingSpinner";
+import { wsService } from "@/services/add_accounts";
+import { useRouter } from "next/navigation";
+
 
 export default function AccountsPage() {
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [qrUrl, setQrUrl] = useState<string | null>(null);
+  const [qrImageUrl, setQrImageUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const { t } = useTranslation();
 
-  // دالة الاتصال بالخادم
   const handleConnect = () => {
-    wsService.connect(() => {
-      wsService.send({ type: "register-phone", phone: phoneNumber });
+    const token = Cookies.get("access_token");
+    if (!token) {
+      alert("لم يتم العثور على التوكن");
+      return;
+    }
+
+    const clientId = extractClientIdFromToken(token);
+    if (!clientId) {
+      alert("تعذر استخراج clientId من التوكن");
+      return;
+    }
+
+    setLoading(true);
+
+    wsService.connect(clientId, () => {
+      console.log("Socket.IO Connected");
     });
 
-    // الاستماع للرسائل القادمة من السيرفر
-    wsService.onMessage((data) => {
-      if (data.type === "qr-url") {
-        setQrUrl(data.qr);
+    wsService.on("qr", (data) => {
+      console.log(data)
+      // استقبل رابط صورة QR
+      if (data.qr) {
+        setQrImageUrl(data.qr);
+        setLoading(false);
       }
     });
-  };
 
-  // إغلاق الاتصال عند مغادرة الصفحة
-  useEffect(() => {
-    return () => {
+    wsService.on("authenticated", () => {
+      setQrImageUrl(null);
       wsService.close();
-    };
-  }, []);
+    });
+  };
 
   return (
     <Card>
@@ -41,31 +55,30 @@ export default function AccountsPage() {
         {t("accountsPagetitle")}
       </h1>
 
-      <Input
-        type="text"
-        placeholder={t("accountsPagephonePlaceholder")}
-        value={phoneNumber}
-        onChange={(e) => setPhoneNumber(e.target.value)}
-      />
-
-      <Button className="mt-4 w-full" onClick={handleConnect}>
+      <Button className="w-full" onClick={handleConnect}>
         {t("accountsPageconnectButton")}
       </Button>
 
-      {qrUrl && (
+      {loading && <LoadingSpinner />}
+
+      {qrImageUrl && (
         <div className="mt-6 text-center">
           <h2 className="text-lg mb-2">{t("accountsPagescanQrInstruction")}</h2>
-          <div
-            style={{
-              background: "white",
-              padding: "16px",
-              display: "inline-block",
-            }}
-          >
-            <QRCode value={qrUrl} size={250} />
+          <div className="bg-white inline-block p-4 rounded shadow">
+            <img src={qrImageUrl} alt="QR Code" width={250} height={250} />
           </div>
         </div>
       )}
     </Card>
   );
+}
+
+function extractClientIdFromToken(token: string): string | null {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return payload.sub || null;
+  } catch (error) {
+    console.error("فشل استخراج clientId من التوكن:", error);
+    return null;
+  }
 }

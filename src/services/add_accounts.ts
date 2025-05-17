@@ -1,57 +1,53 @@
-import { apiClient } from './apiClient';
-import axios from 'axios';
+import { io, Socket } from "socket.io-client";
 
-// تعريف نوع الدالة التي تستقبل الرسائل
+// نوع خاص لتحديد شكل الدوال التي تعالج الرسائل المستقبلة من السيرفر
 type MessageHandler = (data: any) => void;
 
-class WebSocketService {
-  private socket: WebSocket | null = null;
-  private handlers: MessageHandler[] = [];
+class SocketService {
+  private socket: Socket | null = null;
+  connect(clientId: string, onOpen?: () => void, p0?: () => void) {
+    // إنشاء اتصال جديد مع الخادم
+    this.socket = io("ws://192.168.74.25:3000", {
+      path: "/whatsapp/start",
+      transports: ["websocket"],
+    });
 
-  // عنوان الخادم (ثابت داخل الكلاس)
-  private readonly serverUrl = `${apiClient}/whatsapp/start`;
+    // عند نجاح الاتصال
+    this.socket.on("connect", () => {
+      console.log("Socket connected");
 
-  // الاتصال بالخادم
-  connect(onOpen?: () => void) {
-    this.socket = new WebSocket(this.serverUrl);
+      // إرسال حدث "init" مع clientId إلى الخادم
+      this.socket?.emit("init", { clientId });
 
-    this.socket.onopen = () => {
-      onOpen?.(); // تنفيذ عند نجاح الاتصال
-    };
+      // تنفيذ الدالة الاختيارية إذا وُجدت
+      onOpen?.();
+    });
 
-    this.socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      this.handlers.forEach((handler) => handler(data)); // تمرير الرسائل لجميع المستمعين
-    };
-
-    this.socket.onclose = () => {
+    // عند انقطاع الاتصال
+    this.socket.on("disconnect", (error) => {
+      console.log(error);
       this.socket = null;
-    };
+      console.log("Socket disconnected");
+    });
   }
 
-  // إرسال رسالة إلى السيرفر
-  send(data: any) {
-    if (this.socket?.readyState === WebSocket.OPEN) {
-      this.socket.send(JSON.stringify(data));
-    }
+  on(event: string, handler: MessageHandler) {
+    this.socket?.on(event, (data) => {
+      console.log(`📨 [Socket] event "${event}":`, data);
+      handler(data);
+    });
   }
 
-  // إضافة دالة تستمع للرسائل
-  onMessage(handler: MessageHandler) {
-    this.handlers.push(handler);
-  }
-
-  // إغلاق الاتصال
   close() {
-    this.socket?.close();
-    this.socket = null;
+    // قطع الاتصال إن وُجد
+    this.socket?.disconnect();
+    this.socket = null; // إعادة المتغير إلى الوضع الافتراضي
   }
 
-  // التحقق من حالة الاتصال
   isConnected() {
-    return this.socket?.readyState === WebSocket.OPEN;
+    return this.socket?.connected || false;
   }
 }
 
-// إنشاء نسخة جاهزة للاستخدام
-export const wsService = new WebSocketService();
+// إنشاء وتوفير نسخة واحدة من الصنف للاستخدام في باقي التطبيق
+export const wsService = new SocketService();
