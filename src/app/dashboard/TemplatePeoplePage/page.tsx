@@ -1,193 +1,192 @@
-// "use client";
+"use client";
 
-// import React, { useState } from "react";
-// import Input from "@/components/atoms/Input";
-// import Button from "@/components/atoms/Button";
-// import Card from "@/components/molecules/Card"; // ← استخدام الـ Card الجديد
-// import useTranslation from "@/hooks/useTranslation";
+import React, { useState } from "react";
+import Input from "@/components/atoms/Input";
+import Button from "@/components/atoms/Button";
+import Card from "@/components/molecules/Card";
+import useTranslation from "@/hooks/useTranslation";
 
-// type Person = {
-//   id: number;
-//   name: string;
-//   phone: string;
-// };
+type Person = {
+  id: number;
+  name: string;
+  phone: string;
+};
 
-// type Template = {
-//   id: number;
-//   name: string;
-//   people: Person[];
-// };
+type Template = {
+  id: number;
+  name: string;
+  people: Person[];
+};
 
-// export default function TemplateManagerPage() {
-//   const { t } = useTranslation();
+export default function TemplateManagerPage() {
+  const { t } = useTranslation();
 
-//   //состояние для хранения всех шаблонов и текущего выбранного шаблона
-//   const [templates, setTemplates] = useState<Template[]>([]);
-//   const [templateName, setTemplateName] = useState(""); // имя нового шаблона
-//   const [personName, setPersonName] = useState(""); // имя нового человека
-//   const [personPhone, setPersonPhone] = useState(""); // телефон нового человека
-//   const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null); // ID выбранного шаблона
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [templateName, setTemplateName] = useState("");
+  const [personName, setPersonName] = useState("");
+  const [personPhone, setPersonPhone] = useState("");
+  const [newPeople, setNewPeople] = useState<Person[]>([]); // الأشخاص قبل حفظ الـ Template
+  const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
 
-//   // получение выбранного шаблона
-//   const selectedTemplate = templates.find((t) => t.id === selectedTemplateId);
+  const selectedTemplate = templates.find((t) => t.id === selectedTemplateId);
 
-//   // Сохранение нового шаблона
-//   const handleSaveTemplate = () => {
-//     if (templateName) {
-//       const newTemplate: Template = {
-//         id: Date.now(),
-//         name: templateName,
-//         people: [],
-//       };
-//       setTemplates([newTemplate, ...templates]);
-//       setTemplateName(""); // очистка поля ввода после сохранения
-//     }
-//   };
+  // إضافة شخص إلى القائمة المؤقتة
+  const handleAddPersonToNewTemplate = () => {
+    if (personName && personPhone) {
+      const newPerson: Person = {
+        id: Date.now(),
+        name: personName,
+        phone: personPhone,
+      };
+      setNewPeople([...newPeople, newPerson]);
+      setPersonName("");
+      setPersonPhone("");
+    }
+  };
 
-//   // Удаление шаблона
-//   const handleDeleteTemplate = (id: number) => {
-//     setTemplates(templates.filter((t) => t.id !== id));
-//     if (selectedTemplateId === id) setSelectedTemplateId(null);
-//   };
+  // حفظ الـ Template الجديد بعد إدخال الأشخاص
+  const handleSaveTemplate = () => {
+    if (templateName && newPeople.length > 0) {
+      const newTemplate: Template = {
+        id: Date.now(),
+        name: templateName,
+        people: newPeople,
+      };
+      setTemplates([newTemplate, ...templates]);
+      setTemplateName("");
+      setNewPeople([]);
+    }
+  };
 
-//   // Редактирование имени шаблона
-//   const handleEditTemplateName = (id: number, newName: string) => {
-//     const updatedTemplates = templates.map((t) =>
-//       t.id === id ? { ...t, name: newName } : t
-//     );
-//     setTemplates(updatedTemplates);
-//   };
+  // حذف Template بالكامل
+  const handleDeleteTemplate = (id: number) => {
+    setTemplates(templates.filter((t) => t.id !== id));
+    if (selectedTemplateId === id) setSelectedTemplateId(null);
+  };
 
-//   // Добавление нового человека в выбранный шаблон
-//   const handleAddPerson = () => {
-//     if (!selectedTemplate) return;
+  // تعديل اسم Template
+  const handleEditTemplateName = (id: number, newName: string) => {
+    const updated = templates.map((t) =>
+      t.id === id ? { ...t, name: newName } : t
+    );
+    setTemplates(updated);
+  };
 
-//     const updatedPeople: Person[] = [
-//       ...selectedTemplate.people,
-//       {
-//         id: Date.now(),
-//         name: personName,
-//         phone: personPhone,
-//       },
-//     ];
+  // حذف شخص من Template محدد
+  const handleDeletePerson = (personId: number) => {
+    if (!selectedTemplate) return;
+    const updatedPeople = selectedTemplate.people.filter((p) => p.id !== personId);
+    const updatedTemplates = templates.map((t) =>
+      t.id === selectedTemplate.id ? { ...t, people: updatedPeople } : t
+    );
+    setTemplates(updatedTemplates);
+  };
 
-//     const updatedTemplates = templates.map((t) =>
-//       t.id === selectedTemplate.id ? { ...t, people: updatedPeople } : t
-//     );
+  // تعديل شخص داخل Template محدد
+  const handleEditPerson = (personId: number, newName: string, newPhone: string) => {
+    if (!selectedTemplate) return;
+    const updatedPeople = selectedTemplate.people.map((p) =>
+      p.id === personId ? { ...p, name: newName, phone: newPhone } : p
+    );
+    const updatedTemplates = templates.map((t) =>
+      t.id === selectedTemplate.id ? { ...t, people: updatedPeople } : t
+    );
+    setTemplates(updatedTemplates);
+  };
 
-//     setTemplates(updatedTemplates);
-//     setPersonName(""); // очистка полей ввода после добавления
-//     setPersonPhone("");
-//   };
+  return (
+    <div className="p-6 space-y-6">
+      <h1 className="text-xl font-semibold dark:text-white">{t("templatePeoplePagetitle")}</h1>
 
-//   // Редактирование данных человека
-//   const handleEditPerson = (personId: number, newName: string, newPhone: string) => {
-//     if (!selectedTemplate) return;
+      {/* إنشاء Template جديد */}
+      <div className="space-y-4">
+        <Input
+          placeholder={t("templatePeoplePagetemplateNamePlaceholder")}
+          value={templateName}
+          onChange={(e) => setTemplateName(e.target.value)}
+        />
 
-//     const updatedPeople = selectedTemplate.people.map((p) =>
-//       p.id === personId ? { ...p, name: newName, phone: newPhone } : p
-//     );
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Input
+            placeholder={t("templatePeoplePagepersonNamePlaceholder")}
+            value={personName}
+            onChange={(e) => setPersonName(e.target.value)}
+          />
+          <Input
+            placeholder={t("templatePeoplePagepersonPhonePlaceholder")}
+            value={personPhone}
+            onChange={(e) => setPersonPhone(e.target.value)}
+          />
+        </div>
+        <Button onClick={handleAddPersonToNewTemplate}>
+          {t("templatePeoplePageaddPerson")}
+        </Button>
 
-//     const updatedTemplates = templates.map((t) =>
-//       t.id === selectedTemplate.id ? { ...t, people: updatedPeople } : t
-//     );
-//     setTemplates(updatedTemplates);
-//   };
+        {/* عرض الأشخاص المؤقتين قبل حفظ الـ Template */}
+        {newPeople.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {newPeople.map((person) => (
+              <Card
+                key={person.id}
+                title={person.name}
+                content={person.phone}
+                color="blue-600"
+              />
+            ))}
+          </div>
+        )}
 
-//   // Удаление человека из шаблона
-//   const handleDeletePerson = (personId: number) => {
-//     if (!selectedTemplate) return;
+        <Button onClick={handleSaveTemplate} disabled={!templateName || newPeople.length === 0}>
+          {t("templatePeoplePagesaveTemplate")}
+        </Button>
+      </div>
 
-//     const updatedPeople = selectedTemplate.people.filter((p) => p.id !== personId);
-//     const updatedTemplates = templates.map((t) =>
-//       t.id === selectedTemplate.id ? { ...t, people: updatedPeople } : t
-//     );
-//     setTemplates(updatedTemplates);
-//   };
+      {/* عرض جميع الـ Templates */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-6">
+        {templates.map((template) => (
+          <Card
+            key={template.id}
+            title={template.name}
+            content={`${template.people.length} ${t("templatePeoplePagepeopleCount")}`}
+            color="green-600"
+            onDelete={() => handleDeleteTemplate(template.id)}
+            onEdit={() => setSelectedTemplateId(template.id)}
+          />
+        ))}
+      </div>
 
-//   return (
-//     <div className="p-6 space-y-6">
-//       {/* Заголовок */}
-//       <h1 className="text-xl font-semibold dark:text-white">{t("templatePeoplePage.title")}</h1>
+      {/* عرض الأشخاص داخل Template معين عند التحديد */}
+      {selectedTemplate && (
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md space-y-4 mt-8">
+          <Input
+            value={selectedTemplate.name}
+            onChange={(e) =>
+              handleEditTemplateName(selectedTemplate.id, e.target.value)
+            }
+          />
 
-//       {/* Создание нового шаблона */}
-//       <div className="space-y-4">
-//         <Input
-//           placeholder={t("templatePeoplePage.templateNamePlaceholder")}
-//           value={templateName}
-//           onChange={(e) => setTemplateName(e.target.value)}
-//         />
-//         <Button onClick={handleSaveTemplate}>
-//           {t("templatePeoplePage.saveTemplate")}
-//         </Button>
-//       </div>
+          <h2 className="text-lg font-semibold">{t("templatePeoplePagetemplate")}:</h2>
 
-//       {/* Список существующих шаблонов */}
-//       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-6">
-//         {templates.map((template) => (
-//           <Card
-//             key={template.id}
-//             title={template.name}
-//             content={`${template.people.length} ${t("templatePeoplePage.peopleCount")}`}
-//             color="green-600"
-//             onDelete={() => handleDeleteTemplate(template.id)}
-//             onEdit={() => setSelectedTemplateId(template.id)}
-//           />
-//         ))}
-//       </div>
-
-//       {/* Панель редактирования выбранного шаблона */}
-//       {selectedTemplate && (
-//         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md space-y-4 mt-8">
-//           {/* Редактирование названия шаблона */}
-//           <Input
-//             value={selectedTemplate.name}
-//             onChange={(e) =>
-//               handleEditTemplateName(selectedTemplate.id, e.target.value)
-//             }
-//           />
-
-//           {/* Заголовок раздела "Люди" */}
-//           <h2 className="text-lg font-semibold">{t("templatePeoplePage.template")}:</h2>
-
-//           {/* Добавление нового человека */}
-//           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-//             <Input
-//               placeholder={t("templatePeoplePage.personNamePlaceholder")}
-//               value={personName}
-//               onChange={(e) => setPersonName(e.target.value)}
-//             />
-//             <Input
-//               placeholder={t("templatePeoplePage.personPhonePlaceholder")}
-//               value={personPhone}
-//               onChange={(e) => setPersonPhone(e.target.value)}
-//             />
-//           </div>
-//           <Button onClick={handleAddPerson}>
-//             {t("templatePeoplePage.addPerson")}
-//           </Button>
-
-//           {/* Список людей в выбранном шаблоне */}
-//           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-4">
-//             {selectedTemplate.people.map((person) => (
-//               <Card
-//                 key={person.id}
-//                 title={person.name}
-//                 content={person.phone}
-//                 color="blue-600"
-//                 onDelete={() => handleDeletePerson(person.id)}
-//                 onEdit={() => {
-//                   const newName = prompt(t("templatePeoplePage.personNamePlaceholder"), person.name);
-//                   const newPhone = prompt(t("templatePeoplePage.personPhonePlaceholder"), person.phone);
-//                   if (newName && newPhone) {
-//                     handleEditPerson(person.id, newName, newPhone);
-//                   }
-//                 }}
-//               />
-//             ))}
-//           </div>
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-4">
+            {selectedTemplate.people.map((person) => (
+              <Card
+                key={person.id}
+                title={person.name}
+                content={person.phone}
+                color="blue-600"
+                onDelete={() => handleDeletePerson(person.id)}
+                onEdit={() => {
+                  const newName = prompt(t("templatePeoplePagepersonNamePlaceholder"), person.name);
+                  const newPhone = prompt(t("templatePeoplePagepersonPhonePlaceholder"), person.phone);
+                  if (newName && newPhone) {
+                    handleEditPerson(person.id, newName, newPhone);
+                  }
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
