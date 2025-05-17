@@ -64,5 +64,8 @@
   "templatePeoplePageaddPerson": "Add Person",
   "templatePeoplePagesaveTemplate": "Save Template",
   "templatePeoplePagesavedTemplates": "Saved Templates",
-  "templatePeoplePagepeopleCount": "person(s)"
+  "templatePeoplePagepeopleCount": "person(s)",
+
+  "contact_templates": "Contact Templates",
+  "private_contact_templates": "Private Contact Templates"
 }

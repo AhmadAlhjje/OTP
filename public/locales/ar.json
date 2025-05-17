@@ -64,5 +64,8 @@
   "templatePeoplePageaddPerson": "إضافة شخص",
   "templatePeoplePagesaveTemplate": "حفظ القالب",
   "templatePeoplePagesavedTemplates": "القوالب المحفوظة",
-  "templatePeoplePagepeopleCount": "شخص"
+  "templatePeoplePagepeopleCount": "شخص",
+
+  "contact_templates": "قوالب جهات الاتصال",
+  "private_contact_templates": "قوالب جهات الاتصال الخاصة"
 }

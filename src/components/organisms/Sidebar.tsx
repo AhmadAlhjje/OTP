@@ -16,6 +16,8 @@ import {
   MessageCircle,
   FileText,
   ClipboardList,
+  BookOpen,
+  UserPlus,
 } from "lucide-react";
 
 import useTranslation from "@/hooks/useTranslation";
@@ -81,6 +83,16 @@ export default function Sidebar({
       icon: <ClipboardList className="w-5 h-5" />,
       subItems: [
         { label: t("private_message_templates"), href: "/dashboard/templates" },
+      ],
+    },
+    {
+      label: t("contact_templates"),
+      icon: <UserPlus className="w-5 h-5" />, 
+      subItems: [
+        {
+          label: t("private_contact_templates"),
+          href: "/dashboard/TemplatePeoplePage",
+        },
       ],
     },
     {
