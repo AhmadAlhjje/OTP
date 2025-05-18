@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import  useTranslation  from "@/hooks/useTranslation";
+import useTranslation from "@/hooks/useTranslation";
 import LoginForm from "@/components/molecules/LoginForm";
 import { login } from "@/services/auth-service";
 import { useToast } from "@/hooks/useToast";
 import LoadingSpinner from "@/components/atoms/LoadingSpinner";
 import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
+import { saveTokens } from "@/services/apiClient";
 import Link from "next/link";
 
 export default function LoginPage() {
@@ -16,28 +16,23 @@ export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  // ارسال الى الباك
-  const handleLogin = async (data: {
-    emailOrName: string;
-    password: string;
-  }) => {
+  const handleLogin = async (data: { emailOrName: string; password: string }) => {
     setIsLoading(true);
     try {
       const res = await login(data.emailOrName, data.password);
-      console.log("Login Response:", res);
-      // حفظ التوكن في الكوكيز
-      if (res.access_token) {
-        Cookies.set("access_token", res.access_token, { expires: 7 }); // احتفظ به لمدة 7 أيام
-        Cookies.set("refresh_token", res.refresh_token, { expires: 30 }); // رفرش توكن لمدة 30 يوم
+
+      if (res.access_token && res.refresh_token) {
+        saveTokens(res.access_token, res.refresh_token);
       }
-      showToast("تم تسجيل الدخول بنجاح!", "success");
-      // إعادة التوجيه بعد النجاح
+
+      showToast(t("loginSuccess"), "success");
+
       setTimeout(() => {
         router.push("/dashboard");
       }, 1000);
     } catch (error) {
       console.error("Login Failed:", error);
-      showToast("فشل تسجيل الدخول", "error");
+      showToast(t("loginFailed"), "error");
     } finally {
       setIsLoading(false);
     }
@@ -45,7 +40,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-green-50 flex items-center justify-center px-4">
-      {/* Header with WhatsApp logo */}
       <div className="w-full max-w-md">
         <div className="bg-green-600 text-white py-4 px-6 rounded-t-xl flex items-center space-x-3 shadow-md">
           <div className="text-2xl">💬</div>

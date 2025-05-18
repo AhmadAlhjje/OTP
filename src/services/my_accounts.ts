@@ -1,35 +1,47 @@
-import { apiClient } from './apiClient';
 import axios from 'axios';
+import { extractUserIdFromToken } from './apiClient';
 
 
-// دالة لجلب الحسابات من API 
+
+// جلب الحسابات المرتبطة بالمستخدم من الـ API
 export const getWhatsappAccounts = async () => {
-  try {
-    const response = await axios.get(`${apiClient}/whatsapp-accounts`);
-    return response.data;
-  } catch (error) {
-    console.error(error);
-    return [
-      { id: '1', name: 'Account One', phone: '+1234567890' },
-      { id: '2', name: 'Account Two', phone: '+9876543210' },
-    ];
+  const userId = extractUserIdFromToken();
+  if (!userId) {
+    console.error('User ID not found in token');
+    return [];
   }
-}
 
-// دالة لحذف حساب باستخدام API  
+  try {
+    const response = await axios.get(
+      `https://whatsapp-project-gamma.vercel.app/accounts/user/${userId}`
+    );
+
+    // تنسيق البيانات إذا لزم الأمر
+    return response.data.map((account: any) => ({
+      id: account._id,
+      name: account.name,
+      phone: account.phone_number,
+    }));
+  } catch (error) {
+    console.error('Failed to fetch accounts:', error);
+    return [];
+  }
+};
+
+// حذف حساب WhatsApp حسب الـ ID
 export const deleteWhatsappAccount = async (id: string) => {
   try {
-    // استدعاء الـ API لحذف الحساب باستخدام الـ ID
-    const response = await axios.delete(`${apiClient}/whatsapp-accounts/${id}`);
-    
+    const response = await axios.delete(
+      `https://whatsapp-project-gamma.vercel.app/accounts/${id}`
+    );
+
     if (response.status === 200) {
       console.log(`Account with id ${id} deleted successfully`);
     } else {
       throw new Error('Failed to delete account');
     }
   } catch (error) {
-    console.error(error);
-    // تسجيل رسالة في حال فشل الحذف
+    console.error('Error deleting account:', error);
     console.log(`Pretend deleting account with id ${id}`);
   }
-}
+};
