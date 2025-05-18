@@ -1,4 +1,5 @@
 import { io, Socket } from "socket.io-client";
+import { getAccessToken } from "./apiClient";
 
 // نوع خاص لتحديد شكل الدوال التي تعالج الرسائل المستقبلة من السيرفر
 type MessageHandler = (data: any) => void;
@@ -10,6 +11,9 @@ class SocketService {
     this.socket = io("ws://192.168.74.25:3000", {
       path: "/whatsapp/start",
       transports: ["websocket"],
+      extraHeaders: {
+        Authorization: `Bearer ${getAccessToken()} `,
+      },
     });
 
     // عند نجاح الاتصال
