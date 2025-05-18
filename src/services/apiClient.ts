@@ -7,6 +7,18 @@ export const apiClient = axios.create({
   withCredentials: true,
 });
 
+// لارسال التوكن في كل طلب بشكل تلقائي
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = Cookies.get('access_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 
 // src/services/token-service.ts
 const ACCESS_TOKEN_KEY = "access_token";
@@ -30,20 +42,3 @@ export const clearTokens = () => {
   Cookies.remove(REFRESH_TOKEN_KEY);
 };
 
-
-
-
-// استخراج الـ ID من الـ JWT (Token)
-export const extractUserIdFromToken = (): string | null => {
-  const token = Cookies.get('access_token'); 
-  if (!token) return null;
-
-  try {
-    const payloadBase64 = token.split('.')[1];
-    const decodedPayload = JSON.parse(atob(payloadBase64));
-    return decodedPayload.sub || null; // sub يحتوي على user ID
-  } catch (error) {
-    console.error('Failed to decode token:', error);
-    return null;
-  }
-};
