@@ -10,6 +10,9 @@ interface CardProps {
   icon?: React.ReactNode;
   onEdit?: () => void;
   onDelete?: () => void;
+  count?: number; // ← تمت إضافتها بشكل صحيح
+  actionText?: string; // ← أضفنا هذه
+  onActionClick?: () => void;
 }
 
 export default function Card({
@@ -19,15 +22,27 @@ export default function Card({
   icon,
   onEdit,
   onDelete,
+  count,
 }: CardProps) {
   return (
     <div className="bg-white dark:bg-[#004d40] p-4 rounded-lg shadow-md text-right relative h-full flex flex-col justify-between">
       {/* المحتوى الرئيسي */}
       <div>
-        <h3 className={`text-${color} font-bold mb-2`}>{title}</h3>
+        <div className="flex items-center justify-between mb-2">
+          <h3 className={`text-${color} font-bold`}>{title}</h3>
+          {typeof count === 'number' && (
+            <span className="text-lg font-bold text-gray-800 dark:text-white bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+              {count}
+            </span>
+          )}
+        </div>
+
         {content && (
-          <p className="text-sm text-gray-700 dark:text-gray-200 mb-2">{content}</p>
+          <p className="text-sm text-gray-700 dark:text-gray-200 mb-2">
+            {content}
+          </p>
         )}
+
         {icon && <div className="mt-2 text-gray-500">{icon}</div>}
       </div>
 

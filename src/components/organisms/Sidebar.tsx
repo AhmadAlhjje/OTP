@@ -65,7 +65,7 @@ export default function Sidebar({
       label: t("whatsapp_send"),
       icon: <MessageSquareText className="w-5 h-5" />,
       subItems: [
-        { label: t("send_messages"), href: "/dashboard/send" },
+        { label: t("send_messages"), href: "/dashboard/send_whatsapp" },
         { label: t("from_excel"), href: "/dashboard/send/excel" },
         { label: t("from_contacts"), href: "/dashboard/send/contacts" },
       ],
