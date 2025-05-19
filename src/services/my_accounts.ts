@@ -1,19 +1,13 @@
 import axios from 'axios';
-import { extractUserIdFromToken } from './apiClient';
 
 
 
 // جلب الحسابات المرتبطة بالمستخدم من الـ API
 export const getWhatsappAccounts = async () => {
-  const userId = extractUserIdFromToken();
-  if (!userId) {
-    console.error('User ID not found in token');
-    return [];
-  }
 
   try {
     const response = await axios.get(
-      `https://whatsapp-project-gamma.vercel.app/accounts/user/${userId}`
+      `https://whatsapp-project-gamma.vercel.app/accounts/user`
     );
 
     // تنسيق البيانات إذا لزم الأمر
@@ -32,7 +26,7 @@ export const getWhatsappAccounts = async () => {
 export const deleteWhatsappAccount = async (id: string) => {
   try {
     const response = await axios.delete(
-      `https://whatsapp-project-gamma.vercel.app/accounts/${id}`
+      `https://whatsapp-project-gamma.vercel.app/accounts`
     );
 
     if (response.status === 200) {

@@ -1,38 +1,32 @@
 import { io, Socket } from "socket.io-client";
 import { getAccessToken } from "./apiClient";
 
-// نوع خاص لتحديد شكل الدوال التي تعالج الرسائل المستقبلة من السيرفر
 type MessageHandler = (data: any) => void;
 
 class SocketService {
   private socket: Socket | null = null;
-  connect(clientId: string, onOpen?: () => void, p0?: () => void) {
-    // إنشاء اتصال جديد مع الخادم
+
+  connect(onOpen?: () => void) {
     this.socket = io("ws://192.168.74.25:3000", {
-      path: "/whatsapp/start",
       transports: ["websocket"],
-      extraHeaders: {
-        Authorization: `Bearer ${getAccessToken()} `,
+      auth: {
+        token: getAccessToken(), // 👈 Token is sent here instead
       },
     });
 
-    // عند نجاح الاتصال
     this.socket.on("connect", () => {
-      console.log("Socket connected");
-
-      // إرسال حدث "init" مع clientId إلى الخادم
-      this.socket?.emit("init", { clientId });
-
-      // تنفيذ الدالة الاختيارية إذا وُجدت
+      console.log("✅ Socket connected");
+      this.socket!.emit("init"); // safe now
+      // تنفيذ الدالة الاختيارية بعد الاتصال
       onOpen?.();
     });
 
-    // عند انقطاع الاتصال
-    this.socket.on("disconnect", (error) => {
-      console.log(error);
+    this.socket.on("disconnect", (reason) => {
+      console.warn("❌ Socket disconnected:", reason);
       this.socket = null;
-      console.log("Socket disconnected");
     });
+
+    this.socket.on("authenticated", () => {});
   }
 
   on(event: string, handler: MessageHandler) {
@@ -43,9 +37,8 @@ class SocketService {
   }
 
   close() {
-    // قطع الاتصال إن وُجد
     this.socket?.disconnect();
-    this.socket = null; // إعادة المتغير إلى الوضع الافتراضي
+    this.socket = null;
   }
 
   isConnected() {
@@ -53,5 +46,4 @@ class SocketService {
   }
 }
 
-// إنشاء وتوفير نسخة واحدة من الصنف للاستخدام في باقي التطبيق
 export const wsService = new SocketService();
