@@ -5,7 +5,7 @@ import { Pencil, Trash2 } from 'lucide-react';
 
 interface CardProps {
   title: string;
-  content?: string;
+  content?: React.ReactNode;
   color: string; // مثل: green-600
   icon?: React.ReactNode;
   onEdit?: () => void;
