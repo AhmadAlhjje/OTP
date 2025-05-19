@@ -1,16 +1,15 @@
-import axios from 'axios';
-import Cookies from 'js-cookie';
-
+import axios from "axios";
+import Cookies from "js-cookie";
 
 export const apiClient = axios.create({
-  baseURL: 'https://whatsapp-project-gamma.vercel.app',
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
   withCredentials: true,
 });
 
 // لارسال التوكن في كل طلب بشكل تلقائي
 apiClient.interceptors.request.use(
   (config) => {
-    const token = Cookies.get('access_token');
+    const token = Cookies.get("access_token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -18,7 +17,6 @@ apiClient.interceptors.request.use(
   },
   (error) => Promise.reject(error)
 );
-
 
 // src/services/token-service.ts
 const ACCESS_TOKEN_KEY = "access_token";
@@ -41,4 +39,3 @@ export const clearTokens = () => {
   Cookies.remove(ACCESS_TOKEN_KEY);
   Cookies.remove(REFRESH_TOKEN_KEY);
 };
-
