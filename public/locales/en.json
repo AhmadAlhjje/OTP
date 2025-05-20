@@ -73,16 +73,32 @@
   "accountsPageconnectButton": "Connect",
   "accountsPagescanQrInstruction": "Scan the code using WhatsApp",
 
-  "templatePeoplePagetitle": "Templates with People",
-  "templatePeoplePagetemplateNamePlaceholder": "Template Name",
-  "templatePeoplePagepersonNamePlaceholder": "Person Name",
-  "templatePeoplePagepersonPhonePlaceholder": "Phone Number",
+
   "templatePeoplePagetemplate":"People List",
-  "templatePeoplePageaddPerson": "Add Person",
   "templatePeoplePagesaveTemplate": "Save Template",
   "templatePeoplePagesavedTemplates": "Saved Templates",
   "templatePeoplePagepeopleCount": "person(s)",
+  "templatePeoplePagetitle": "Template & People Management",
+  "templatePeoplePagenewTemplate": "New Template",
+  "templatePeoplePagecreateNewTemplate": "Create New Template",
+  "templatePeoplePagetemplateName": "Template Name",
+  "templatePeoplePagetemplateNamePlaceholder": "e.g., Marketing Team",
+  "templatePeoplePageaddPeople": "Add People",
+  "templatePeoplePagepersonNamePlaceholder": "Person's Name",
+  "templatePeoplePagepersonPhonePlaceholder": "Phone Number",
+  "templatePeoplePageaddPerson": "Add Person",
+   "templatePeoplePagebackToList": "Back to list",
+  "templatePeoplePagepeople": "People",
+  "templatePeoplePagedeleteTemplate": "Delete template",
+  "templatePeoplePageviewAndEdit": "View and edit",
+  "templatePeoplePageSearchPlaceholder": "Search people...",
+  "templatePeoplePageaddedPeople": "Added people",
+  "templatePeoplePagenoTemplates": "No templates",
+  "templatePeoplePagecreateYourFirst": "Create your first template",
+  "templatePeoplePagestartCreating": "Start creating",
 
   "contact_templates": "Contact Templates",
   "private_contact_templates": "Private Contact Templates"
+
+
 }
