@@ -19,7 +19,7 @@ type ButtonVariant =
   | "outline";
 
 interface ButtonProps {
-  children?: React.ReactNode;
+  children: React.ReactNode;
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   disabled?: boolean;
   fullWidth?: boolean;
@@ -30,6 +30,7 @@ interface ButtonProps {
   loading?: boolean;
   icon?: React.ReactNode;
   iconPosition?: "left" | "right";
+  title?: string;  // هنا أضفنا خاصية title
 }
 
 export default function Button({
@@ -44,15 +45,16 @@ export default function Button({
   loading = false,
   icon,
   iconPosition = "left",
+  title,  // استقبلنا الخاصية هنا
 }: ButtonProps) {
   const getVariantStyles = () => {
     switch (variant) {
       case "primary":
         return "bg-green-600 hover:bg-green-700 text-white border-transparent";
       case "secondary":
-        return "bg-blue-600 hover:bg-blue-700 text-white border-transparent ";
+        return "bg-blue-600 hover:bg-blue-700 text-white border-transparent";
       case "ghost":
-        return "bg-transparent text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 border border-green-500";
+        return "bg-transparent text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 ";
       case "outline":
         return "bg-transparent text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-300 dark:border-gray-600";
       case "success":
@@ -79,9 +81,7 @@ export default function Button({
   const getSizeStyles = () => {
     switch (size) {
       case "sm":
-        return variant === "icon"
-          ? "p-1" // زر أيقونة صغير - مناسب لزر الحذف
-          : "px-3 py-1.5 text-sm";
+        return "px-3 py-1.5 text-sm";
       case "lg":
         return "px-8 py-3 text-lg";
       case "md":
@@ -97,6 +97,7 @@ export default function Button({
       type={type}
       onClick={onClick}
       disabled={isDisabledOrLoading}
+      title={title} // هنا مررنا title للزر
       whileHover={isDisabledOrLoading ? {} : { scale: 1.02 }}
       whileTap={isDisabledOrLoading ? {} : { scale: 0.98 }}
       transition={{ duration: 0.2 }}
@@ -112,13 +113,13 @@ export default function Button({
       `}
     >
       {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-
+      
       {!loading && icon && iconPosition === "left" && (
         <span className="flex-shrink-0">{icon}</span>
       )}
-
-      {children && <span>{children}</span>}
-
+      
+      <span>{children}</span>
+      
       {!loading && icon && iconPosition === "right" && (
         <span className="flex-shrink-0">{icon}</span>
       )}
