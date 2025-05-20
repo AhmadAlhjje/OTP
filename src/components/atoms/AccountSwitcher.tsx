@@ -7,77 +7,142 @@ import {
   getActiveAccount,
 } from "@/services/my_accounts";
 import useLanguage from "@/hooks/useLanguage";
+import { PhoneCall, ChevronDown, Check, Smartphone } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const AccountSwitcher = () => {
-  // حالة لتخزين قائمة حسابات الواتساب المتوفرة
   const [accounts, setAccounts] = useState<any[]>([]);
-  // حالة لتخزين الحساب النشط الحالي
   const [active, setActive] = useState<any>(null);
-  // جلب اللغة الحالية (لتحديد اتجاه العناصر مثلاً)
+  const [isOpen, setIsOpen] = useState(false);
   const { language } = useLanguage();
+  const isRTL = language === "ar";
 
-  // عند تحميل الكومبوننت، جلب الحسابات والحساب النشط
   useEffect(() => {
     const fetchData = async () => {
-      const allAccounts = await getWhatsappAccounts();  // جلب كل حسابات الواتساب
-      const activeAccountData = await getActiveAccount(); // جلب الحساب النشط (عادة يحتوي فقط على id)
+      const allAccounts = await getWhatsappAccounts();
+      const activeAccountData = await getActiveAccount();
 
-      setAccounts(allAccounts); // تحديث الحالة بالقائمة الكاملة
+      setAccounts(allAccounts);
 
       if (activeAccountData?.id) {
-        // البحث عن تفاصيل الحساب النشط بناءً على id
         const fullAccount = allAccounts.find(
           (acc: any) => acc.id === activeAccountData.id
         );
-        setActive(fullAccount || null); // تعيين الحساب النشط أو null إذا لم يُعثر عليه
+        setActive(fullAccount || null);
       } else {
-        setActive(null); // إذا لم يكن هناك حساب نشط
+        setActive(null);
       }
     };
 
     fetchData();
   }, []);
 
-  // دالة تغيير الحساب النشط عند اختيار المستخدم من القائمة
-  const handleChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedId = e.target.value; // id الحساب المختار
-    const selected = accounts.find((a: any) => a.id === selectedId); // إيجاد بيانات الحساب المختار
-    setActive(selected); // تعيينه كحساب نشط محلياً
-    await setActiveAccount(selectedId); // تحديث الحساب النشط في الخدمة أو السيرفر
+  const handleAccountSelect = async (selectedId: string) => {
+    const selected = accounts.find((a: any) => a.id === selectedId);
+    setActive(selected);
+    await setActiveAccount(selectedId);
+    setIsOpen(false);
+  };
+
+  // تأثيرات الحركة للقائمة المنسدلة
+  const dropdownVariants = {
+    hidden: { opacity: 0, scale: 0.95, y: 10 },
+    visible: { opacity: 1, scale: 1, y: 0 },
+    exit: { opacity: 0, scale: 0.95, y: 10 }
   };
 
   return (
-    <div
-      className={`fixed bottom-20 ${
-        language === "ar" ? "left-4" : "right-4"
-      } bg-white shadow-lg rounded-xl px-9 py-2 border border-gray-200`}
-    >
-      {/* عنوان عرض الحساب الحالي */}
-      <div className="text-sm font-semibold mb-1">الحساب الحالي:</div>
-
-      {/* عرض اسم ورقم الحساب النشط أو رسالة عدم اختيار */}
-      {active ? (
-        <div className="mb-2">
-          {active.name} ({active.phone})
-        </div>
-      ) : (
-        <div className="text-gray-400">لم يتم اختيار حساب</div>
-      )}
-
-      {/* قائمة اختيار الحساب لتغيير الحساب النشط */}
-      <select
-        onChange={handleChange}
-        value={active?.id || ""}
-        className="border rounded px-2 py-1 w-full"
+    <div className={`relative ${isRTL ? "left-4" : "right-4"}`}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="bg-white dark:bg-gray-800 shadow-lg rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden"
       >
-        <option value="">اختر حسابًا</option>
-        {/* عرض جميع الحسابات المتاحة */}
-        {accounts.map((acc) => (
-          <option key={acc.id} value={acc.id}>
-            {acc.name} - {acc.phone}
-          </option>
-        ))}
-      </select>
+        {/* زر القائمة الرئيسي */}
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full px-6 py-3 flex items-center justify-between gap-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="bg-green-100 dark:bg-green-900/30 p-2 rounded-full">
+              <PhoneCall size={20} className="text-green-600 dark:text-green-400" />
+            </div>
+            
+            <div>
+              <p className="text-xs text-gray-500 dark:text-gray-400">الحساب الحالي</p>
+              <div className="font-medium">
+                {active ? (
+                  <span className="flex items-center gap-1">
+                    {active.name}
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      ({active.phone})
+                    </span>
+                  </span>
+                ) : (
+                  <span className="text-gray-400 dark:text-gray-500">لم يتم اختيار حساب</span>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          <ChevronDown 
+            size={18} 
+            className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : 'rotate-0'}`} 
+          />
+        </button>
+        
+        {/* القائمة المنسدلة */}
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              variants={dropdownVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              transition={{ duration: 0.2 }}
+              className="absolute bottom-full mb-2 w-full bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 z-50 overflow-hidden"
+            >
+              <div className="p-2 max-h-60 overflow-y-auto">
+                {accounts.length === 0 ? (
+                  <div className="p-3 text-center text-gray-500 dark:text-gray-400">
+                    لا توجد حسابات متاحة
+                  </div>
+                ) : (
+                  accounts.map((acc) => (
+                    <motion.button
+                      key={acc.id}
+                      whileHover={{ backgroundColor: 'rgba(0, 0, 0, 0.05)' }}
+                      onClick={() => handleAccountSelect(acc.id)}
+                      className={`w-full flex items-center justify-between p-3 rounded-lg ${
+                        active?.id === acc.id ? 'bg-green-50 dark:bg-green-900/20' : ''
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`p-2 rounded-full ${
+                          active?.id === acc.id 
+                            ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' 
+                            : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                        }`}>
+                          <Smartphone size={16} />
+                        </div>
+                        <div className="text-left">
+                          <p className="font-medium">{acc.name}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{acc.phone}</p>
+                        </div>
+                      </div>
+                      
+                      {active?.id === acc.id && (
+                        <Check size={16} className="text-green-600 dark:text-green-400" />
+                      )}
+                    </motion.button>
+                  ))
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
     </div>
   );
 };
