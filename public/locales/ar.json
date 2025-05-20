@@ -44,12 +44,32 @@
   "message_templates": "قوالب الرسائل",
   "private_message_templates": "قوالب الرسائل الخاصة",
 
+
+  
+
   "messageTemplatestitle": "قوالب الرسائل",
+  "messageTemplatesaddNew": "إضافة قالب جديد",
+  "messageTemplatescancel": "إلغاء",
+  "messageTemplateseditTemplate": "تعديل القالب",
+  "messageTemplatesnewTemplate": "قالب جديد",
   "messageTemplatestemplateTitle": "عنوان القالب",
+  "messageTemplatestitlePlaceholder": "أدخل عنوان القالب",
   "messageTemplatestemplateContent": "محتوى القالب",
-  "messageTemplatesaddButton": "إضافة قالب",
+  "messageTemplatescontentPlaceholder": "أدخل محتوى القالب",
+  "messageTemplatesadd": "إضافة",
+  "messageTemplatessave": "حفظ",
+  "messageTemplatessearch": "ابحث في القوالب...",
+  "messageTemplatestotalTemplates": "عدد القوالب",
   "messageTemplatesedit": "تعديل",
   "messageTemplatesdelete": "حذف",
+  "messageTemplatesconfirmDelete": "هل أنت متأكد أنك تريد حذف هذا القالب؟",
+  "messageTemplatesyesDelete": "نعم، حذف",
+  "messageTemplatesnoCancel": "لا، إلغاء",
+  "messageTemplatescopied": "تم نسخ المحتوى",
+  "messageTemplatesaddButton": "إضافة قالب",
+  "messageTemplatescopy": "نسخ",
+  "messageTemplatesconfirm": "تأكيد",
+  "messageTemplatesdeleteWarning": "لا يمكن التراجع عن هذا الإجراء. هل أنت متأكد أنك تريد حذف هذا القالب؟",
   "scanCodeWhatsApp": "امسح الكود باستخدام واتساب",
 
   "accountsPagetitle": "ربط حساب واتساب",
