@@ -259,8 +259,7 @@ const SendWhatsappPage = () => {
                     size="sm"
                     icon={<X size={18} />}
                     iconPosition="left"
-                    className="hover:bg-red-50 dark:hover:bg-red-900/20 p-1 rounded-full transition-colors"
-                  />
+                    className="hover:bg-red-50 dark:hover:bg-red-900/20 p-1 rounded-full transition-colors" children={undefined}                  />
                 </motion.div>
               ))}
             </div>
