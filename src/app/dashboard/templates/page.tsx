@@ -165,7 +165,7 @@ export default function MessageTemplatesPage() {
                 t("messageTemplatescancel")
               ) : (
                 <>
-                  <Plus size={18} />
+                  {/* <Plus size={18} /> */}
                   {t("messageTemplatesaddNew")}
                 </>
               )}
