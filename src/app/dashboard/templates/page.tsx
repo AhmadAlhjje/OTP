@@ -231,18 +231,14 @@ export default function MessageTemplatesPage() {
 
         {/* Search and Stats Section */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-6">
-          <div className="relative w-full md:w-64 mb-4 md:mb-0">
-            <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-              <Search className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-            </div>
-            <Input
-              type="search"
-              placeholder={t("messageTemplatessearch")}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="ps-10 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md"
-            />
-          </div>
+          <Input
+            type="search"
+            placeholder={t("messageTemplatessearch")}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full sm:w-96"
+            icon={<Search className="w-5 h-5" />}
+          />
 
           <div className="text-sm text-gray-600 dark:text-gray-400">
             {t("messageTemplatestotalTemplates")}:{" "}
@@ -328,7 +324,7 @@ export default function MessageTemplatesPage() {
                   onClick={() => setShowForm(true)}
                   className="bg-green-600 hover:bg-green-700 text-white inline-flex items-center"
                 >
-                  <Plus className="mr-2 h-4 w-4" />
+                  {/* <Plus className="mr-2 h-4 w-4" /> */}
                   {t("messageTemplatesaddFirst")}
                 </Button>
               </div>
