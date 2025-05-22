@@ -1,69 +1,88 @@
 "use client";
-
 import { useEffect, useState } from "react";
-import Input from "@/components/atoms/Input";
-import Button from "@/components/atoms/Button";
 import { Card } from "@/components/ui/card";
-import Image from "next/image";
-import { wsService } from "@/services/add_accounts";
+import Button from "@/components/atoms/Button";
 import useTranslation from "@/hooks/useTranslation";
-import QRCode from "react-qr-code";
+import Cookies from "js-cookie";
+import LoadingSpinner from "@/components/atoms/LoadingSpinner";
+import { wsService } from "@/services/add_accounts";
+import { useRouter } from "next/navigation";
 
 export default function AccountsPage() {
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [qrUrl, setQrUrl] = useState<string | null>(null);
+  const [qrImageUrl, setQrImageUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const { t } = useTranslation();
+  const router = useRouter();
 
-  // دالة الاتصال بالخادم
   const handleConnect = () => {
-    wsService.connect(() => {
-      wsService.send({ type: "register-phone", phone: phoneNumber });
+    const token = Cookies.get("access_token");
+    if (!token) {
+      alert("لم يتم العثور على التوكن");
+      return;
+    }
+
+    setLoading(true);
+    setSuccessMessage(null);
+
+    // الاتصال بالسيرفر بدون إرسال clientId
+    wsService.connect( () => {
+      console.log("Socket.IO Connected");
     });
 
-    // الاستماع للرسائل القادمة من السيرفر
-    wsService.onMessage((data) => {
-      if (data.type === "qr-url") {
-        setQrUrl(data.qr);
+    wsService.on("qr", (data) => {
+      console.log('====================================');
+      console.log(data);
+      console.log('====================================');
+      if (data.qr) {
+        setQrImageUrl(data.qr);
+        setLoading(false);
       }
     });
-  };
 
-  // إغلاق الاتصال عند مغادرة الصفحة
-  useEffect(() => {
-    return () => {
+    wsService.on("authenticated", () => {
+      console.log("✅ Authenticated event received");
+    });
+
+    wsService.on("ready", (data) => {
+      console.log("🔔 WhatsApp client is ready:", data);
+      setQrImageUrl(null);
+      setLoading(false);
+      setSuccessMessage(t("accountsPageSuccessMessage") || "تمت الإضافة بنجاح!");
       wsService.close();
-    };
-  }, []);
+
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 1000);
+    });
+
+    wsService.on("disconnected", (reason) => {
+      console.warn("🔌 Disconnected:", reason);
+      setLoading(false);
+      alert("حدث انقطاع أثناء الاتصال: " + (reason || "سبب غير معروف"));
+    });
+  };
 
   return (
     <Card>
       <h1 className="text-xl dark:text-white font-semibold mb-4">
         {t("accountsPagetitle")}
       </h1>
-
-      <Input
-        type="text"
-        placeholder={t("accountsPagephonePlaceholder")}
-        value={phoneNumber}
-        onChange={(e) => setPhoneNumber(e.target.value)}
-      />
-
-      <Button className="mt-4 w-full" onClick={handleConnect}>
+      <Button className="w-full" onClick={handleConnect}>
         {t("accountsPageconnectButton")}
       </Button>
-
-      {qrUrl && (
+      {loading && <LoadingSpinner />}
+      {qrImageUrl && (
         <div className="mt-6 text-center">
           <h2 className="text-lg mb-2">{t("accountsPagescanQrInstruction")}</h2>
-          <div
-            style={{
-              background: "white",
-              padding: "16px",
-              display: "inline-block",
-            }}
-          >
-            <QRCode value={qrUrl} size={250} />
+          <div className="bg-white inline-block p-4 rounded shadow">
+            <img src={qrImageUrl} alt="QR Code" width={250} height={250} />
           </div>
+        </div>
+      )}
+      {successMessage && (
+        <div className="mt-6 text-center text-green-600 font-semibold">
+          {successMessage}
         </div>
       )}
     </Card>

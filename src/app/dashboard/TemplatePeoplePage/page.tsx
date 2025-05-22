@@ -1,193 +1,758 @@
-// "use client";
+"use client";
 
-// import React, { useState } from "react";
-// import Input from "@/components/atoms/Input";
-// import Button from "@/components/atoms/Button";
-// import Card from "@/components/molecules/Card"; // ← استخدام الـ Card الجديد
-// import useTranslation from "@/hooks/useTranslation";
+import React, { useState, useEffect } from "react";
+import Input from "@/components/atoms/Input";
+import Button from "@/components/atoms/Button";
+import Card from "@/components/molecules/Card";
+import { Textarea } from "@/components/atoms/textarea";
+import {
+  Users,
+  Plus,
+  Search,
+  Edit,
+  Trash2,
+  UserPlus,
+  Save,
+  X,
+  Copy,
+  Phone,
+  User,
+  MessageSquare,
+} from "lucide-react";
+import useTranslation from "@/hooks/useTranslation";
 
-// type Person = {
-//   id: number;
-//   name: string;
-//   phone: string;
-// };
+type Person = {
+  id: number;
+  name: string;
+  phone: string;
+};
 
-// type Template = {
-//   id: number;
-//   name: string;
-//   people: Person[];
-// };
+type Template = {
+  id: number;
+  name: string;
+  people: Person[];
+  createdAt: string;
+  description?: string;
+};
 
-// export default function TemplateManagerPage() {
-//   const { t } = useTranslation();
+export default function EnhancedTemplateManagerPage() {
+  const { t } = useTranslation();
 
-//   //состояние для хранения всех шаблонов и текущего выбранного шаблона
-//   const [templates, setTemplates] = useState<Template[]>([]);
-//   const [templateName, setTemplateName] = useState(""); // имя нового шаблона
-//   const [personName, setPersonName] = useState(""); // имя нового человека
-//   const [personPhone, setPersonPhone] = useState(""); // телефон нового человека
-//   const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null); // ID выбранного шаблона
+  // State Management
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [templateName, setTemplateName] = useState("");
+  const [templateDescription, setTemplateDescription] = useState("");
+  const [personName, setPersonName] = useState("");
+  const [personPhone, setPersonPhone] = useState("");
+  const [newPeople, setNewPeople] = useState<Person[]>([]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(
+    null
+  );
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showForm, setShowForm] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<{
+    type: "template" | "person";
+    id: number;
+    templateId?: number;
+  } | null>(null);
+  const [editingTemplate, setEditingTemplate] = useState<number | null>(null);
+  const [editingPerson, setEditingPerson] = useState<number | null>(null);
 
-//   // получение выбранного шаблона
-//   const selectedTemplate = templates.find((t) => t.id === selectedTemplateId);
+  const selectedTemplate = templates.find((t) => t.id === selectedTemplateId);
 
-//   // Сохранение нового шаблона
-//   const handleSaveTemplate = () => {
-//     if (templateName) {
-//       const newTemplate: Template = {
-//         id: Date.now(),
-//         name: templateName,
-//         people: [],
-//       };
-//       setTemplates([newTemplate, ...templates]);
-//       setTemplateName(""); // очистка поля ввода после сохранения
-//     }
-//   };
+  // Load demo data
+  useEffect(() => {
+    if (templates.length === 0) {
+      setTemplates([
+        {
+          id: 1,
+          name: "عملاء مميزون",
+          description: "قائمة العملاء المميزين للعروض الخاصة",
+          people: [
+            { id: 1, name: "أحمد محمد", phone: "+966501234567" },
+            { id: 2, name: "فاطمة علي", phone: "+966509876543" },
+          ],
+          createdAt: new Date().toLocaleDateString("ar-SA"),
+        },
+        {
+          id: 2,
+          name: "فريق العمل",
+          description: "أعضاء فريق العمل الأساسي",
+          people: [
+            { id: 3, name: "خالد أحمد", phone: "+966505555555" },
+            { id: 4, name: "نورا سعد", phone: "+966507777777" },
+          ],
+          createdAt: new Date().toLocaleDateString("ar-SA"),
+        },
+      ]);
+    }
+  }, []);
 
-//   // Удаление шаблона
-//   const handleDeleteTemplate = (id: number) => {
-//     setTemplates(templates.filter((t) => t.id !== id));
-//     if (selectedTemplateId === id) setSelectedTemplateId(null);
-//   };
+  // Add person to temporary list
+  const handleAddPersonToNewTemplate = () => {
+    if (personName && personPhone) {
+      const newPerson: Person = {
+        id: Date.now(),
+        name: personName,
+        phone: personPhone,
+      };
+      setNewPeople([...newPeople, newPerson]);
+      setPersonName("");
+      setPersonPhone("");
+    }
+  };
 
-//   // Редактирование имени шаблона
-//   const handleEditTemplateName = (id: number, newName: string) => {
-//     const updatedTemplates = templates.map((t) =>
-//       t.id === id ? { ...t, name: newName } : t
-//     );
-//     setTemplates(updatedTemplates);
-//   };
+  // Save new template
+  const handleSaveTemplate = () => {
+    if (templateName && newPeople.length > 0) {
+      const newTemplate: Template = {
+        id: Date.now(),
+        name: templateName,
+        description: templateDescription,
+        people: newPeople,
+        createdAt: new Date().toLocaleDateString("ar-SA"),
+      };
+      setTemplates([newTemplate, ...templates]);
+      resetForm();
+    }
+  };
 
-//   // Добавление нового человека в выбранный шаблон
-//   const handleAddPerson = () => {
-//     if (!selectedTemplate) return;
+  // Reset form
+  const resetForm = () => {
+    setTemplateName("");
+    setTemplateDescription("");
+    setNewPeople([]);
+    setShowForm(false);
+    setEditingTemplate(null);
+  };
 
-//     const updatedPeople: Person[] = [
-//       ...selectedTemplate.people,
-//       {
-//         id: Date.now(),
-//         name: personName,
-//         phone: personPhone,
-//       },
-//     ];
+  // Delete template
+  const handleDeleteTemplate = (id: number) => {
+    setItemToDelete({ type: "template", id });
+    setShowConfirmation(true);
+  };
 
-//     const updatedTemplates = templates.map((t) =>
-//       t.id === selectedTemplate.id ? { ...t, people: updatedPeople } : t
-//     );
+  // Delete person from template
+  const handleDeletePerson = (personId: number, templateId: number) => {
+    setItemToDelete({ type: "person", id: personId, templateId });
+    setShowConfirmation(true);
+  };
 
-//     setTemplates(updatedTemplates);
-//     setPersonName(""); // очистка полей ввода после добавления
-//     setPersonPhone("");
-//   };
+  // Confirm deletion
+  const confirmDelete = () => {
+    if (!itemToDelete) return;
 
-//   // Редактирование данных человека
-//   const handleEditPerson = (personId: number, newName: string, newPhone: string) => {
-//     if (!selectedTemplate) return;
+    if (itemToDelete.type === "template") {
+      setTemplates(templates.filter((t) => t.id !== itemToDelete.id));
+      if (selectedTemplateId === itemToDelete.id) {
+        setSelectedTemplateId(null);
+      }
+    } else if (itemToDelete.type === "person" && itemToDelete.templateId) {
+      const template = templates.find((t) => t.id === itemToDelete.templateId);
+      if (template) {
+        const updatedPeople = template.people.filter(
+          (p) => p.id !== itemToDelete.id
+        );
+        const updatedTemplates = templates.map((t) =>
+          t.id === itemToDelete.templateId ? { ...t, people: updatedPeople } : t
+        );
+        setTemplates(updatedTemplates);
+      }
+    }
 
-//     const updatedPeople = selectedTemplate.people.map((p) =>
-//       p.id === personId ? { ...p, name: newName, phone: newPhone } : p
-//     );
+    setShowConfirmation(false);
+    setItemToDelete(null);
+  };
 
-//     const updatedTemplates = templates.map((t) =>
-//       t.id === selectedTemplate.id ? { ...t, people: updatedPeople } : t
-//     );
-//     setTemplates(updatedTemplates);
-//   };
+  // Cancel deletion
+  const cancelDelete = () => {
+    setShowConfirmation(false);
+    setItemToDelete(null);
+  };
 
-//   // Удаление человека из шаблона
-//   const handleDeletePerson = (personId: number) => {
-//     if (!selectedTemplate) return;
+  // Edit template name
+  const handleEditTemplateName = (
+    id: number,
+    newName: string,
+    newDescription: string = ""
+  ) => {
+    const updated = templates.map((t) =>
+      t.id === id ? { ...t, name: newName, description: newDescription } : t
+    );
+    setTemplates(updated);
+    setEditingTemplate(null);
+  };
 
-//     const updatedPeople = selectedTemplate.people.filter((p) => p.id !== personId);
-//     const updatedTemplates = templates.map((t) =>
-//       t.id === selectedTemplate.id ? { ...t, people: updatedPeople } : t
-//     );
-//     setTemplates(updatedTemplates);
-//   };
+  // Edit person
+  const handleEditPerson = (
+    personId: number,
+    newName: string,
+    newPhone: string
+  ) => {
+    if (!selectedTemplate) return;
+    const updatedPeople = selectedTemplate.people.map((p) =>
+      p.id === personId ? { ...p, name: newName, phone: newPhone } : p
+    );
+    const updatedTemplates = templates.map((t) =>
+      t.id === selectedTemplate.id ? { ...t, people: updatedPeople } : t
+    );
+    setTemplates(updatedTemplates);
+    setEditingPerson(null);
+  };
 
-//   return (
-//     <div className="p-6 space-y-6">
-//       {/* Заголовок */}
-//       <h1 className="text-xl font-semibold dark:text-white">{t("templatePeoplePage.title")}</h1>
+  // Copy template data
+  const copyTemplateData = (template: Template) => {
+    const data = template.people.map((p) => `${p.name}: ${p.phone}`).join("\n");
+    navigator.clipboard.writeText(data);
+  };
 
-//       {/* Создание нового шаблона */}
-//       <div className="space-y-4">
-//         <Input
-//           placeholder={t("templatePeoplePage.templateNamePlaceholder")}
-//           value={templateName}
-//           onChange={(e) => setTemplateName(e.target.value)}
-//         />
-//         <Button onClick={handleSaveTemplate}>
-//           {t("templatePeoplePage.saveTemplate")}
-//         </Button>
-//       </div>
+  // Filter templates
+  const filteredTemplates = templates.filter(
+    (template) =>
+      template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      template.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      template.people.some(
+        (person) =>
+          person.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          person.phone.includes(searchTerm)
+      )
+  );
 
-//       {/* Список существующих шаблонов */}
-//       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-6">
-//         {templates.map((template) => (
-//           <Card
-//             key={template.id}
-//             title={template.name}
-//             content={`${template.people.length} ${t("templatePeoplePage.peopleCount")}`}
-//             color="green-600"
-//             onDelete={() => handleDeleteTemplate(template.id)}
-//             onEdit={() => setSelectedTemplateId(template.id)}
-//           />
-//         ))}
-//       </div>
+  return (
+    <div className="bg-gray-50 dark:bg-gray-900 min-h-screen pb-10">
+      {/* Header Section */}
+      <div className="bg-white dark:bg-gray-800 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-3 rtl:space-x-reverse">
+              <Users className="h-8 w-8 text-blue-600" />
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {t("templatePeoplePagetitle")}
+                </h1>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  إدارة قوائم الأشخاص والمجموعات
+                </p>
+              </div>
+            </div>
+            <Button
+              onClick={() => setShowForm(!showForm)}
+              className={`flex items-center gap-2 ${
+                showForm
+                  ? "bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-white"
+                  : "bg-blue-600 hover:bg-blue-700 text-white"
+              } rounded-full px-4 py-2 transition-all`}
+            >
+              {showForm ? (
+                <>
+                  {/* <X size={18} /> */}
+                  إلغاء
+                </>
+              ) : (
+                <>
+                  {/* <Plus size={18} /> */}
+                  إضافة قالب جديد
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      </div>
 
-//       {/* Панель редактирования выбранного шаблона */}
-//       {selectedTemplate && (
-//         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md space-y-4 mt-8">
-//           {/* Редактирование названия шаблона */}
-//           <Input
-//             value={selectedTemplate.name}
-//             onChange={(e) =>
-//               handleEditTemplateName(selectedTemplate.id, e.target.value)
-//             }
-//           />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Create New Template Form */}
+        {showForm && (
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8 transition-all ease-in-out duration-300">
+            <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
+              {/* <Plus className="w-5 h-5" /> */}
+              إنشاء قالب جديد
+            </h2>
 
-//           {/* Заголовок раздела "Люди" */}
-//           <h2 className="text-lg font-semibold">{t("templatePeoplePage.template")}:</h2>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    اسم القالب
+                  </label>
+                  <Input
+                    placeholder={t("templatePeoplePagetemplateNamePlaceholder")}
+                    value={templateName}
+                    onChange={(e) => setTemplateName(e.target.value)}
+                    className="w-full"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    الوصف (اختياري)
+                  </label>
+                  <Input
+                    placeholder="وصف مختصر للقالب"
+                    value={templateDescription}
+                    onChange={(e) => setTemplateDescription(e.target.value)}
+                    className="w-full"
+                  />
+                </div>
+              </div>
 
-//           {/* Добавление нового человека */}
-//           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-//             <Input
-//               placeholder={t("templatePeoplePage.personNamePlaceholder")}
-//               value={personName}
-//               onChange={(e) => setPersonName(e.target.value)}
-//             />
-//             <Input
-//               placeholder={t("templatePeoplePage.personPhonePlaceholder")}
-//               value={personPhone}
-//               onChange={(e) => setPersonPhone(e.target.value)}
-//             />
-//           </div>
-//           <Button onClick={handleAddPerson}>
-//             {t("templatePeoplePage.addPerson")}
-//           </Button>
+              <div className="border-t pt-4">
+                <h3 className="text-md font-medium text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                  {/* <UserPlus className="w-4 h-4" /> */}
+                  إضافة الأشخاص
+                </h3>
 
-//           {/* Список людей в выбранном шаблоне */}
-//           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-4">
-//             {selectedTemplate.people.map((person) => (
-//               <Card
-//                 key={person.id}
-//                 title={person.name}
-//                 content={person.phone}
-//                 color="blue-600"
-//                 onDelete={() => handleDeletePerson(person.id)}
-//                 onEdit={() => {
-//                   const newName = prompt(t("templatePeoplePage.personNamePlaceholder"), person.name);
-//                   const newPhone = prompt(t("templatePeoplePage.personPhonePlaceholder"), person.phone);
-//                   if (newName && newPhone) {
-//                     handleEditPerson(person.id, newName, newPhone);
-//                   }
-//                 }}
-//               />
-//             ))}
-//           </div>
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                  <Input
+                    placeholder={t("templatePeoplePagepersonNamePlaceholder")}
+                    value={personName}
+                    onChange={(e) => setPersonName(e.target.value)}
+                    icon={<User className="w-4 h-4" />}
+                  />
+                  <Input
+                    placeholder={t("templatePeoplePagepersonPhonePlaceholder")}
+                    value={personPhone}
+                    onChange={(e) => setPersonPhone(e.target.value)}
+                    icon={<Phone className="w-4 h-4" />}
+                  />
+                </div>
+
+                <Button
+                  onClick={handleAddPersonToNewTemplate}
+                  disabled={!personName || !personPhone}
+                  className="bg-green-600 hover:bg-green-700 text-white mb-4"
+                >
+                  {/* <Plus className="w-4 h-4 mr-2" /> */}
+                  {t("templatePeoplePageaddPerson")}
+                </Button>
+
+                {/* Preview of added people */}
+                {newPeople.length > 0 && (
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      الأشخاص المضافون ({newPeople.length})
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 max-h-40 overflow-y-auto">
+                      {newPeople.map((person) => (
+                        <div
+                          key={person.id}
+                          className="bg-gray-50 dark:bg-gray-700 p-3 rounded-md border flex justify-between items-center"
+                        >
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                              {person.name}
+                            </p>
+                            <p className="text-xs text-gray-600 dark:text-gray-400">
+                              {person.phone}
+                            </p>
+                          </div>
+                          <Button
+                            onClick={() =>
+                              setNewPeople(
+                                newPeople.filter((p) => p.id !== person.id)
+                              )
+                            }
+                            variant="ghost"
+                            size="sm"
+                            className="text-red-600 hover:text-red-800 p-1"
+                          >
+                            <X className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-end space-x-3 rtl:space-x-reverse pt-4 border-t">
+                <Button
+                  onClick={resetForm}
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white"
+                >
+                  إلغاء
+                </Button>
+                <Button
+                  onClick={handleSaveTemplate}
+                  disabled={!templateName || newPeople.length === 0}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  {/* <Save className="w-4 h-4 mr-2" /> */}
+                  {t("templatePeoplePagesaveTemplate")}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Search and Stats */}
+        <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+          <div className="flex-1 max-w-md">
+            <Input
+              type="search"
+              placeholder="البحث في القوالب والأشخاص..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              icon={<Search className="w-5 h-5" />}
+              className="w-full"
+            />
+          </div>
+          <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-4">
+            <span>
+              إجمالي القوالب:{" "}
+              <span className="font-semibold text-blue-600">
+                {templates.length}
+              </span>
+            </span>
+            <span>
+              إجمالي الأشخاص:{" "}
+              <span className="font-semibold text-green-600">
+                {templates.reduce((sum, t) => sum + t.people.length, 0)}
+              </span>
+            </span>
+          </div>
+        </div>
+
+        {/* Templates Grid */}
+        {filteredTemplates.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredTemplates.map((template) => (
+              <div
+                key={template.id}
+                className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200 overflow-hidden"
+              >
+                <div className="p-5">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex-1">
+                      {editingTemplate === template.id ? (
+                        <div className="space-y-2">
+                          <Input
+                            value={templateName || template.name}
+                            onChange={(e) => setTemplateName(e.target.value)}
+                            className="text-lg font-semibold"
+                          />
+                          <Input
+                            value={
+                              templateDescription || template.description || ""
+                            }
+                            onChange={(e) =>
+                              setTemplateDescription(e.target.value)
+                            }
+                            placeholder="وصف القالب"
+                            className="text-sm"
+                          />
+                        </div>
+                      ) : (
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                            {template.name}
+                          </h3>
+                          {template.description && (
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                              {template.description}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap mr-2">
+                      {template.createdAt}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                      <Users className="w-4 h-4" />
+                      <span>{template.people.length} شخص</span>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center pt-3 border-t border-gray-100 dark:border-gray-700">
+                    <div className="flex space-x-2 rtl:space-x-reverse">
+                      {editingTemplate === template.id ? (
+                        <>
+                          <Button
+                            onClick={() => {
+                              handleEditTemplateName(
+                                template.id,
+                                templateName || template.name,
+                                templateDescription || template.description
+                              );
+                              setTemplateName("");
+                              setTemplateDescription("");
+                            }}
+                            variant="ghost"
+                            size="sm"
+                            className="text-green-600 hover:text-green-800 p-1"
+                          >
+                            <Save size={16} />
+                          </Button>
+                          <Button
+                            onClick={() => {
+                              setEditingTemplate(null);
+                              setTemplateName("");
+                              setTemplateDescription("");
+                            }}
+                            variant="ghost"
+                            size="sm"
+                            className="text-gray-600 hover:text-gray-800 p-1"
+                          >
+                            <X size={16} />
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Button
+                            onClick={() => {
+                              setEditingTemplate(template.id);
+                              setTemplateName(template.name);
+                              setTemplateDescription(
+                                template.description || ""
+                              );
+                            }}
+                            variant="ghost"
+                            size="sm"
+                            className="text-blue-600 hover:text-blue-800 p-1"
+                            title="تعديل القالب"
+                          >
+                            <Edit size={16} />
+                          </Button>
+                          <Button
+                            onClick={() => handleDeleteTemplate(template.id)}
+                            variant="ghost"
+                            size="sm"
+                            className="text-red-600 hover:text-red-800 p-1"
+                            title="حذف القالب"
+                          >
+                            <Trash2 size={16} />
+                          </Button>
+                        </>
+                      )}
+                    </div>
+
+                    <div className="flex space-x-2 rtl:space-x-reverse">
+                      <Button
+                        onClick={() => copyTemplateData(template)}
+                        variant="ghost"
+                        size="sm"
+                        className="text-green-600 hover:text-green-800 text-xs"
+                        title="نسخ البيانات"
+                      >
+                        <Copy size={14} className="mr-1" />
+                        نسخ
+                      </Button>
+                      <Button
+                        onClick={() => setSelectedTemplateId(template.id)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1"
+                      >
+                        عرض التفاصيل
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <Users className="mx-auto h-12 w-12 text-gray-400" />
+            <h3 className="mt-2 text-lg font-medium text-gray-900 dark:text-white">
+              {searchTerm ? "لا توجد نتائج للبحث" : "لا توجد قوالب"}
+            </h3>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              {searchTerm ? "جرب البحث بكلمات مختلفة" : "ابدأ بإنشاء قالب جديد"}
+            </p>
+            {!showForm && !searchTerm && (
+              <div className="mt-6">
+                <Button
+                  onClick={() => setShowForm(true)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  إنشاء أول قالب
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Template Details Modal */}
+        {selectedTemplate && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+              <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                      {selectedTemplate.name}
+                    </h2>
+                    {selectedTemplate.description && (
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        {selectedTemplate.description}
+                      </p>
+                    )}
+                  </div>
+                  <Button
+                    onClick={() => setSelectedTemplateId(null)}
+                    variant="ghost"
+                    size="sm"
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    <X size={20} />
+                  </Button>
+                </div>
+              </div>
+
+              <div className="p-6 overflow-y-auto max-h-[60vh]">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                    الأشخاص ({selectedTemplate.people.length})
+                  </h3>
+                  <Button
+                    onClick={() => copyTemplateData(selectedTemplate)}
+                    className="bg-green-600 hover:bg-green-700 text-white text-sm"
+                  >
+                    {/* <Copy size={16} className="mr-2" /> */}
+                    نسخ جميع البيانات
+                  </Button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {selectedTemplate.people.map((person) => (
+                    <div
+                      key={person.id}
+                      className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border"
+                    >
+                      {editingPerson === person.id ? (
+                        <div className="space-y-2">
+                          <Input
+                            value={personName || person.name}
+                            onChange={(e) => setPersonName(e.target.value)}
+                            placeholder="اسم الشخص"
+                          />
+                          <Input
+                            value={personPhone || person.phone}
+                            onChange={(e) => setPersonPhone(e.target.value)}
+                            placeholder="رقم الهاتف"
+                          />
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={() => {
+                                handleEditPerson(
+                                  person.id,
+                                  personName || person.name,
+                                  personPhone || person.phone
+                                );
+                                setPersonName("");
+                                setPersonPhone("");
+                              }}
+                              size="sm"
+                              className="bg-green-600 hover:bg-green-700 text-white"
+                            >
+                              <Save size={14} />
+                            </Button>
+                            <Button
+                              onClick={() => {
+                                setEditingPerson(null);
+                                setPersonName("");
+                                setPersonPhone("");
+                              }}
+                              size="sm"
+                              variant="ghost"
+                              className="text-gray-600"
+                            >
+                              <X size={14} />
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div>
+                          <div className="flex justify-between items-start mb-2">
+                            <h4 className="font-medium text-gray-900 dark:text-white">
+                              {person.name}
+                            </h4>
+                            <div className="flex gap-1">
+                              <Button
+                                onClick={() => {
+                                  setEditingPerson(person.id);
+                                  setPersonName(person.name);
+                                  setPersonPhone(person.phone);
+                                }}
+                                variant="ghost"
+                                size="sm"
+                                className="text-blue-600 hover:text-blue-800 p-1"
+                              >
+                                <Edit size={12} />
+                              </Button>
+                              <Button
+                                onClick={() =>
+                                  handleDeletePerson(
+                                    person.id,
+                                    selectedTemplate.id
+                                  )
+                                }
+                                variant="ghost"
+                                size="sm"
+                                className="text-red-600 hover:text-red-800 p-1"
+                              >
+                                <Trash2 size={12} />
+                              </Button>
+                            </div>
+                          </div>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                            <Phone size={12} />
+                            {person.phone}
+                          </p>
+                          <Button
+                            onClick={() =>
+                              navigator.clipboard.writeText(person.phone)
+                            }
+                            variant="ghost"
+                            size="sm"
+                            className="text-green-600 hover:text-green-800 text-xs mt-2"
+                          >
+                            <Copy size={12} className="mr-1" />
+                            نسخ الرقم
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Confirmation Modal */}
+        {showConfirmation && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-3">
+                تأكيد الحذف
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                {itemToDelete?.type === "template"
+                  ? "هل أنت متأكد من حذف هذا القالب؟ سيتم حذف جميع الأشخاص المرتبطين به."
+                  : "هل أنت متأكد من حذف هذا الشخص؟"}
+              </p>
+              <div className="flex justify-end space-x-3 rtl:space-x-reverse">
+                <Button
+                  onClick={cancelDelete}
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white"
+                >
+                  إلغاء
+                </Button>
+                <Button
+                  onClick={confirmDelete}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  حذف
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

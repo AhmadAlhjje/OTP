@@ -1,57 +1,49 @@
-import { apiClient } from './apiClient';
-import axios from 'axios';
+import { io, Socket } from "socket.io-client";
+import { getAccessToken } from "./apiClient";
 
-// تعريف نوع الدالة التي تستقبل الرسائل
 type MessageHandler = (data: any) => void;
 
-class WebSocketService {
-  private socket: WebSocket | null = null;
-  private handlers: MessageHandler[] = [];
+class SocketService {
+  private socket: Socket | null = null;
 
-  // عنوان الخادم (ثابت داخل الكلاس)
-  private readonly serverUrl = `${apiClient}/whatsapp/start`;
-
-  // الاتصال بالخادم
   connect(onOpen?: () => void) {
-    this.socket = new WebSocket(this.serverUrl);
+    this.socket = io("ws://192.168.74.25:3000", {
+      transports: ["websocket"],
+      auth: {
+        token: getAccessToken(), // 👈 Token is sent here instead
+      },
+    });
 
-    this.socket.onopen = () => {
-      onOpen?.(); // تنفيذ عند نجاح الاتصال
-    };
+    this.socket.on("connect", () => {
+      console.log("✅ Socket connected");
+      this.socket!.emit("init"); // safe now
+      // تنفيذ الدالة الاختيارية بعد الاتصال
+      onOpen?.();
+    });
 
-    this.socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      this.handlers.forEach((handler) => handler(data)); // تمرير الرسائل لجميع المستمعين
-    };
-
-    this.socket.onclose = () => {
+    this.socket.on("disconnect", (reason) => {
+      console.warn("❌ Socket disconnected:", reason);
       this.socket = null;
-    };
+    });
+
+    this.socket.on("authenticated", () => {});
   }
 
-  // إرسال رسالة إلى السيرفر
-  send(data: any) {
-    if (this.socket?.readyState === WebSocket.OPEN) {
-      this.socket.send(JSON.stringify(data));
-    }
+  on(event: string, handler: MessageHandler) {
+    this.socket?.on(event, (data) => {
+      console.log(`📨 [Socket] event "${event}":`, data);
+      handler(data);
+    });
   }
 
-  // إضافة دالة تستمع للرسائل
-  onMessage(handler: MessageHandler) {
-    this.handlers.push(handler);
-  }
-
-  // إغلاق الاتصال
   close() {
-    this.socket?.close();
+    this.socket?.disconnect();
     this.socket = null;
   }
 
-  // التحقق من حالة الاتصال
   isConnected() {
-    return this.socket?.readyState === WebSocket.OPEN;
+    return this.socket?.connected || false;
   }
 }
 
-// إنشاء نسخة جاهزة للاستخدام
-export const wsService = new WebSocketService();
+export const wsService = new SocketService();
