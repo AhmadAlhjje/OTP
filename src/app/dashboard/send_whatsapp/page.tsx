@@ -90,7 +90,6 @@ const SendWhatsappPage = () => {
 
     try {
       const res = (await sendWhatsappMessage({
-        fromAccountId: activeAccount.id,
         to: recipientNumbers,
         message,
       })) as WhatsAppMessageResponse;

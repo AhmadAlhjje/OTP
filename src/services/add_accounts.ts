@@ -7,7 +7,7 @@ class SocketService {
   private socket: Socket | null = null;
 
   connect(onOpen?: () => void) {
-    this.socket = io("ws://192.168.74.25:3000", {
+    this.socket = io(`ws://${process.env.NEXT_PUBLIC_API}`, {
       transports: ["websocket"],
       auth: {
         token: getAccessToken(), // 👈 Token is sent here instead
@@ -21,10 +21,10 @@ class SocketService {
       onOpen?.();
     });
 
-    this.socket.on("disconnect", (reason) => {
-      console.warn("❌ Socket disconnected:", reason);
-      this.socket = null;
-    });
+    // this.socket.on("disconnect", (reason) => {
+    //   console.warn("❌ Socket disconnected:", reason);
+    //   this.socket = null;
+    // });
 
     this.socket.on("authenticated", () => {});
   }
@@ -36,10 +36,10 @@ class SocketService {
     });
   }
 
-  close() {
-    this.socket?.disconnect();
-    this.socket = null;
-  }
+  // close() {
+  //   this.socket?.disconnect();
+  //   this.socket = null;
+  // }
 
   isConnected() {
     return this.socket?.connected || false;

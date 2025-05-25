@@ -49,18 +49,18 @@ export default function AccountsPage() {
       setQrImageUrl(null);
       setLoading(false);
       setSuccessMessage(t("accountsPageSuccessMessage") || "تمت الإضافة بنجاح!");
-      wsService.close();
+      // wsService.close();
 
       setTimeout(() => {
         router.push("/dashboard");
       }, 1000);
     });
 
-    wsService.on("disconnected", (reason) => {
-      console.warn("🔌 Disconnected:", reason);
-      setLoading(false);
-      alert("حدث انقطاع أثناء الاتصال: " + (reason || "سبب غير معروف"));
-    });
+    // wsService.on("disconnected", (reason) => {
+    //   console.warn("🔌 Disconnected:", reason);
+    //   setLoading(false);
+    //   alert("حدث انقطاع أثناء الاتصال: " + (reason || "سبب غير معروف"));
+    // });
   };
 
   return (
