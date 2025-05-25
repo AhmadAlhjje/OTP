@@ -12,6 +12,7 @@ import {
   ChevronLeft,
   Globe,
   Settings,
+  MessageCircle,
 } from "lucide-react";
 import useTheme from "@/hooks/useTheme";
 import useLanguage from "@/hooks/useLanguage";
@@ -39,15 +40,20 @@ export default function Navbar({
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.3 }}
-      className="w-full h-16 md:h-20 bg-gradient-to-r from-[#00a884] to-[#00a884] dark:from-teal-800 dark:to-teal-700 text-white flex items-center justify-between px-4 sm:px-6 lg:px-8 shadow-lg z-50 relative"
+      className={`w-full h-20 
+        bg-gradient-to-r from-[#00a884] to-[#00a884] dark:from-teal-800 dark:to-teal-700 
+        text-white flex items-center justify-between px-4 sm:px-6 lg:px-8 
+        z-50 relative`}
+      style={{ position: 'sticky', top: 0 }}
     >
       {/* اسم التطبيق + زر القائمة */}
       <div className="flex items-center gap-3 sm:gap-4">
+        {/* زر القائمة للشاشات الصغيرة فقط */}
         <Button
           variant="icon"
           onClick={toggleSidebar}
           icon={<SidebarIcon size={22} />}
-          className="text-white hover:bg-teal-500/30 p-2"
+          className="text-white hover:bg-teal-500/30 p-2 block lg:hidden"
           aria-label={isSidebarOpen ? t("close_sidebar") : t("open_sidebar")}
           children={undefined}
         />
@@ -65,7 +71,8 @@ export default function Navbar({
               whileHover={{ scale: 1.03 }}
               transition={{ type: "spring", stiffness: 400, damping: 10 }}
             >
-              <span className="hidden sm:block">{t("app_name")}</span>
+              {/* ايقونة الموقع */}
+              <MessageCircle size={24} className="hidden sm:block text-white" />
               {!isSidebarOpen && (
                 <DirectionIcon size={18} className="ml-1 hidden sm:block" />
               )}
