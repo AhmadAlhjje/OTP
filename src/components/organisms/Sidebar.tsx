@@ -87,8 +87,8 @@ function Sidebar({ isOpen, onClose, onToggle, isLargeScreen = false }: SidebarPr
       icon: <MessageSquareText className="w-5 h-5" />,
       subItems: [
         { label: t("send_messages"), href: "/dashboard/send_whatsapp" },
-        { label: t("from_excel"), href: "/dashboard/send/excel" },
-        { label: t("from_contacts"), href: "/dashboard/send/contacts" },
+        // { label: t("from_excel"), href: "/dashboard/send/excel" },
+        // { label: t("from_contacts"), href: "/dashboard/send/contacts" },
       ],
     },
     {
@@ -106,32 +106,32 @@ function Sidebar({ isOpen, onClose, onToggle, isLargeScreen = false }: SidebarPr
         { label: t("private_message_templates"), href: "/dashboard/templates" },
       ],
     },
-    {
-      label: t("contact_templates"),
-      icon: <UserPlus className="w-5 h-5" />,
-      subItems: [
-        {
-          label: t("private_contact_templates"),
-          href: "/dashboard/TemplatePeoplePage",
-        },
-      ],
-    },
+    // {
+    //   label: t("contact_templates"),
+    //   icon: <UserPlus className="w-5 h-5" />,
+    //   subItems: [
+    //     {
+    //       label: t("private_contact_templates"),
+    //       href: "/dashboard/TemplatePeoplePage",
+    //     },
+    //   ],
+    // },
     {
       label: t("contacts"),
       icon: <Users className="w-5 h-5" />,
-      href: "/dashboard/contacts",
+      href: "/dashboard/TemplatePeoplePage",
     },
-    {
-      label: t("balance"),
-      icon: <DollarSign className="w-5 h-5" />,
-      href: "/dashboard/balance",
-      badge: "جديد",
-    },
-    {
-      label: t("help"),
-      icon: <HelpCircle className="w-5 h-5" />,
-      href: "/dashboard/help",
-    },
+    // {
+    //   label: t("balance"),
+    //   icon: <DollarSign className="w-5 h-5" />,
+    //   href: "/dashboard/balance",
+    //   badge: "جديد",
+    // },
+    // {
+    //   label: t("help"),
+    //   icon: <HelpCircle className="w-5 h-5" />,
+    //   href: "/dashboard/help",
+    // },
   ];
 
   return (
