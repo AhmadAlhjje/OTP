@@ -15,7 +15,7 @@ const HeroSection = () => {
               <div className="inline-flex items-center bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 px-4 py-2 rounded-full text-sm">
                 <span>الأفضل في إرسال رسائل واتساب</span>
               </div>
-              <h1 className="text-5xl lg:text-6xl font-bold leading-tight">
+              <h1 className="text-xl lg:text-4xl font-bold leading-tight">
                 <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
                   أرسل رسائل واتساب
                 </span>
