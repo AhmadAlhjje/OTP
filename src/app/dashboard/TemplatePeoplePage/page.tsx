@@ -3,31 +3,34 @@
 import React, { useState, useEffect } from "react";
 import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
-import Card from "@/components/molecules/Card";
-import { Textarea } from "@/components/atoms/textarea";
+import {
+  deleteTemplateFromAPI,
+  saveTemplateToAPI,
+} from "@/services/templateService";
+import { fetchTemplatesFromAPI } from "@/services/templateService";
 import {
   Users,
   Plus,
   Search,
   Edit,
   Trash2,
-  UserPlus,
   Save,
   X,
   Copy,
   Phone,
   User,
-  MessageSquare,
 } from "lucide-react";
 import useTranslation from "@/hooks/useTranslation";
 
 type Person = {
+  _id?: string; // ← اختياري
   id: number;
   name: string;
   phone: string;
 };
 
 type Template = {
+  _id?: string; // ← إضافة هذا
   id: number;
   name: string;
   people: Person[];
@@ -46,8 +49,7 @@ export default function EnhancedTemplateManagerPage() {
   const [personPhone, setPersonPhone] = useState("");
   const [newPeople, setNewPeople] = useState<Person[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(
-    null
-  );
+null);
   const [searchTerm, setSearchTerm] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -63,30 +65,31 @@ export default function EnhancedTemplateManagerPage() {
 
   // Load demo data
   useEffect(() => {
-    if (templates.length === 0) {
-      setTemplates([
-        {
-          id: 1,
-          name: "عملاء مميزون",
-          description: "قائمة العملاء المميزين للعروض الخاصة",
-          people: [
-            { id: 1, name: "أحمد محمد", phone: "+966501234567" },
-            { id: 2, name: "فاطمة علي", phone: "+966509876543" },
-          ],
+    const loadTemplates = async () => {
+      const remoteTemplates = await fetchTemplatesFromAPI();
+
+      if (remoteTemplates.length > 0) {
+        // تحويل النتائج من API إلى البنية المحلية
+        const localTemplates = remoteTemplates.map((remote) => ({
+          _id: remote._id, // ← сохрани ID من السيرفر
+          id: Date.now() + Math.floor(Math.random() * 1000), // ID محلي للاستخدام في UI
+          name: remote.name,
+          people: remote.contacts.map((contact) => ({
+            _id: contact._id, // ← сохрани ID الشخص من السيرفر
+            id: Date.now(),
+            name: contact.name,
+            phone: contact.phone_number,
+          })),
           createdAt: new Date().toLocaleDateString("ar-SA"),
-        },
-        {
-          id: 2,
-          name: "فريق العمل",
-          description: "أعضاء فريق العمل الأساسي",
-          people: [
-            { id: 3, name: "خالد أحمد", phone: "+966505555555" },
-            { id: 4, name: "نورا سعد", phone: "+966507777777" },
-          ],
-          createdAt: new Date().toLocaleDateString("ar-SA"),
-        },
-      ]);
-    }
+        }));
+        setTemplates(localTemplates);
+      } else {
+        // يمكنك هنا عرض رسالة خطأ للمستخدم أو استخدام بيانات افتراضية مؤقتة
+        console.warn("لم يتم العثور على أي قوالب من الخادم.");
+      }
+    };
+
+    loadTemplates();
   }, []);
 
   // Add person to temporary list
@@ -104,10 +107,28 @@ export default function EnhancedTemplateManagerPage() {
   };
 
   // Save new template
-  const handleSaveTemplate = () => {
-    if (templateName && newPeople.length > 0) {
+  const handleSaveTemplate = async () => {
+    if (!templateName || newPeople.length === 0) {
+      return; // تأكد من أن هناك اسم للقالب وأشخاص مضافين
+    }
+
+    try {
+      // تحويل people إلى phone_numbers كما في هيكل الـ API
+      const payload = {
+        name: templateName,
+        phone_numbers: newPeople.map(({ name, phone }) => ({
+          name,
+          phone_number: phone,
+        })),
+      };
+
+      console.log(payload);
+      // إرسال البيانات إلى API
+      const response = await saveTemplateToAPI(payload);
+
+      // بعد النجاح، نضيف القالب إلى القائمة المحلية (يمكن استخدام ID من الاستجابة)
       const newTemplate: Template = {
-        id: Date.now(),
+        id: response.id || Date.now(),
         name: templateName,
         description: templateDescription,
         people: newPeople,
@@ -115,9 +136,11 @@ export default function EnhancedTemplateManagerPage() {
       };
       setTemplates([newTemplate, ...templates]);
       resetForm();
+    } catch (error) {
+      console.error("حدث خطأ أثناء حفظ القالب:", error);
+      alert("فشل في حفظ القالب. يرجى المحاولة لاحقًا.");
     }
   };
-
   // Reset form
   const resetForm = () => {
     setTemplateName("");
@@ -140,25 +163,47 @@ export default function EnhancedTemplateManagerPage() {
   };
 
   // Confirm deletion
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!itemToDelete) return;
+    console.log(itemToDelete.id);
+    try {
+      if (itemToDelete.type === "template") {
+        const templateToDelete = templates.find(
+          (t) => t.id === itemToDelete.id
+        );
+        if (!templateToDelete || !templateToDelete._id) {
+          alert("معرف القالب غير موجود");
+          return;
+        }
 
-    if (itemToDelete.type === "template") {
-      setTemplates(templates.filter((t) => t.id !== itemToDelete.id));
-      if (selectedTemplateId === itemToDelete.id) {
-        setSelectedTemplateId(null);
-      }
-    } else if (itemToDelete.type === "person" && itemToDelete.templateId) {
-      const template = templates.find((t) => t.id === itemToDelete.templateId);
-      if (template) {
-        const updatedPeople = template.people.filter(
-          (p) => p.id !== itemToDelete.id
+        const success = await deleteTemplateFromAPI(templateToDelete._id);
+        if (success) {
+          setTemplates(templates.filter((t) => t.id !== itemToDelete.id));
+          if (selectedTemplateId === itemToDelete.id) {
+            setSelectedTemplateId(null);
+          }
+        } else {
+          alert("فشل في حذف القالب من السيرفر");
+        }
+      } else if (itemToDelete.type === "person" && itemToDelete.templateId) {
+        const template = templates.find(
+          (t) => t.id === itemToDelete.templateId
         );
-        const updatedTemplates = templates.map((t) =>
-          t.id === itemToDelete.templateId ? { ...t, people: updatedPeople } : t
-        );
-        setTemplates(updatedTemplates);
+        if (template) {
+          const updatedPeople = template.people.filter(
+            (p) => p.id !== itemToDelete.id
+          );
+          const updatedTemplates = templates.map((t) =>
+            t.id === itemToDelete.templateId
+              ? { ...t, people: updatedPeople }
+              : t
+          );
+          setTemplates(updatedTemplates);
+        }
       }
+    } catch (error) {
+      console.error("حدث خطأ أثناء الحذف:", error);
+      alert("حدث خطأ أثناء الحذف.");
     }
 
     setShowConfirmation(false);
@@ -282,7 +327,7 @@ export default function EnhancedTemplateManagerPage() {
                     className="w-full"
                   />
                 </div>
-                <div>
+                {/* <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     الوصف (اختياري)
                   </label>
@@ -292,7 +337,7 @@ export default function EnhancedTemplateManagerPage() {
                     onChange={(e) => setTemplateDescription(e.target.value)}
                     className="w-full"
                   />
-                </div>
+                </div> */}
               </div>
 
               <div className="border-t pt-4">
@@ -430,7 +475,7 @@ export default function EnhancedTemplateManagerPage() {
                             onChange={(e) => setTemplateName(e.target.value)}
                             className="text-lg font-semibold"
                           />
-                          <Input
+                          {/* <Input
                             value={
                               templateDescription || template.description || ""
                             }
@@ -439,7 +484,7 @@ export default function EnhancedTemplateManagerPage() {
                             }
                             placeholder="وصف القالب"
                             className="text-sm"
-                          />
+                          /> */}
                         </div>
                       ) : (
                         <div>
@@ -567,7 +612,7 @@ export default function EnhancedTemplateManagerPage() {
                   onClick={() => setShowForm(true)}
                   className="bg-blue-600 hover:bg-blue-700 text-white"
                 >
-                  <Plus className="mr-2 h-4 w-4" />
+                  {/* <Plus className="mr-2 h-4 w-4" /> */}
                   إنشاء أول قالب
                 </Button>
               </div>
