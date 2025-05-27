@@ -6,24 +6,43 @@ import { getActiveAccount } from "@/services/my_accounts";
 import AccountSwitcher from "@/components/atoms/AccountSwitcher";
 import useLanguage from "@/hooks/useLanguage";
 import Button from "@/components/atoms/Button";
-import Card from "@/components/molecules/Card";
 import { useToast } from "@/hooks/useToast";
 import { sendWhatsappMessage } from "@/services/message-service";
-import { Phone, Send, Plus, X, MessageSquare, Info } from "lucide-react";
-import { motion } from "framer-motion";
-import { AxiosResponse } from "axios"; // إضافة استيراد Axios Response
+import { sendWhatsappMessage as sendScheduledMessage } from "@/services/schedule-massage";
+import {
+  Phone,
+  Send,
+  X,
+  MessageSquare,
+  Info,
+  Clock,
+  Calendar,
+  Timer,
+  Sparkles,
+  CheckCircle2,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { AxiosResponse } from "axios";
+
+// استيراد DateTime Picker
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 interface WhatsAppMessageResponse extends AxiosResponse {
   message?: string;
 }
 
-const SendWhatsappPage = () => {
+const EnhancedWhatsAppScheduler = () => {
   const [activeAccount, setActiveAccount] = useState<any>(null);
   const [currentNumber, setCurrentNumber] = useState("");
   const [recipientNumbers, setRecipientNumbers] = useState<string[]>([]);
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
+  const [isScheduled, setIsScheduled] = useState(false);
+  const [scheduledTime, setScheduledTime] = useState<Date | null>(null);
+  const [showScheduleSuccess, setShowScheduleSuccess] = useState(false);
+
   const { language } = useLanguage();
   const { showToast } = useToast();
   const isRTL = language === "ar";
@@ -37,7 +56,6 @@ const SendWhatsappPage = () => {
   }, []);
 
   const validatePhoneNumber = (number: string) => {
-    // تحقق بسيط من صحة رقم الهاتف (يمكن تعديله حسب متطلبات التطبيق)
     const trimmed = number.trim();
     return trimmed.length >= 10 && /^\+?\d+$/.test(trimmed);
   };
@@ -51,7 +69,6 @@ const SendWhatsappPage = () => {
     }
 
     if (!recipientNumbers.includes(trimmed)) {
-      // إضافة تأثير حركي عند إضافة الرقم
       setRecipientNumbers([...recipientNumbers, trimmed]);
       setCurrentNumber("");
     } else {
@@ -86,52 +103,127 @@ const SendWhatsappPage = () => {
       return;
     }
 
+    if (isScheduled && !scheduledTime) {
+      showToast("يرجى اختيار وقت الإرسال المجدول", "error");
+      return;
+    }
+
+    if (isScheduled && scheduledTime && scheduledTime <= new Date()) {
+      showToast("يجب أن يكون وقت الإرسال في المستقبل", "error");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      const res = (await sendWhatsappMessage({
-        to: recipientNumbers,
-        message,
-      })) as WhatsAppMessageResponse;
+      if (isScheduled) {
+        // إرسال مجدول
+        const res = await sendScheduledMessage({
+          to: recipientNumbers,
+          message,
+          scheduledAt: scheduledTime?.toISOString().replace(/\.\d{3}Z$/, "Z"),
+        });
 
-      if (res.status === 200) {
-        showToast("تم إرسال الرسالة بنجاح", "success");
-        setRecipientNumbers([]);
-        setMessage("");
+        if (res.status === 201) {
+          setShowScheduleSuccess(true);
+          setTimeout(() => setShowScheduleSuccess(false), 3000);
+          showToast("تم جدولة الرسالة بنجاح ✨", "success");
+          resetForm();
+        } else {
+          showToast("فشل في جدولة الرسالة", "error");
+        }
       } else {
-        showToast(
-          "فشل في الإرسال: " + (res.message || "خطأ غير معروف"),
-          "error"
-        );
+        // إرسال فوري
+        const res = (await sendWhatsappMessage({
+          to: recipientNumbers,
+          message,
+        })) as WhatsAppMessageResponse;
+
+        if (res.status === 200) {
+          showToast("تم إرسال الرسالة بنجاح 🚀", "success");
+          resetForm();
+        } else {
+          showToast(
+            "فشل في الإرسال: " + (res.message || "خطأ غير معروف"),
+            "error"
+          );
+        }
       }
-    } catch (error: unknown) {
+    } catch (error: any) {
       const errorMessage =
-        error instanceof Error ? error.message : "خطأ غير معروف";
-      showToast("حدث خطأ أثناء الإرسال: " + errorMessage, "error");
+        error?.response?.data?.message ||
+        (error instanceof Error ? error.message : "خطأ غير معروف");
+      showToast(
+        `حدث خطأ أثناء ${isScheduled ? "الجدولة" : "الإرسال"}: ${errorMessage}`,
+        "error"
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
+  const resetForm = () => {
+    setRecipientNumbers([]);
+    setMessage("");
+    setScheduledTime(null);
+    setIsScheduled(false);
+  };
+
+  const getMinDateTime = () => {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() + 5); // الحد الأدنى 5 دقائق من الآن
+    return now;
+  };
+
+  const formatScheduledTime = (date: Date) => {
+    return date.toLocaleString("ar-SA", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
   return (
-    <div className="p-6 w-full space-y-8 min-h-screen bg-gradient-to-br from-white to-green-50 dark:from-gray-900 dark:to-gray-800">
-      {/* رأس الصفحة */}
+    <div className="p-6 w-full space-y-8 min-h-screen bg-gradient-to-br from-white via-green-50/30 to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-emerald-900/20">
+      {/* رأس الصفحة المحسن */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.6 }}
         className="flex items-center justify-between"
       >
-        <h2 className="text-2xl font-bold text-green-700 dark:text-green-500 flex items-center gap-2">
-          <MessageSquare className="h-6 w-6" />
-          <span>إرسال رسالة واتساب</span>
-        </h2>
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <MessageSquare className="h-8 w-8 text-green-600 dark:text-green-400" />
+            {isScheduled && (
+              <Clock className="absolute -top-1 -right-1 h-4 w-4 text-orange-500 animate-pulse" />
+            )}
+          </div>
+          <div>
+            <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+              إرسال رسائل واتساب
+            </h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              {isScheduled ? "إرسال مجدول للرسائل" : "إرسال فوري للرسائل"}
+            </p>
+          </div>
+        </div>
 
         {activeAccount && (
-          <div className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 px-4 py-2 rounded-lg text-sm flex items-center gap-2">
-            <span>الحساب النشط:</span>
-            <span className="font-bold">{activeAccount.name}</span>
-          </div>
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/40 dark:to-emerald-900/40 text-green-800 dark:text-green-300 px-5 py-3 rounded-xl shadow-lg border border-green-200 dark:border-green-700"
+          >
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-sm font-medium">الحساب النشط:</span>
+              <span className="font-bold">{activeAccount.name}</span>
+            </div>
+          </motion.div>
         )}
       </motion.div>
 
@@ -141,81 +233,296 @@ const SendWhatsappPage = () => {
         <motion.div
           initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
           className="space-y-6"
         >
+          {/* تبديل وضع الجدولة */}
+          <motion.div
+            className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 p-6 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50"
+            whileHover={{ y: -2 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div
+                  className={`p-2 rounded-xl transition-colors ${
+                    isScheduled
+                      ? "bg-orange-100 dark:bg-orange-900/30"
+                      : "bg-green-100 dark:bg-green-900/30"
+                  }`}
+                >
+                  {isScheduled ? (
+                    <Timer className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                  ) : (
+                    <Send className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  )}
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-800 dark:text-gray-200">
+                    {isScheduled ? "الإرسال المجدول" : "الإرسال الفوري"}
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {isScheduled
+                      ? "اختر وقت مناسب للإرسال"
+                      : "إرسال الرسالة الآن"}
+                  </p>
+                </div>
+              </div>
+
+              <motion.label
+                className="relative inline-flex items-center cursor-pointer"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <input
+                  type="checkbox"
+                  checked={isScheduled}
+                  onChange={(e) => setIsScheduled(e.target.checked)}
+                  className="sr-only"
+                />
+                <div
+                  className={`relative w-14 h-7 transition-colors duration-300 rounded-full ${
+                    isScheduled
+                      ? "bg-gradient-to-r from-orange-400 to-orange-600"
+                      : "bg-gray-300 dark:bg-gray-600"
+                  }`}
+                >
+                  <motion.div
+                    className="absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow-lg flex items-center justify-center"
+                    animate={{ x: isScheduled ? 28 : 0 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                  >
+                    {isScheduled ? (
+                      <Timer className="h-3 w-3 text-orange-600" />
+                    ) : (
+                      <Send className="h-3 w-3 text-green-600" />
+                    )}
+                  </motion.div>
+                </div>
+              </motion.label>
+            </div>
+          </motion.div>
+
+          {/* قسم اختيار الوقت المجدول */}
+          <AnimatePresence>
+            {isScheduled && (
+              <motion.div
+                initial={{ opacity: 0, height: 0, y: -20 }}
+                animate={{ opacity: 1, height: "auto", y: 0 }}
+                exit={{ opacity: 0, height: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 p-6 rounded-2xl shadow-lg border border-orange-200/50 dark:border-orange-700/50"
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-orange-100 dark:bg-orange-900/40 rounded-xl">
+                    <Calendar className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-800 dark:text-gray-200">
+                      تحديد وقت الإرسال
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      اختر التاريخ والوقت المناسب
+                    </p>
+                  </div>
+                </div>
+
+                <div className="relative">
+                  <DatePicker
+                    selected={scheduledTime}
+                    onChange={(date: Date | null) => setScheduledTime(date)}
+                    showTimeSelect
+                    timeFormat="HH:mm"
+                    timeIntervals={15}
+                    dateFormat="yyyy/MM/dd HH:mm"
+                    minDate={getMinDateTime()}
+                    className="w-full p-4 border-2 border-orange-200 dark:border-orange-700 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 text-center font-medium"
+                    placeholderText="اختر تاريخ ووقت الإرسال"
+                    popperClassName="z-50"
+                  />
+                  <Clock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-orange-500 h-5 w-5 pointer-events-none" />
+                </div>
+
+                {scheduledTime && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-4 p-4 bg-white/60 dark:bg-gray-800/60 rounded-xl border border-orange-200 dark:border-orange-700"
+                  >
+                    <div className="flex items-center gap-2 text-orange-700 dark:text-orange-300">
+                      <Sparkles className="h-4 w-4" />
+                      <span className="text-sm font-medium">
+                        سيتم الإرسال في: {formatScheduledTime(scheduledTime)}
+                      </span>
+                    </div>
+                  </motion.div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* إدخال رقم المستقبل */}
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+          <motion.div
+            className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 p-6 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50"
+            whileHover={{ y: -2 }}
+            transition={{ duration: 0.2 }}
+          >
             <div className="flex items-center justify-between mb-4">
-              <label className="font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                <Phone size={18} />
-                <span>رقم المستقبل</span>
-              </label>
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
+                  <Phone className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-800 dark:text-gray-200">
+                    أرقام المستقبلين
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    أضف أرقام الهواتف بالصيغة الدولية
+                  </p>
+                </div>
+              </div>
 
               <div
                 className="relative"
                 onMouseEnter={() => setShowTooltip(true)}
                 onMouseLeave={() => setShowTooltip(false)}
               >
-                <Info size={16} className="text-gray-500 cursor-help" />
-                {showTooltip && (
-                  <div className="absolute bottom-full right-0 mb-2 w-64 p-2 bg-gray-800 text-white text-xs rounded-md shadow-lg z-10">
-                    يرجى إدخال رقم الهاتف بالصيغة الدولية مع رمز البلد، مثل:
-                    +966501234567
-                  </div>
-                )}
+                <Info
+                  size={20}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help transition-colors"
+                />
+                <AnimatePresence>
+                  {showTooltip && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                      className="absolute bottom-full right-0 mb-2 w-64 p-3 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-lg shadow-xl z-20"
+                    >
+                      <div className="space-y-1">
+                        <p className="font-medium">تنسيق رقم الهاتف:</p>
+                        <p>• ابدأ برمز البلد (+966 للسعودية)</p>
+                        <p>• مثال: +963912345678</p>
+                        <p>• لا تستخدم مسافات أو رموز أخرى</p>
+                      </div>
+                      <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
 
-            <div className="flex space-x-2 rtl:space-x-reverse">
+            <div className="flex gap-3">
               <Input
                 type="text"
                 value={currentNumber}
                 onChange={(e) => setCurrentNumber(e.target.value)}
-                placeholder="مثال: +966501234567"
+                placeholder="مثال: +963912345678"
                 onKeyPress={handleKeyPress}
+                className="flex-1 h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 rounded-xl"
               />
-              <Button
-                onClick={handleAddNumber}
-                variant="success"
-                className="flex items-center gap-2 transition-all h-11"
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                {/* <Plus size={18} /> */}
-                <span>إضافة</span>
-              </Button>
+                <Button
+                  onClick={handleAddNumber}
+                  variant="success"
+                  className="h-12 px-6 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl shadow-lg flex items-center gap-2 transition-all"
+                >
+                  {/* <Plus size={18} /> */}
+                  <span>إضافة</span>
+                </Button>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
 
           {/* حقل كتابة محتوى الرسالة */}
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-            <label className="block mb-4 font-medium text-gray-700 dark:text-gray-300 items-center gap-2">
-              <MessageSquare size={18} />
-              <span>محتوى الرسالة</span>
-            </label>
+          <motion.div
+            className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 p-6 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50"
+            whileHover={{ y: -2 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-xl">
+                <MessageSquare className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-800 dark:text-gray-200">
+                  محتوى الرسالة
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  اكتب الرسالة التي تريد إرسالها
+                </p>
+              </div>
+            </div>
+
             <Textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="اكتب الرسالة هنا..."
-              className="min-h-[200px] resize-none border-gray-300 dark:border-gray-600 focus:ring-green-500 focus:border-green-500"
+              placeholder="اكتب رسالتك هنا... يمكنك استخدام الإيموجي والنصوص الطويلة"
+              className="min-h-[180px] resize-none border-2 border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 rounded-xl text-base leading-relaxed"
             />
-          </div>
 
-          {/* زر الإرسال */}
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <div className="flex justify-between items-center mt-3 text-sm text-gray-500 dark:text-gray-400">
+              <span>{message.length} حرف</span>
+              {message.length > 0 && (
+                <span className="text-green-600 dark:text-green-400">
+                  ✓ جاهز للإرسال
+                </span>
+              )}
+            </div>
+          </motion.div>
+
+          {/* زر الإرسال المحسن */}
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="relative"
+          >
             <Button
               onClick={handleSend}
               disabled={isLoading}
-              className="bg-green-600 hover:bg-green-700 text-white w-full py-3 flex items-center justify-center gap-2 rounded-xl shadow-lg transition-all"
+              className={`w-full py-4 px-8 text-white rounded-2xl shadow-xl transition-all duration-300 flex items-center justify-center gap-3 text-lg font-semibold ${
+                isScheduled
+                  ? "bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
+                  : "bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
+              }`}
             >
               {isLoading ? (
-                <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
+                <>
+                  <div className="animate-spin h-6 w-6 border-3 border-white border-t-transparent rounded-full"></div>
+                  <span>
+                    {isScheduled ? "جاري الجدولة..." : "جاري الإرسال..."}
+                  </span>
+                </>
               ) : (
                 <>
-                  <Send size={18} />
-                  <span>إرسال الرسالة</span>
+                  {isScheduled ? <Clock size={20} /> : ""}
+                  <span>{isScheduled ? "جدولة الرسالة" : "إرسال الرسالة"}</span>
+                  {isScheduled && (
+                    <Sparkles size={18} className="animate-pulse" />
+                  )}
                 </>
               )}
             </Button>
+
+            {/* تأثير النجاح للرسائل المجدولة */}
+            <AnimatePresence>
+              {showScheduleSuccess && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center"
+                >
+                  <div className="flex items-center gap-2 text-white">
+                    <CheckCircle2 size={24} />
+                    <span className="font-semibold">تم الجدولة بنجاح!</span>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         </motion.div>
 
@@ -223,65 +530,124 @@ const SendWhatsappPage = () => {
         <motion.div
           initial={{ opacity: 0, x: isRTL ? -20 : 20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md"
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 p-6 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50"
         >
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="font-bold text-gray-800 dark:text-gray-200">
-              قائمة المستقبلين
-            </h3>
-            <span className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 px-3 py-1 rounded-full text-sm">
+          <div className="mb-6 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl">
+                <Phone className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-800 dark:text-gray-200 text-lg">
+                  قائمة المستقبلين
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  الأرقام المضافة للإرسال
+                </p>
+              </div>
+            </div>
+
+            <motion.span
+              key={recipientNumbers.length}
+              initial={{ scale: 1.2 }}
+              animate={{ scale: 1 }}
+              className="bg-gradient-to-r from-indigo-100 to-blue-100 dark:from-indigo-900/40 dark:to-blue-900/40 text-indigo-800 dark:text-indigo-300 px-4 py-2 rounded-full text-sm font-semibold shadow-sm"
+            >
               {recipientNumbers.length} رقم
-            </span>
+            </motion.span>
           </div>
 
           {recipientNumbers.length > 0 ? (
-            <div className="grid grid-cols-1 gap-3 max-h-[400px] overflow-y-auto p-2">
+            <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
               {recipientNumbers.map((number, index) => (
                 <motion.div
                   key={number}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.05 }}
-                  className="flex items-center justify-between bg-green-50 dark:bg-green-900/20 p-3 rounded-lg border border-green-100 dark:border-green-900"
+                  initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -20, scale: 0.9 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                  className="group flex items-center justify-between bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700/50 dark:to-gray-600/50 p-4 rounded-xl border border-gray-200 dark:border-gray-600 hover:shadow-md transition-all duration-200"
                 >
-                  <div className="flex items-center gap-2">
-                    <Phone
-                      size={16}
-                      className="text-green-600 dark:text-green-400"
-                    />
-                    <span className="font-medium">{number}</span>
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                      <Phone
+                        size={16}
+                        className="text-green-600 dark:text-green-400"
+                      />
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-800 dark:text-gray-200">
+                        {number}
+                      </span>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        رقم {index + 1}
+                      </p>
+                    </div>
                   </div>
-                  <Button
+
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
                     onClick={() => handleRemoveNumber(number)}
-                    variant="danger"
-                    size="sm"
-                    icon={<X size={18} />}
-                    iconPosition="left"
-                    className="hover:bg-red-50 dark:hover:bg-red-900/20 p-1 rounded-full transition-colors" children={undefined}                  />
+                    className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                  >
+                    <X size={18} />
+                  </motion.button>
                 </motion.div>
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center h-[300px] text-gray-400">
-              <Phone size={48} strokeWidth={1} />
-              <p className="mt-3">لم تقم بإضافة أي أرقام بعد</p>
-              <p className="text-sm">أضف أرقام المستقبلين للرسالة</p>
+            <div className="flex flex-col items-center justify-center h-[400px] text-gray-400">
+              <motion.div
+                animate={{
+                  y: [0, -10, 0],
+                  rotate: [0, 5, -5, 0],
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              >
+                <Phone
+                  size={64}
+                  strokeWidth={1}
+                  className="text-gray-300 dark:text-gray-600"
+                />
+              </motion.div>
+              <p className="mt-4 text-lg font-medium">لا توجد أرقام مضافة</p>
+              <p className="text-sm text-center leading-relaxed mt-2">
+                أضف أرقام المستقبلين لبدء الإرسال
+                <br />
+                يمكنك إضافة عدة أرقام للإرسال الجماعي
+              </p>
             </div>
           )}
         </motion.div>
       </div>
 
-      {/* مبدّل الحسابات (يبقى كما هو) */}
-      <div
-        className={`fixed bottom-4 ${
-          language === "ar" ? "left-4" : "right-4"
+      {/* مبدّل الحسابات */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.8 }}
+        className={`fixed bottom-6 ${
+          language === "ar" ? "left-6" : "right-6"
         } z-50`}
       >
-        <AccountSwitcher />
+        <div className="bg-white/90 backdrop-blur-md dark:bg-gray-800/90 p-2 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50">
+          <AccountSwitcher />
+        </div>
+      </motion.div>
+      {/* تأثيرات الخلفية */}
+      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-green-200/20 dark:bg-green-800/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-200/20 dark:bg-blue-800/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-200/10 dark:bg-purple-800/5 rounded-full blur-3xl"></div>
       </div>
     </div>
   );
 };
 
-export default SendWhatsappPage;
+export default EnhancedWhatsAppScheduler;
