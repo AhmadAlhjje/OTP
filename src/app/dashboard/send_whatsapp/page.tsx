@@ -42,11 +42,11 @@ const EnhancedWhatsAppScheduler = () => {
   const [isScheduled, setIsScheduled] = useState(false);
   const [scheduledTime, setScheduledTime] = useState<Date | null>(null);
   const [showScheduleSuccess, setShowScheduleSuccess] = useState(false);
-
   const { language } = useLanguage();
   const { showToast } = useToast();
   const isRTL = language === "ar";
 
+  // --- التحميل الأولي للحساب النشط ---
   useEffect(() => {
     const fetchActive = async () => {
       const acc = await getActiveAccount();
@@ -55,19 +55,19 @@ const EnhancedWhatsAppScheduler = () => {
     fetchActive();
   }, []);
 
+  // --- التحقق من صحة رقم الهاتف ---
   const validatePhoneNumber = (number: string) => {
     const trimmed = number.trim();
     return trimmed.length >= 10 && /^\+?\d+$/.test(trimmed);
   };
 
+  // --- إضافة رقم هاتف إلى القائمة ---
   const handleAddNumber = () => {
     const trimmed = currentNumber.trim();
-
     if (!validatePhoneNumber(trimmed)) {
       showToast("يرجى إدخال رقم هاتف صحيح", "error");
       return;
     }
-
     if (!recipientNumbers.includes(trimmed)) {
       setRecipientNumbers([...recipientNumbers, trimmed]);
       setCurrentNumber("");
@@ -76,6 +76,7 @@ const EnhancedWhatsAppScheduler = () => {
     }
   };
 
+  // --- إضافة رقم عند الضغط على Enter ---
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && currentNumber.trim()) {
       e.preventDefault();
@@ -83,38 +84,34 @@ const EnhancedWhatsAppScheduler = () => {
     }
   };
 
+  // --- حذف رقم من قائمة المستقبلين ---
   const handleRemoveNumber = (number: string) => {
     setRecipientNumbers(recipientNumbers.filter((n) => n !== number));
   };
 
+  // --- معالجة إرسال الرسالة (مجدولة أو فورية) ---
   const handleSend = async () => {
     if (!activeAccount) {
       showToast("يرجى اختيار حساب واتساب أولاً", "error");
       return;
     }
-
     if (recipientNumbers.length === 0) {
       showToast("يرجى إضافة رقم مستلم واحد على الأقل", "error");
       return;
     }
-
     if (!message.trim()) {
       showToast("يرجى كتابة نص الرسالة", "error");
       return;
     }
-
     if (isScheduled && !scheduledTime) {
       showToast("يرجى اختيار وقت الإرسال المجدول", "error");
       return;
     }
-
     if (isScheduled && scheduledTime && scheduledTime <= new Date()) {
       showToast("يجب أن يكون وقت الإرسال في المستقبل", "error");
       return;
     }
-
     setIsLoading(true);
-
     try {
       if (isScheduled) {
         // إرسال مجدول
@@ -123,7 +120,6 @@ const EnhancedWhatsAppScheduler = () => {
           message,
           scheduledAt: scheduledTime?.toISOString().replace(/\.\d{3}Z$/, "Z"),
         });
-
         if (res.status === 201) {
           setShowScheduleSuccess(true);
           setTimeout(() => setShowScheduleSuccess(false), 3000);
@@ -138,7 +134,6 @@ const EnhancedWhatsAppScheduler = () => {
           to: recipientNumbers,
           message,
         })) as WhatsAppMessageResponse;
-
         if (res.status === 200) {
           showToast("تم إرسال الرسالة بنجاح 🚀", "success");
           resetForm();
@@ -162,6 +157,7 @@ const EnhancedWhatsAppScheduler = () => {
     }
   };
 
+  // --- إعادة تعيين الحقول بعد الإرسال ---
   const resetForm = () => {
     setRecipientNumbers([]);
     setMessage("");
@@ -169,12 +165,14 @@ const EnhancedWhatsAppScheduler = () => {
     setIsScheduled(false);
   };
 
+  // --- تحديد أقل وقت ممكن للجدولة (5 دقائق من الآن) ---
   const getMinDateTime = () => {
     const now = new Date();
     now.setMinutes(now.getMinutes() + 5); // الحد الأدنى 5 دقائق من الآن
     return now;
   };
 
+  // --- تنسيق عرض الوقت والتاريخ ---
   const formatScheduledTime = (date: Date) => {
     return date.toLocaleString("ar-SA", {
       year: "numeric",
