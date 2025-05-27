@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState, useEffect } from "react";
 import Input from "@/components/atoms/Input";
 import { Textarea } from "@/components/atoms/textarea";
@@ -14,18 +13,31 @@ import {
 } from "lucide-react";
 import useTranslation from "@/hooks/useTranslation";
 
-// Enhanced Template Type
-type Template = {
+// Import API functions
+import {
+  saveTemplateToAPI,
+  updateTemplateToAPI,
+  fetchTemplatesFromAPI,
+  deleteTemplateFromAPI,
+} from "@/services/templateMassageService";
+
+// Template Type with new fields
+export type Template = {
+  _id?: string;
   id: number;
-  title: string;
+  name: string;
   content: string;
   createdAt: string;
+  type: string;
+  tags: string[];
 };
 
 export default function MessageTemplatesPage() {
   const [templates, setTemplates] = useState<Template[]>([]);
-  const [title, setTitle] = useState("");
+  const [name, setName] = useState("");
   const [content, setContent] = useState("");
+  const [type, setType] = useState(""); // Optional
+  const [tags, setTags] = useState<string[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -34,111 +46,136 @@ export default function MessageTemplatesPage() {
   const [templateToDelete, setTemplateToDelete] = useState<number | null>(null);
   const { t } = useTranslation();
 
-  // Load initial demo templates
+  // Load templates from API
   useEffect(() => {
+    const loadTemplates = async () => {
+      const apiTemplates = await fetchTemplatesFromAPI();
+      console.log(apiTemplates);
+      const localTemplates = apiTemplates.map((t) => ({
+        _id: t._id,
+        id: parseInt(t._id.slice(-6), 16),
+        name: t.name,
+        content: t.content || "",
+        createdAt: new Date(t.created_at).toLocaleDateString("ar-SA"),
+        type: t.type || "",
+        tags: t.tags || [],
+      }));
+      setTemplates(localTemplates);
+    };
+
     if (templates.length === 0) {
-      setTemplates([
-        {
-          id: 1,
-          title: "عرض ترحيبي",
-          content:
-            "مرحباً بك في خدماتنا! يسعدنا التواصل معك ومساعدتك في جميع استفساراتك.",
-          createdAt: new Date().toLocaleDateString("ar-SA"),
-        },
-        {
-          id: 2,
-          title: "رد آلي",
-          content:
-            "شكراً لتواصلك معنا، سنقوم بالرد عليك في أقرب وقت ممكن خلال ساعات العمل.",
-          createdAt: new Date().toLocaleDateString("ar-SA"),
-        },
-      ]);
+      loadTemplates();
     }
   }, []);
 
-  const handleAdd = () => {
-    if (title && content) {
+  const handleAdd = async () => {
+    if (!name || !content) return;
+
+    const templateData = {
+      name,
+      content, // ← تم إرسال النص مباشرة
+      type: type || "",
+      tags: tags.length > 0 ? tags : [],
+    };
+
+    try {
       if (isEditing && editingId) {
-        // Update existing template
+        const templateToUpdate = templates.find((t) => t.id === editingId);
+
+        if (templateToUpdate?._id) {
+          await updateTemplateToAPI(templateToUpdate._id, {
+            name,
+            content, // ← تم إرسال النص مباشرة
+          });
+        }
+
         setTemplates(
           templates.map((t) =>
-            t.id === editingId ? { ...t, title, content } : t
+            t.id === editingId ? { ...t, name, content, type, tags } : t
           )
         );
-        setIsEditing(false);
-        setEditingId(null);
       } else {
-        // Add new template
-        setTemplates([
-          {
-            id: Date.now(),
-            title,
-            content,
-            createdAt: new Date().toLocaleDateString("ar-SA"),
-          },
-          ...templates,
-        ]);
+        // إضافة قالب جديد
+        await saveTemplateToAPI({
+          name,
+          content, // ← تم إرسال النص مباشرة
+        });
+
+        const newTemplate = {
+          id: Date.now(),
+          name,
+          content,
+          createdAt: new Date().toLocaleDateString("ar-SA"),
+          type: type || "",
+          tags: tags.length > 0 ? tags : [],
+        };
+        setTemplates([newTemplate, ...templates]);
       }
 
-      // Reset form
-      setTitle("");
+      setName("");
       setContent("");
+      setType("");
+      setTags([]);
+      setIsEditing(false);
+      setEditingId(null);
       setShowForm(false);
+    } catch (error) {
+      console.error("فشل في حفظ أو تحديث القالب");
     }
   };
 
   const handleEdit = (id: number) => {
     const template = templates.find((t) => t.id === id);
     if (template) {
-      setTitle(template.title);
+      setName(template.name);
       setContent(template.content);
+      setType(template.type);
+      setTags(template.tags);
       setIsEditing(true);
       setEditingId(id);
       setShowForm(true);
     }
   };
 
-  const handleDelete = (id: number) => {
-    setTemplateToDelete(id);
-    setShowConfirmation(true);
-  };
-
-  const confirmDelete = () => {
-    if (templateToDelete) {
-      setTemplates(templates.filter((t) => t.id !== templateToDelete));
-      setShowConfirmation(false);
-      setTemplateToDelete(null);
+  const handleDelete = async (id: number) => {
+    const template = templates.find((t) => t.id === id);
+    if (template?._id) {
+      try {
+        const success = await deleteTemplateFromAPI(template._id);
+        if (success) {
+          setTemplates(templates.filter((t) => t.id !== id));
+        }
+      } catch (e) {
+        console.error("فشل في حذف القالب");
+      }
+    } else {
+      setTemplates(templates.filter((t) => t.id !== id));
     }
   };
 
-  const cancelDelete = () => {
-    setShowConfirmation(false);
-    setTemplateToDelete(null);
-  };
-
   const resetForm = () => {
-    setTitle("");
+    setName("");
     setContent("");
+    setType("");
+    setTags([]);
     setIsEditing(false);
     setEditingId(null);
     setShowForm(false);
   };
 
+  // We removed filtering based on search term
   const filteredTemplates = templates.filter(
     (template) =>
-      template.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       template.content.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Format date for display
   const formatDate = (dateString: string) => {
     return dateString;
   };
 
-  // Function to copy template content to clipboard
   const copyToClipboard = (content: string) => {
     navigator.clipboard.writeText(content);
-    // Could add a toast notification here
   };
 
   return (
@@ -164,16 +201,12 @@ export default function MessageTemplatesPage() {
               {showForm ? (
                 t("messageTemplatescancel")
               ) : (
-                <>
-                  {/* <Plus size={18} /> */}
-                  {t("messageTemplatesaddNew")}
-                </>
+                <>{t("messageTemplatesaddNew")}</>
               )}
             </Button>
           </div>
         </div>
       </div>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Form Section - Appears when "Add New" is clicked */}
         {showForm && (
@@ -190,8 +223,8 @@ export default function MessageTemplatesPage() {
                 </label>
                 <Input
                   placeholder={t("messageTemplatestitlePlaceholder")}
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   className="w-full border-gray-300 dark:border-gray-600 focus:ring-green-500 focus:border-green-500"
                 />
               </div>
@@ -207,7 +240,6 @@ export default function MessageTemplatesPage() {
                   className="w-full h-32 border-gray-300 dark:border-gray-600 focus:ring-green-500 focus:border-green-500 rounded-md"
                 />
               </div>
-
               <div className="flex justify-end space-x-3 rtl:space-x-reverse pt-2">
                 <Button
                   onClick={resetForm}
@@ -218,7 +250,7 @@ export default function MessageTemplatesPage() {
                 <Button
                   onClick={handleAdd}
                   className="bg-green-600 hover:bg-green-700 text-white"
-                  disabled={!title || !content}
+                  disabled={!name || !content}
                 >
                   {isEditing
                     ? t("messageTemplatessave")
@@ -239,7 +271,6 @@ export default function MessageTemplatesPage() {
             className="w-full sm:w-96"
             icon={<Search className="w-5 h-5" />}
           />
-
           <div className="text-sm text-gray-600 dark:text-gray-400">
             {t("messageTemplatestotalTemplates")}:{" "}
             <span className="font-semibold">{templates.length}</span>
@@ -257,17 +288,15 @@ export default function MessageTemplatesPage() {
                 <div className="p-5">
                   <div className="flex justify-between items-start mb-2">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
-                      {template.title}
+                      {template.name}
                     </h3>
                     <span className="text-xs text-gray-500 dark:text-gray-400">
                       {formatDate(template.createdAt)}
                     </span>
                   </div>
-
                   <div className="h-24 overflow-hidden text-gray-600 dark:text-gray-300 text-sm mb-4">
                     {template.content}
                   </div>
-
                   <div className="flex justify-between items-center pt-2 border-t border-gray-100 dark:border-gray-700">
                     <div className="flex space-x-2 rtl:space-x-reverse">
                       <Button
@@ -291,7 +320,6 @@ export default function MessageTemplatesPage() {
                         children={undefined}
                       />
                     </div>
-
                     <Button
                       onClick={() => copyToClipboard(template.content)}
                       variant="ghost"
@@ -324,7 +352,6 @@ export default function MessageTemplatesPage() {
                   onClick={() => setShowForm(true)}
                   className="bg-green-600 hover:bg-green-700 text-white inline-flex items-center"
                 >
-                  {/* <Plus className="mr-2 h-4 w-4" /> */}
                   {t("messageTemplatesaddFirst")}
                 </Button>
               </div>
@@ -345,13 +372,16 @@ export default function MessageTemplatesPage() {
             </p>
             <div className="flex justify-end space-x-3 rtl:space-x-reverse">
               <Button
-                onClick={cancelDelete}
+                onClick={() => setShowConfirmation(false)}
                 className="bg-green-600 hover:bg-green-700 text-gray-800 border border-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white dark:border-gray-600"
               >
                 {t("messageTemplatescancel")}
               </Button>
               <Button
-                onClick={confirmDelete}
+                onClick={() => {
+                  if (templateToDelete) handleDelete(templateToDelete);
+                  setShowConfirmation(false);
+                }}
                 className="bg-red-600 hover:bg-red-700 text-white"
               >
                 {t("messageTemplatesconfirm")}
