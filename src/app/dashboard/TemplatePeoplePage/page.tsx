@@ -6,6 +6,7 @@ import Button from "@/components/atoms/Button";
 import {
   deleteTemplateFromAPI,
   saveTemplateToAPI,
+  updateTemplateToAPI,
 } from "@/services/templateService";
 import { fetchTemplatesFromAPI } from "@/services/templateService";
 import {
@@ -49,7 +50,8 @@ export default function EnhancedTemplateManagerPage() {
   const [personPhone, setPersonPhone] = useState("");
   const [newPeople, setNewPeople] = useState<Person[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(
-null);
+    null
+  );
   const [searchTerm, setSearchTerm] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -217,33 +219,103 @@ null);
   };
 
   // Edit template name
-  const handleEditTemplateName = (
+  const handleEditTemplateName = async (
     id: number,
     newName: string,
     newDescription: string = ""
   ) => {
-    const updated = templates.map((t) =>
-      t.id === id ? { ...t, name: newName, description: newDescription } : t
-    );
-    setTemplates(updated);
-    setEditingTemplate(null);
+    if (!newName.trim()) {
+      alert("يجب إدخال اسم للقالب");
+      return;
+    }
+
+    try {
+      // العثور على القالب المحلي الذي يحتوي على _id من السيرفر
+      const templateToUpdate = templates.find((t) => t.id === id);
+      if (!templateToUpdate || !templateToUpdate._id) {
+        alert("معرف القالب غير موجود");
+        return;
+      }
+
+      // بناء payload كما هو متوقع من الـ API
+      const payload = {
+        name: newName,
+        phone_numbers: templateToUpdate.people.map((person) => ({
+          name: person.name,
+          phone_number: person.phone,
+        })),
+      };
+
+      // إرسال التعديل إلى السيرفر باستخدام PUT
+      const response = await updateTemplateToAPI(templateToUpdate._id, payload);
+
+      // تحديث حالة القوالب في الواجهة
+      const updatedTemplates = templates.map((t) =>
+        t.id === id ? { ...t, name: newName, description: newDescription } : t
+      );
+      setTemplates(updatedTemplates);
+
+      setEditingTemplate(null);
+      setTemplateName("");
+      setTemplateDescription("");
+
+      alert("تم تحديث القالب بنجاح!");
+    } catch (error) {
+      console.error("حدث خطأ أثناء تحديث القالب:", error);
+      alert("فشل في تحديث القالب. يرجى المحاولة لاحقًا.");
+    }
   };
 
   // Edit person
-  const handleEditPerson = (
+  const handleEditPerson = async (
     personId: number,
     newName: string,
     newPhone: string
   ) => {
     if (!selectedTemplate) return;
-    const updatedPeople = selectedTemplate.people.map((p) =>
-      p.id === personId ? { ...p, name: newName, phone: newPhone } : p
+
+    const templateToUpdate = templates.find(
+      (t) => t.id === selectedTemplate.id
     );
-    const updatedTemplates = templates.map((t) =>
-      t.id === selectedTemplate.id ? { ...t, people: updatedPeople } : t
-    );
-    setTemplates(updatedTemplates);
-    setEditingPerson(null);
+
+    if (!templateToUpdate || !templateToUpdate._id) {
+      alert("معرف القالب غير موجود");
+      return;
+    }
+
+    try {
+      // تحديث قائمة الأشخاص محليًا
+      const updatedPeople = selectedTemplate.people.map((p) =>
+        p.id === personId ? { ...p, name: newName, phone: newPhone } : p
+      );
+
+      // بناء payload ليتم إرساله إلى API
+      const payload = {
+        name: selectedTemplate.name,
+        phone_numbers: updatedPeople.map(({ name, phone }) => ({
+          name,
+          phone_number: phone, // ← متأكد أن الحقل هو phone_number
+        })),
+      };
+
+      // إرسال التعديل إلى السيرفر
+      await updateTemplateToAPI(templateToUpdate._id, payload);
+
+      // تحديث حالة الواجهة
+      const updatedTemplates = templates.map((t) =>
+        t.id === selectedTemplate.id ? { ...t, people: updatedPeople } : t
+      );
+
+      setTemplates(updatedTemplates);
+      setEditingPerson(null);
+      setPersonName("");
+      setPersonPhone("");
+
+      alert("تم تحديث الشخص بنجاح!");
+    } catch (error) {
+      console.error("حدث خطأ أثناء تحديث الشخص:", error);
+      alert("فشل في تحديث الشخص. يرجى المحاولة لاحقًا.");
+    }
   };
 
   // Copy template data

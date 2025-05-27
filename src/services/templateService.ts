@@ -59,3 +59,17 @@ export const deleteTemplateFromAPI = async (_id: string): Promise<boolean> => {
 };
 
 
+// تعديل دفتر عناوين
+export const updateTemplateToAPI = async (
+  id: string,
+  template: TemplatePayload
+) => {
+    console.log(template)
+  try {
+    const response = await apiClient.patch(`/groups/${id}`, template);
+    return response.data;
+  } catch (error) {
+    console.error("فشل في تحديث القالب عبر API:", error);
+    throw error;
+  }
+};
