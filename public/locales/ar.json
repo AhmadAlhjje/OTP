@@ -103,5 +103,7 @@
   "contact_templates": "قوالب جهات الاتصال",
   "private_contact_templates": "قوالب جهات الاتصال الخاصة",
 
-  "Scheduled_messages":"الرسائل المجدولة"
+  "Scheduled_messages":"الرسائل المجدولة",
+
+  "auto_replies": "الردود التلقائية"
 }

@@ -100,7 +100,9 @@
   "contact_templates": "Contact Templates",
   "private_contact_templates": "Private Contact Templates",
 
-  "Scheduled_messages":"Scheduled Messages"
+  "Scheduled_messages":"Scheduled Messages",
+
+  "auto_replies": "Auto Replies"
 
 
 }
