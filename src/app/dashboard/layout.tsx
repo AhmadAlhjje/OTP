@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Navbar from "../../components/organisms/Navbar";
 import Sidebar from "../../components/organisms/Sidebar";
 import useLanguage from "@/hooks/useLanguage";
+import { MantineProvider } from "@mantine/core";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -55,9 +56,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         )}
 
         {/* Main Content */}
+        <MantineProvider>
         <main className="flex-1 p-4 overflow-auto bg-gray-100 relative z-10">
           {children}
         </main>
+        </MantineProvider>
       </div>
 
       {/* Mobile Sidebar - يظهر فوق المحتوى مع مراعاة ارتفاع النافبار */}

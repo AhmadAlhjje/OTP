@@ -87,6 +87,7 @@ function Sidebar({ isOpen, onClose, onToggle, isLargeScreen = false }: SidebarPr
       icon: <MessageSquareText className="w-5 h-5" />,
       subItems: [
         { label: t("send_messages"), href: "/dashboard/send_whatsapp" },
+        { label: t("Scheduled_messages"), href: "/dashboard/schedule-whatsapp-page" },
         // { label: t("from_excel"), href: "/dashboard/send/excel" },
         // { label: t("from_contacts"), href: "/dashboard/send/contacts" },
       ],
