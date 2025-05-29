@@ -1,17 +1,8 @@
-/**
- * AutoReplyManager.tsx
- *
- * الصفحة الرئيسية لإدارة الردود التلقائية.
- * تحتوي على:
- * - رأس الصفحة
- * - شريط البحث وزر إضافة رد جديد
- * - قائمة الردود التلقائية
- * - نافذة منبثقة لإضافة/تعديل الرد
- * - إشعار عند الحفظ بنجاح
- */
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { AutoReply } from "@/types/auto-reply";
 
 // Organisms
 import { HeaderSection } from "@/components/organisms/HeaderSection";
@@ -23,87 +14,74 @@ import { ModalForm } from "@/components/molecules/ModalForm";
 
 // Atoms
 import Toast from "@/components/atoms/Toast";
-import { AnimatePresence, motion } from "framer-motion";
-import { Bot, Zap } from "lucide-react";
 
-// Mock data for demonstration
-const mockAutoReplies = [
-  {
-    id: 1,
-    keyword: "pricing",
-    response:
-      "Our pricing starts at $9.99/month. For more details, please visit our website at example.com/pricing",
-  },
-  {
-    id: 2,
-    keyword: "support",
-    response:
-      "للحصول على الدعم الفني، يرجى زيارة support.example.com أو الاتصال على الرقم التالي: +966123456789",
-  },
-  {
-    id: 3,
-    keyword: "hours",
-    response: "ساعات العمل: من الأحد إلى الخميس من 9 صباحاً إلى 6 مساءً",
-  },
-];
+// API Actions
+import {
+  fetchAutoRepliesFromAPI,
+  addAutoReplyToAPI,
+  updateAutoReplyOnAPI,
+  deleteAutoReplyFromAPI,
+} from "@/services/autoReplyAPI.ts";
 
-interface AutoReply {
-  id: number;
-  keyword: string;
-  response: string;
-}
 
 export const AutoReplyManager = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [autoReplies, setAutoReplies] = useState<AutoReply[]>(mockAutoReplies);
+  const [autoReplies, setAutoReplies] = useState<AutoReply[]>([]);
   const [editingReply, setEditingReply] = useState<AutoReply | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState({ keyword: "", response: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [loadingData, setLoadingData] = useState(true);
 
-  // Handle opening modal for new reply
+  //  جلب البيانات من السيرفر عند التحميل الأولي
+  useEffect(() => {
+    const loadReplies = async () => {
+      setLoadingData(true);
+      const replies = await fetchAutoRepliesFromAPI();
+      setAutoReplies(replies);
+      setLoadingData(false);
+    };
+    loadReplies();
+  }, []);
+
+  //  فتح نافذة الإضافة
   const handleNewReply = () => {
     setEditingReply(null);
     setFormData({ keyword: "", response: "" });
     setIsModalOpen(true);
   };
 
-  // Handle opening modal for editing
+  //  فتح نافذة التعديل
   const handleEditReply = (reply: AutoReply) => {
     setEditingReply(reply);
     setFormData({ keyword: reply.keyword, response: reply.response });
     setIsModalOpen(true);
   };
 
-  // Handle saving reply
+  //  حفظ الرد (إضافة أو تعديل)
   const handleSaveReply = async () => {
     if (!formData.keyword.trim() || !formData.response.trim()) return;
 
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     if (editingReply) {
-      // Update existing reply
-      setAutoReplies((prev) =>
-        prev.map((reply) =>
-          reply.id === editingReply.id
-            ? {
-                ...reply,
-                keyword: formData.keyword,
-                response: formData.response,
-              }
-            : reply
-        )
+      //  تعديل
+      const updatedReply = await updateAutoReplyOnAPI(
+        editingReply.id,
+        formData
       );
+      if (updatedReply) {
+        setAutoReplies((prev) =>
+          prev.map((r) => (r.id === editingReply.id ? updatedReply : r))
+        );
+      }
     } else {
-      // Add new reply
-      const newReply = {
-        id: Date.now(),
-        keyword: formData.keyword,
-        response: formData.response,
-      };
-      setAutoReplies((prev) => [...prev, newReply]);
+      //  إضافة
+      const newReply = await addAutoReplyToAPI(formData);
+      if (newReply) {
+        setAutoReplies((prev) => [newReply, ...prev]);
+      }
     }
 
     setIsLoading(false);
@@ -113,9 +91,12 @@ export const AutoReplyManager = () => {
     setFormData({ keyword: "", response: "" });
   };
 
-  // Handle deleting reply
-  const handleDeleteReply = (id: number) => {
-    setAutoReplies((prev) => prev.filter((reply) => reply.id !== id));
+  //  حذف الرد
+  const handleDeleteReply = async (id: number) => {
+    const success = await deleteAutoReplyFromAPI(id);
+    if (success) {
+      setAutoReplies((prev) => prev.filter((reply) => reply.id !== id));
+    }
   };
 
   return (
@@ -126,8 +107,6 @@ export const AutoReplyManager = () => {
         description="إدارة الردود الآلية للرسائل الواردة"
         itemCount={autoReplies.length}
         itemLabel="رد تلقائي"
-        icon={<Bot />}
-        statusIcon={<Zap />}
       />
 
       {/* Controls Section */}
@@ -150,6 +129,7 @@ export const AutoReplyManager = () => {
         emptyDefaultActionText="أضف ردود تلقائية للبدء في استخدام الميزة"
       />
 
+      {/* Modal Form */}
       <AnimatePresence>
         {isModalOpen && (
           <motion.div
@@ -180,14 +160,16 @@ export const AutoReplyManager = () => {
       </AnimatePresence>
 
       {/* Success Toast Notification */}
-      {showSuccess && (
-        <Toast
-          id="save-success"
-          message="تم الحفظ بنجاح!"
-          type="success"
-          onClose={() => setShowSuccess(false)}
-        />
-      )}
+      <AnimatePresence>
+        {showSuccess && (
+          <Toast
+            id="save-success"
+            message="تم الحفظ بنجاح!"
+            type="success"
+            onClose={() => setShowSuccess(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };
