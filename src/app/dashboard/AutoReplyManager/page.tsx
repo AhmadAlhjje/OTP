@@ -17,6 +17,8 @@ import {
   Sparkles,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import EditButton from "@/components/common/EditButton";
+import DeleteButton from "@/components/common/DeleteButton";
 
 // Mock data for demonstration
 const mockAutoReplies = [
@@ -278,14 +280,14 @@ const AutoReplyManager = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity ml-4">
+                    <div className="flex items-center gap-2 opacity-100 transition-opacity ml-4">
                       <motion.button
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
                         onClick={() => handleEditReply(reply)}
                         className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
                       >
-                        <Edit3 size={16} />
+                        <EditButton/>
                       </motion.button>
 
                       <motion.button
@@ -294,7 +296,7 @@ const AutoReplyManager = () => {
                         onClick={() => handleDeleteReply(reply.id)}
                         className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                       >
-                        <Trash2 size={16} />
+                        <DeleteButton/>
                       </motion.button>
                     </div>
                   </div>
