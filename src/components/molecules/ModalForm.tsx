@@ -13,6 +13,11 @@ interface ModalFormProps {
   onSave: () => void;
   onClose: () => void;
   isLoading: boolean;
+  errors?: {
+    keyword?: string;
+    response?: string;
+    scheduledAt?: string;
+  };
 }
 
 export const ModalForm = ({

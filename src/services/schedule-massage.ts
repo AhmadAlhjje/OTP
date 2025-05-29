@@ -1,11 +1,5 @@
+import { ScheduledMessage } from "@/types/scheduled-message";
 import { apiClient } from "./apiClient";
-
-interface WhatsAppMessageRequest {
-  recipients: string[];
-  message: string;
-  scheduledTime?: string; 
-  messageDelayMs: number;
-}
 
 // ارسال رسالة مجدولة
 export const sendWhatsappMessage = async ({
@@ -38,19 +32,34 @@ export const sendWhatsappMessage = async ({
 
 // جديد
 
+export const updateScheduledMessageOnAPI = async (
+  id: string,
+  updatedData: Partial<ScheduledMessage>
+): Promise<boolean> => {
+  try {
+    await apiClient.patch(`/scheduled-messages/${id}`, updatedData);
+    return true;
+  } catch (error) {
+    console.error(`فشل في تحديث الرسالة #${id}:`, error);
+    return false;
+  }
+};
+
 export const getScheduledMessages = async () => {
   try {
-    const response = await apiClient.get("/api/scheduled-messages");
+    const response = await apiClient.get("/scheduled-messages");
     return response.data;
   } catch (error) {
     throw error;
   }
 };
 
-export const deleteScheduledMessage = async (messageId: string) => {
+export const deleteScheduledMessage = async (messageId: string): Promise<boolean> => {
   try {
-    await apiClient.delete(`/api/scheduled-messages/${messageId}`);
+    await apiClient.delete(`/scheduled-messages/${messageId}`);
+    return true;
   } catch (error) {
-    throw error;
+    console.error(`فشل في حذف الرسالة #${messageId}:`, error);
+    return false;
   }
 };
