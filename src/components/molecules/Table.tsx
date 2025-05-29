@@ -276,14 +276,6 @@ const Table: React.FC<TableProps> = ({
                     عنصر
                   </span>
                 </div>
-                {selectedRows.length > 0 && (
-                  <div className="flex items-center gap-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-3 py-1.5 rounded-full animate-pulse">
-                    <Check className="h-3 w-3" />
-                    <span className="text-xs font-semibold">
-                      {selectedRows.length} محدد
-                    </span>
-                  </div>
-                )}
               </div>
               <div className="flex items-center gap-3">
                 {searchQuery && (
