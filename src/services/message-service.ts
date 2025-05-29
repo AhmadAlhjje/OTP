@@ -1,5 +1,6 @@
 import { apiClient } from "./apiClient";
 
+// ارسال رسالة واتساب
 export const sendWhatsappMessage = async ({
   to,
   message,
@@ -19,3 +20,4 @@ export const sendWhatsappMessage = async ({
     throw error;
   }
 };
+

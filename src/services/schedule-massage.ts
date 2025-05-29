@@ -7,6 +7,7 @@ interface WhatsAppMessageRequest {
   messageDelayMs: number;
 }
 
+// ارسال رسالة مجدولة
 export const sendWhatsappMessage = async ({
   to,
   message,
@@ -29,6 +30,27 @@ export const sendWhatsappMessage = async ({
     return res;
   } catch (error) {
     console.error("فشل في إرسال الرسالة:", error);
+    throw error;
+  }
+};
+
+
+
+// جديد
+
+export const getScheduledMessages = async () => {
+  try {
+    const response = await apiClient.get("/api/scheduled-messages");
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const deleteScheduledMessage = async (messageId: string) => {
+  try {
+    await apiClient.delete(`/api/scheduled-messages/${messageId}`);
+  } catch (error) {
     throw error;
   }
 };
