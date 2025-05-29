@@ -23,6 +23,7 @@ import {
   Home,
   Settings,
   Activity,
+  Bot,
 } from "lucide-react";
 
 import useTranslation from "@/hooks/useTranslation";
@@ -45,7 +46,12 @@ interface SidebarProps {
   isLargeScreen?: boolean;
 }
 
-function Sidebar({ isOpen, onClose, onToggle, isLargeScreen = false }: SidebarProps) {
+function Sidebar({
+  isOpen,
+  onClose,
+  onToggle,
+  isLargeScreen = false,
+}: SidebarProps) {
   const [openSubMenus, setOpenSubMenus] = useState<Record<number, boolean>>({});
   const { t } = useTranslation();
   const { language } = useLanguage();
@@ -87,7 +93,10 @@ function Sidebar({ isOpen, onClose, onToggle, isLargeScreen = false }: SidebarPr
       icon: <MessageSquareText className="w-5 h-5" />,
       subItems: [
         { label: t("send_messages"), href: "/dashboard/send_whatsapp" },
-        { label: t("Scheduled_messages"), href: "/dashboard/schedule-whatsapp-page" },
+        {
+          label: t("Scheduled_messages"),
+          href: "/dashboard/schedule-whatsapp-page",
+        },
         // { label: t("from_excel"), href: "/dashboard/send/excel" },
         // { label: t("from_contacts"), href: "/dashboard/send/contacts" },
       ],
@@ -106,6 +115,11 @@ function Sidebar({ isOpen, onClose, onToggle, isLargeScreen = false }: SidebarPr
       subItems: [
         { label: t("private_message_templates"), href: "/dashboard/templates" },
       ],
+    },
+    {
+      label: t("auto_replies"),
+      icon: <Bot className="w-5 h-5" />,
+      href: "/dashboard/AutoReplyManager",
     },
     // {
     //   label: t("contact_templates"),
@@ -139,15 +153,24 @@ function Sidebar({ isOpen, onClose, onToggle, isLargeScreen = false }: SidebarPr
     <aside
       className={`
         bg-[#f7f8fa] text-gray-800 shadow-2xl transition-all duration-300 ease-in-out
-        ${isLargeScreen 
-          ? "w-80 h-full relative" 
-          : isOpen 
+        ${
+          isLargeScreen
+            ? "w-80 h-full relative"
+            : isOpen
             ? "w-80 h-[calc(100vh-80px)]" // طرح ارتفاع النافبار (80px)
             : "w-0 h-0"
         }
         ${isLargeScreen ? "" : "fixed"}
         overflow-hidden
-        ${isRTL ? (isLargeScreen ? "" : "right-0") : (isLargeScreen ? "" : "left-0")}
+        ${
+          isRTL
+            ? isLargeScreen
+              ? ""
+              : "right-0"
+            : isLargeScreen
+            ? ""
+            : "left-0"
+        }
       `}
       style={{
         direction: isRTL ? "rtl" : "ltr",
@@ -160,7 +183,10 @@ function Sidebar({ isOpen, onClose, onToggle, isLargeScreen = false }: SidebarPr
             <React.Fragment key={index}>
               {!item.subItems ? (
                 item.href ? (
-                  <Link href={item.href} onClick={!isLargeScreen ? onClose : undefined}>
+                  <Link
+                    href={item.href}
+                    onClick={!isLargeScreen ? onClose : undefined}
+                  >
                     <div
                       className={`
                         flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg 
@@ -224,9 +250,7 @@ function Sidebar({ isOpen, onClose, onToggle, isLargeScreen = false }: SidebarPr
                       >
                         {item.icon}
                       </div>
-                      <span className="font-medium text-sm">
-                        {item.label}
-                      </span>
+                      <span className="font-medium text-sm">{item.label}</span>
                     </div>
                     <div
                       className={`
@@ -257,8 +281,8 @@ function Sidebar({ isOpen, onClose, onToggle, isLargeScreen = false }: SidebarPr
                       className={`${isRTL ? "pr-6" : "pl-6"} mt-1 space-y-1`}
                     >
                       {item.subItems?.map((subItem, i) => (
-                        <Link 
-                          href={subItem.href} 
+                        <Link
+                          href={subItem.href}
                           key={i}
                           onClick={!isLargeScreen ? onClose : undefined}
                         >
