@@ -31,9 +31,6 @@ export default function AccountsPage() {
     });
 
     wsService.on("qr", (data) => {
-      console.log('====================================');
-      console.log(data);
-      console.log('====================================');
       if (data.qr) {
         setQrImageUrl(data.qr);
         setLoading(false);
