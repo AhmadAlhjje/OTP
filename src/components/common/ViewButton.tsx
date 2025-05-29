@@ -11,7 +11,7 @@ export default function ViewButton({ onClick, label = "عرض", disabled }: View
   return (
     <Button variant="secondary" size="sm" onClick={onClick} disabled={disabled}>
       <Eye className="w-4 h-4 ml-1" />
-      {label}
+      {/* {label} */}
     </Button>
   );
 }

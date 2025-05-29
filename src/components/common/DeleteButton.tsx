@@ -11,7 +11,7 @@ export default function DeleteButton({ onClick, label = "حذف", disabled }: De
   return (
     <Button variant="danger" size="sm" onClick={onClick} disabled={disabled}>
       <Trash2 className="w-4 h-4 ml-1" />
-      {label}
+      {/* {label} */}
     </Button>
   );
 }

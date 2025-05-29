@@ -11,7 +11,7 @@ export default function PrintButton({ onClick, label = "طباعة", disabled }:
   return (
     <Button variant="outline" size="sm" onClick={onClick} disabled={disabled}>
       <Printer className="w-4 h-4 ml-1" />
-      {label}
+      {/* {label} */}
     </Button>
   );
 }
