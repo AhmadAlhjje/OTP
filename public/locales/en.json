@@ -98,7 +98,9 @@
   "templatePeoplePagestartCreating": "Start creating",
 
   "contact_templates": "Contact Templates",
-  "private_contact_templates": "Private Contact Templates"
+  "private_contact_templates": "Private Contact Templates",
+
+  "Scheduled_messages":"Scheduled Messages"
 
 
 }
