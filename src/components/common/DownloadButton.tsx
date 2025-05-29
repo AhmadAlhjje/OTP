@@ -9,8 +9,8 @@ interface DownloadButtonProps {
 
 export default function DownloadButton({ onClick, label = "تحميل", disabled }: DownloadButtonProps) {
   return (
-    <Button variant="outline" size="sm" onClick={onClick} disabled={disabled}>
-      <Download className="w-4 h-4 ml-1" />
+    <Button variant="success" size="sm" onClick={onClick} disabled={disabled}>
+      <Download className="w-4 h-4" />
       {/* {label} */}
     </Button>
   );

@@ -10,7 +10,7 @@ interface ViewButtonProps {
 export default function ViewButton({ onClick, label = "عرض", disabled }: ViewButtonProps) {
   return (
     <Button variant="secondary" size="sm" onClick={onClick} disabled={disabled}>
-      <Eye className="w-4 h-4 ml-1" />
+      <Eye className="w-4 h-4" />
       {/* {label} */}
     </Button>
   );
