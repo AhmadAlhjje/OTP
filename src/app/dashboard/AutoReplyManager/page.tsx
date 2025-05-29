@@ -332,7 +332,6 @@ const AutoReplyManager = () => {
           )}
         </div>
       </motion.div>
-
       {/* Modal for Add/Edit */}
       <AnimatePresence>
         {isModalOpen && (
