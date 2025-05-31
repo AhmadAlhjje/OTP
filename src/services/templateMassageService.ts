@@ -18,6 +18,7 @@ export type APITemplateResponse = {
 };
 
 export type APITemplate = {
+  [x: string]: any;
   _id: string;
   name: string;
   content: string;

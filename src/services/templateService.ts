@@ -18,6 +18,7 @@ export type PersonFromAPI = {
 };
 
 export type TemplateFromAPI = {
+  [x: string]: any;
   _id: string;
   name: string;
   contacts: PersonFromAPI[];

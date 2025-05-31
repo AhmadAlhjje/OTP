@@ -9,6 +9,7 @@ import Button from "@/components/atoms/Button";
 import { useToast } from "@/hooks/useToast";
 import { sendWhatsappMessage } from "@/services/message-service";
 import { sendWhatsappMessage as sendScheduledMessage } from "@/services/schedule-massage";
+import { fetchTemplatesFromAPI } from "@/services/templateMassageService"; 
 import {
   Phone,
   Send,
@@ -20,6 +21,8 @@ import {
   Timer,
   Sparkles,
   CheckCircle2,
+  FileText,
+  ChevronDown,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AxiosResponse } from "axios";
@@ -32,6 +35,14 @@ interface WhatsAppMessageResponse extends AxiosResponse {
   message?: string;
 }
 
+// Interface for API Template
+interface APITemplate {
+  id: string;
+  name: string;
+  content: string;
+  category?: string;
+}
+
 const EnhancedWhatsAppScheduler = () => {
   const [activeAccount, setActiveAccount] = useState<any>(null);
   const [currentNumber, setCurrentNumber] = useState("");
@@ -42,6 +53,16 @@ const EnhancedWhatsAppScheduler = () => {
   const [isScheduled, setIsScheduled] = useState(false);
   const [scheduledTime, setScheduledTime] = useState<Date | null>(null);
   const [showScheduleSuccess, setShowScheduleSuccess] = useState(false);
+
+  // Template related states
+  const [templates, setTemplates] = useState<APITemplate[]>([]);
+  const [selectedTemplate, setSelectedTemplate] = useState<APITemplate | null>(
+    null
+  );
+  const [isTemplateMode, setIsTemplateMode] = useState(false);
+  const [templatesLoading, setTemplatesLoading] = useState(false);
+  const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
+
   const { language } = useLanguage();
   const { showToast } = useToast();
   const isRTL = language === "ar";
@@ -53,6 +74,31 @@ const EnhancedWhatsAppScheduler = () => {
       setActiveAccount(acc);
     };
     fetchActive();
+  }, []);
+
+  // --- جلب القوالب من API ---
+  useEffect(() => {
+    const fetchTemplates = async () => {
+      setTemplatesLoading(true);
+      try {
+        const fetchedTemplates = await fetchTemplatesFromAPI(); // ← هذه تُرجع TemplateFromAPI[]
+
+        // هنا نقوم بالتحويل إلى APITemplate[]
+        const normalizedTemplates = fetchedTemplates.map((template) => ({
+          id: template._id,
+          name: template.name,
+          content: template.message,
+        }));
+
+        setTemplates(normalizedTemplates); // ✅ الآن سيكون النوع صحيحًا
+      } catch (error) {
+        showToast("فشل في جلب قوالب الرسائل", "error");
+      } finally {
+        setTemplatesLoading(false);
+      }
+    };
+
+    fetchTemplates();
   }, []);
 
   // --- التحقق من صحة رقم الهاتف ---
@@ -89,6 +135,26 @@ const EnhancedWhatsAppScheduler = () => {
     setRecipientNumbers(recipientNumbers.filter((n) => n !== number));
   };
 
+  // --- اختيار قالب رسالة ---
+  const handleTemplateSelect = (template: APITemplate) => {
+    setSelectedTemplate(template);
+    setMessage(template.content);
+    setShowTemplateDropdown(false);
+  };
+
+  // --- تبديل وضع القالب ---
+  const handleTemplateModeToggle = () => {
+    setIsTemplateMode(!isTemplateMode);
+    if (!isTemplateMode) {
+      // إذا تم تفعيل وضع القالب، امسح الرسالة المكتوبة يدوياً
+      setMessage("");
+      setSelectedTemplate(null);
+    } else {
+      // إذا تم إلغاء وضع القالب، امسح القالب المحدد
+      setSelectedTemplate(null);
+    }
+  };
+
   // --- معالجة إرسال الرسالة (مجدولة أو فورية) ---
   const handleSend = async () => {
     if (!activeAccount) {
@@ -99,10 +165,17 @@ const EnhancedWhatsAppScheduler = () => {
       showToast("يرجى إضافة رقم مستلم واحد على الأقل", "error");
       return;
     }
-    if (!message.trim()) {
+
+    // التحقق من وجود رسالة أو قالب محدد
+    if (isTemplateMode && !selectedTemplate) {
+      showToast("يرجى اختيار قالب رسالة", "error");
+      return;
+    }
+    if (!isTemplateMode && !message.trim()) {
       showToast("يرجى كتابة نص الرسالة", "error");
       return;
     }
+
     if (isScheduled && !scheduledTime) {
       showToast("يرجى اختيار وقت الإرسال المجدول", "error");
       return;
@@ -111,13 +184,20 @@ const EnhancedWhatsAppScheduler = () => {
       showToast("يجب أن يكون وقت الإرسال في المستقبل", "error");
       return;
     }
+
     setIsLoading(true);
+
     try {
+      // تحديد محتوى الرسالة بناءً على الوضع
+      const messageContent = isTemplateMode
+        ? selectedTemplate?.id || ""
+        : message;
+
       if (isScheduled) {
         // إرسال مجدول
         const res = await sendScheduledMessage({
           to: recipientNumbers,
-          message,
+          message: messageContent,
           scheduledAt: scheduledTime?.toISOString().replace(/\.\d{3}Z$/, "Z"),
         });
         if (res.status === 201) {
@@ -132,9 +212,9 @@ const EnhancedWhatsAppScheduler = () => {
         // إرسال فوري
         const res = (await sendWhatsappMessage({
           to: recipientNumbers,
-          message,
+          message: messageContent,
         })) as WhatsAppMessageResponse;
-        if (res.status === 200) {
+        if (res.status === 201) {
           showToast("تم إرسال الرسالة بنجاح 🚀", "success");
           resetForm();
         } else {
@@ -163,6 +243,8 @@ const EnhancedWhatsAppScheduler = () => {
     setMessage("");
     setScheduledTime(null);
     setIsScheduled(false);
+    setSelectedTemplate(null);
+    setIsTemplateMode(false);
   };
 
   // --- تحديد أقل وقت ممكن للجدولة (5 دقائق من الآن) ---
@@ -428,48 +510,184 @@ const EnhancedWhatsAppScheduler = () => {
                   variant="success"
                   className="h-12 px-6 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl shadow-lg flex items-center gap-2 transition-all"
                 >
-                  {/* <Plus size={18} /> */}
                   <span>إضافة</span>
                 </Button>
               </motion.div>
             </div>
           </motion.div>
 
-          {/* حقل كتابة محتوى الرسالة */}
+          {/* حقل كتابة محتوى الرسالة مع اختيار القوالب */}
           <motion.div
             className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 p-6 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50"
             whileHover={{ y: -2 }}
             transition={{ duration: 0.2 }}
           >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-xl">
-                <MessageSquare className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-xl">
+                  <MessageSquare className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-800 dark:text-gray-200">
+                    محتوى الرسالة
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {isTemplateMode ? "اختر قالب رسالة" : "اكتب رسالتك"}
+                  </p>
+                </div>
               </div>
+
+              {/* تبديل وضع القالب */}
+              <motion.label
+                className="relative inline-flex items-center cursor-pointer"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <input
+                  type="checkbox"
+                  checked={isTemplateMode}
+                  onChange={handleTemplateModeToggle}
+                  className="sr-only"
+                />
+                <div
+                  className={`relative w-14 h-7 transition-colors duration-300 rounded-full ${
+                    isTemplateMode
+                      ? "bg-gradient-to-r from-purple-400 to-purple-600"
+                      : "bg-gray-300 dark:bg-gray-600"
+                  }`}
+                >
+                  <motion.div
+                    className="absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow-lg flex items-center justify-center"
+                    animate={{ x: isTemplateMode ? 28 : 0 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                  >
+                    <FileText className="h-3 w-3 text-purple-600" />
+                  </motion.div>
+                </div>
+              </motion.label>
+            </div>
+
+            {isTemplateMode ? (
+              // عرض اختيار القوالب
+              <div className="space-y-4">
+                <div className="relative">
+                  <button
+                    onClick={() =>
+                      setShowTemplateDropdown(!showTemplateDropdown)
+                    }
+                    className="w-full p-4 border-2 border-purple-200 dark:border-purple-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 text-right flex items-center justify-between transition-all"
+                    disabled={templatesLoading}
+                  >
+                    <span>
+                      {templatesLoading
+                        ? "جاري التحميل..."
+                        : selectedTemplate
+                        ? selectedTemplate.name
+                        : "اختر قالب رسالة"}
+                    </span>
+                    <ChevronDown
+                      className={`h-5 w-5 text-purple-500 transition-transform ${
+                        showTemplateDropdown ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+
+                  <AnimatePresence>
+                    {showTemplateDropdown && !templatesLoading && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                        className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 border border-purple-200 dark:border-purple-700 rounded-xl shadow-xl z-30 max-h-60 overflow-y-auto"
+                      >
+                        {templates.length > 0 ? (
+                          templates.map((template) => (
+                            <motion.button
+                              key={template.id}
+                              onClick={() => handleTemplateSelect(template)}
+                              whileHover={{
+                                backgroundColor: "rgba(168, 85, 247, 0.1)",
+                              }}
+                              className="w-full p-4 text-right hover:bg-purple-50 dark:hover:bg-purple-900/20 border-b border-gray-100 dark:border-gray-700 last:border-b-0 transition-colors"
+                            >
+                              <div>
+                                <p className="font-medium text-gray-800 dark:text-gray-200">
+                                  {template.name}
+                                </p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
+                                  {template.content}
+                                </p>
+                                {template.category && (
+                                  <span className="inline-block mt-2 px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs rounded-full">
+                                    {template.category}
+                                  </span>
+                                )}
+                              </div>
+                            </motion.button>
+                          ))
+                        ) : (
+                          <div className="p-4 text-center text-gray-500 dark:text-gray-400">
+                            لا توجد قوالب متاحة
+                          </div>
+                        )}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {/* عرض القالب المحدد */}
+                {selectedTemplate && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-4 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-xl border border-purple-200 dark:border-purple-700"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium text-purple-800 dark:text-purple-300">
+                        القالب المحدد: {selectedTemplate.name}
+                      </h4>
+                      <button
+                        onClick={() => {
+                          setSelectedTemplate(null);
+                          setMessage("");
+                        }}
+                        className="p-1 text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-200"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                    <p className="text-sm text-gray-700 dark:text-gray-300 bg-white/50 dark:bg-gray-800/50 p-3 rounded-lg">
+                      {selectedTemplate.content}
+                    </p>
+                    <div className="flex items-center gap-2 mt-3 text-purple-700 dark:text-purple-300">
+                      <CheckCircle2 className="h-4 w-4" />
+                      <span className="text-sm font-medium">
+                        سيتم إرسال معرف القالب: {selectedTemplate.id}
+                      </span>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+            ) : (
+              // عرض كتابة الرسالة اليدوية
               <div>
-                <h3 className="font-semibold text-gray-800 dark:text-gray-200">
-                  محتوى الرسالة
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  اكتب الرسالة التي تريد إرسالها
-                </p>
+                <Textarea
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="اكتب رسالتك هنا... يمكنك استخدام الإيموجي والنصوص الطويلة"
+                  className="min-h-[180px] resize-none border-2 border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 rounded-xl text-base leading-relaxed"
+                />
+
+                <div className="flex justify-between items-center mt-3 text-sm text-gray-500 dark:text-gray-400">
+                  <span>{message.length} حرف</span>
+                  {message.length > 0 && (
+                    <span className="text-green-600 dark:text-green-400">
+                      ✓ جاهز للإرسال
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
-
-            <Textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="اكتب رسالتك هنا... يمكنك استخدام الإيموجي والنصوص الطويلة"
-              className="min-h-[180px] resize-none border-2 border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 rounded-xl text-base leading-relaxed"
-            />
-
-            <div className="flex justify-between items-center mt-3 text-sm text-gray-500 dark:text-gray-400">
-              <span>{message.length} حرف</span>
-              {message.length > 0 && (
-                <span className="text-green-600 dark:text-green-400">
-                  ✓ جاهز للإرسال
-                </span>
-              )}
-            </div>
+            )}
           </motion.div>
 
           {/* زر الإرسال المحسن */}
@@ -496,8 +714,11 @@ const EnhancedWhatsAppScheduler = () => {
                 </>
               ) : (
                 <>
-                  {isScheduled ? <Clock size={20} /> : ""}
-                  <span>{isScheduled ? "جدولة الرسالة" : "إرسال الرسالة"}</span>
+                  {isScheduled ? <Clock size={20} /> : <Send size={20} />}
+                  <span>
+                    {isScheduled ? "جدولة الرسالة" : "إرسال الرسالة"}
+                    {isTemplateMode && " (قالب)"}
+                  </span>
                   {isScheduled && (
                     <Sparkles size={18} className="animate-pulse" />
                   )}
@@ -622,6 +843,47 @@ const EnhancedWhatsAppScheduler = () => {
               </p>
             </div>
           )}
+
+          {/* معلومات إضافية عن الرسالة */}
+          {(selectedTemplate || message) && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-700"
+            >
+              <h4 className="font-medium text-blue-800 dark:text-blue-300 mb-2">
+                معاينة الإرسال
+              </h4>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <span className="text-blue-600 dark:text-blue-400">•</span>
+                  <span className="text-gray-700 dark:text-gray-300">
+                    نوع الرسالة: {isTemplateMode ? "قالب جاهز" : "رسالة مخصصة"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-blue-600 dark:text-blue-400">•</span>
+                  <span className="text-gray-700 dark:text-gray-300">
+                    عدد المستقبلين: {recipientNumbers.length}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-blue-600 dark:text-blue-400">•</span>
+                  <span className="text-gray-700 dark:text-gray-300">
+                    وقت الإرسال: {isScheduled ? "مجدول" : "فوري"}
+                  </span>
+                </div>
+                {isTemplateMode && selectedTemplate && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-blue-600 dark:text-blue-400">•</span>
+                    <span className="text-gray-700 dark:text-gray-300">
+                      معرف القالب: {selectedTemplate.id}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
         </motion.div>
       </div>
 
@@ -638,6 +900,7 @@ const EnhancedWhatsAppScheduler = () => {
           <AccountSwitcher />
         </div>
       </motion.div>
+
       {/* تأثيرات الخلفية */}
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-green-200/20 dark:bg-green-800/10 rounded-full blur-3xl"></div>
