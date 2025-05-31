@@ -23,7 +23,6 @@ import {
   deleteAutoReplyFromAPI,
 } from "@/services/autoReplyAPI.ts";
 
-
 export const AutoReplyManager = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [autoReplies, setAutoReplies] = useState<AutoReply[]>([]);
@@ -67,13 +66,10 @@ export const AutoReplyManager = () => {
 
     if (editingReply) {
       //  تعديل
-      const updatedReply = await updateAutoReplyOnAPI(
-        editingReply.id,
-        formData
-      );
+      const updatedReply = await updateAutoReplyOnAPI(editingReply._id, formData);
       if (updatedReply) {
         setAutoReplies((prev) =>
-          prev.map((r) => (r.id === editingReply.id ? updatedReply : r))
+          prev.map((r) => (r._id === editingReply._id ? updatedReply : r))
         );
       }
     } else {
@@ -92,10 +88,10 @@ export const AutoReplyManager = () => {
   };
 
   //  حذف الرد
-  const handleDeleteReply = async (id: number) => {
+  const handleDeleteReply = async (id: string) => {
     const success = await deleteAutoReplyFromAPI(id);
     if (success) {
-      setAutoReplies((prev) => prev.filter((reply) => reply.id !== id));
+      setAutoReplies((prev) => prev.filter((reply) => reply._id !== id));
     }
   };
 

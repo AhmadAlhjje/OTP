@@ -3,7 +3,8 @@ import { apiClient } from "./apiClient";
 
 export const fetchAutoRepliesFromAPI = async (): Promise<AutoReply[]> => {
   try {
-    const response = await apiClient.get("/auto-replies");
+    const response = await apiClient.get("/rules");
+    console.log(response.data)
     return response.data || [];
   } catch (error) {
     console.error("فشل في جلب الردود التلقائية:", error);
@@ -12,10 +13,10 @@ export const fetchAutoRepliesFromAPI = async (): Promise<AutoReply[]> => {
 };
 
 export const addAutoReplyToAPI = async (
-  reply: Omit<AutoReply, "id">
+  reply: Omit<AutoReply, "_id">
 ): Promise<AutoReply | null> => {
   try {
-    const response = await apiClient.post("/auto-replies", reply);
+    const response = await apiClient.post("/rules", reply);
     return response.data;
   } catch (error) {
     console.error("فشل في إضافة الرد عبر API:", error);
@@ -24,11 +25,11 @@ export const addAutoReplyToAPI = async (
 };
 
 export const updateAutoReplyOnAPI = async (
-  id: number,
+  id: string,
   reply: Partial<AutoReply>
 ): Promise<AutoReply | null> => {
   try {
-    const response = await apiClient.patch(`/auto-replies/${id}`, reply);
+    const response = await apiClient.patch(`/rules/${id}`, reply);
     return response.data;
   } catch (error) {
     console.error(`فشل في تحديث الرد #${id} عبر API:`, error);
@@ -36,9 +37,9 @@ export const updateAutoReplyOnAPI = async (
   }
 };
 
-export const deleteAutoReplyFromAPI = async (id: number): Promise<boolean> => {
+export const deleteAutoReplyFromAPI = async (id: string): Promise<boolean> => {
   try {
-    await apiClient.delete(`/auto-replies/${id}`);
+    await apiClient.delete(`/rules/${id}`);
     return true;
   } catch (error) {
     console.error(`فشل في حذف الرد #${id}:`, error);

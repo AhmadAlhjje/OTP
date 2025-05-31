@@ -4,18 +4,13 @@
  */
 import React from "react";
 import { ReplyCard } from "@/components/molecules/ReplyCard";
-
-interface AutoReply {
-  id: number;
-  keyword: string;
-  response: string;
-}
+import { AutoReply } from "@/types/auto-reply";
 
 interface RepliesListProps {
   replies: AutoReply[];
   searchTerm: string;
   onEdit: (reply: AutoReply) => void;
-  onDelete: (id: number) => void;
+  onDelete: (id: string) => void;
 
   // 👇 الخصائص الديناميكية الجديدة
   title?: string;
@@ -68,7 +63,7 @@ export const RepliesList = ({
         {filteredReplies.length > 0 ? (
           <div className="space-y-4">
             {filteredReplies.map((reply) => (
-              <ReplyCard key={reply.id} reply={reply} onEdit={() => onEdit(reply)} onDelete={() => onDelete(reply.id)} />
+              <ReplyCard key={reply._id} reply={reply} onEdit={() => onEdit(reply)} onDelete={() => onDelete(reply._id)} />
             ))}
           </div>
         ) : (

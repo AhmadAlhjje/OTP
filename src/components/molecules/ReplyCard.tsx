@@ -5,12 +5,7 @@ import React from "react";
 import { Clock } from "lucide-react";
 import DeleteButton from "@/components/common/DeleteButton";
 import EditButton from "@/components/common/EditButton";
-
-interface AutoReply {
-  id: number;
-  keyword: string;
-  response: string;
-}
+import { AutoReply } from "@/types/auto-reply";
 
 interface ReplyCardProps {
   reply: AutoReply;
