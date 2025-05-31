@@ -8,7 +8,7 @@ import {
   saveTemplateToAPI,
   updateTemplateToAPI,
 } from "@/services/templateService";
-import { fetchTemplatesFromAPI } from "@/services/templateService";
+import { fetchTemplatesFromAPI1 } from "@/services/templateService";
 import {
   Users,
   Plus,
@@ -68,7 +68,7 @@ export default function EnhancedTemplateManagerPage() {
   // Load demo data
   useEffect(() => {
     const loadTemplates = async () => {
-      const remoteTemplates = await fetchTemplatesFromAPI();
+      const remoteTemplates = await fetchTemplatesFromAPI1();
 
       if (remoteTemplates.length > 0) {
         // تحويل النتائج من API إلى البنية المحلية

@@ -8,6 +8,8 @@ export const sendWhatsappMessage = async ({
   to: string[];
   message: string;
 }) => {
+  console.log("to" , to)
+  console.log("message" , message)
   try {
     const res = await apiClient.post(`/whatsapp/send-message`, {
       to,

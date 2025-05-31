@@ -9,7 +9,8 @@ import Button from "@/components/atoms/Button";
 import { useToast } from "@/hooks/useToast";
 import { sendWhatsappMessage } from "@/services/message-service";
 import { sendWhatsappMessage as sendScheduledMessage } from "@/services/schedule-massage";
-import { fetchTemplatesFromAPI } from "@/services/templateMassageService"; 
+import { fetchTemplatesFromAPI } from "@/services/templateMassageService";
+import { fetchTemplatesFromAPI1 } from "@/services/templateService";
 import {
   Phone,
   Send,
@@ -35,6 +36,13 @@ interface WhatsAppMessageResponse extends AxiosResponse {
   message?: string;
 }
 
+interface GroupFromAPI {
+  _id: string;
+  name: string;
+  description?: string;
+  membersCount?: number;
+}
+
 // Interface for API Template
 interface APITemplate {
   id: string;
@@ -53,6 +61,12 @@ const EnhancedWhatsAppScheduler = () => {
   const [isScheduled, setIsScheduled] = useState(false);
   const [scheduledTime, setScheduledTime] = useState<Date | null>(null);
   const [showScheduleSuccess, setShowScheduleSuccess] = useState(false);
+  const [groups, setGroups] = useState<GroupFromAPI[]>([]);
+  const [selectedGroups, setSelectedGroups] = useState<GroupFromAPI[]>([]);
+  const [groupsLoading, setGroupsLoading] = useState(false);
+  const [showGroupDropdown, setShowGroupDropdown] = useState(false);
+  const [showNumbers, setShowNumbers] = useState(true);
+  const [showGroups, setShowGroups] = useState(false);
 
   // Template related states
   const [templates, setTemplates] = useState<APITemplate[]>([]);
@@ -100,6 +114,33 @@ const EnhancedWhatsAppScheduler = () => {
 
     fetchTemplates();
   }, []);
+
+  useEffect(() => {
+    const fetchGroups = async () => {
+      setGroupsLoading(true);
+      try {
+        const fetchedGroups = await fetchTemplatesFromAPI1(); // نفس API ولكن للمجموعات
+        setGroups(fetchedGroups);
+      } catch (error) {
+        showToast("فشل في جلب المجموعات", "error");
+      } finally {
+        setGroupsLoading(false);
+      }
+    };
+
+    fetchGroups();
+  }, []);
+
+  const handleGroupSelect = (group: GroupFromAPI) => {
+    if (!selectedGroups.find((g) => g._id === group._id)) {
+      setSelectedGroups([...selectedGroups, group]);
+    }
+    setShowGroupDropdown(false);
+  };
+
+  const handleRemoveGroup = (groupId: string) => {
+    setSelectedGroups(selectedGroups.filter((g) => g._id !== groupId));
+  };
 
   // --- التحقق من صحة رقم الهاتف ---
   const validatePhoneNumber = (number: string) => {
@@ -161,8 +202,10 @@ const EnhancedWhatsAppScheduler = () => {
       showToast("يرجى اختيار حساب واتساب أولاً", "error");
       return;
     }
-    if (recipientNumbers.length === 0) {
-      showToast("يرجى إضافة رقم مستلم واحد على الأقل", "error");
+
+    // التحقق من وجود مستقبلين (أرقام أو مجموعات)
+    if (recipientNumbers.length === 0 && selectedGroups.length === 0) {
+      showToast("يرجى إضافة رقم مستلم أو مجموعة واحدة على الأقل", "error");
       return;
     }
 
@@ -190,13 +233,19 @@ const EnhancedWhatsAppScheduler = () => {
     try {
       // تحديد محتوى الرسالة بناءً على الوضع
       const messageContent = isTemplateMode
-        ? selectedTemplate?.id || ""
+        ? `"${selectedTemplate?.id}"` // <-- تأكد من إضافة علامات التنصيص
         : message;
+
+      // دمج الأرقام ومعرفات المجموعات
+      const allRecipients = [
+        ...recipientNumbers,
+        ...selectedGroups.map((group) => group._id),
+      ];
 
       if (isScheduled) {
         // إرسال مجدول
         const res = await sendScheduledMessage({
-          to: recipientNumbers,
+          to: allRecipients,
           message: messageContent,
           scheduledAt: scheduledTime?.toISOString().replace(/\.\d{3}Z$/, "Z"),
         });
@@ -211,7 +260,7 @@ const EnhancedWhatsAppScheduler = () => {
       } else {
         // إرسال فوري
         const res = (await sendWhatsappMessage({
-          to: recipientNumbers,
+          to: allRecipients,
           message: messageContent,
         })) as WhatsAppMessageResponse;
         if (res.status === 201) {
@@ -240,6 +289,7 @@ const EnhancedWhatsAppScheduler = () => {
   // --- إعادة تعيين الحقول بعد الإرسال ---
   const resetForm = () => {
     setRecipientNumbers([]);
+    setSelectedGroups([]);
     setMessage("");
     setScheduledTime(null);
     setIsScheduled(false);
@@ -454,66 +504,257 @@ const EnhancedWhatsAppScheduler = () => {
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-800 dark:text-gray-200">
-                    أرقام المستقبلين
+                    المستقبلين
                   </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    أضف أرقام الهواتف بالصيغة الدولية
+                    اختر أرقام أو مجموعات للإرسال
                   </p>
                 </div>
               </div>
-
-              <div
-                className="relative"
-                onMouseEnter={() => setShowTooltip(true)}
-                onMouseLeave={() => setShowTooltip(false)}
-              >
-                <Info
-                  size={20}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help transition-colors"
-                />
-                <AnimatePresence>
-                  {showTooltip && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.9, y: 10 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.9, y: 10 }}
-                      className="absolute bottom-full right-0 mb-2 w-64 p-3 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-lg shadow-xl z-20"
-                    >
-                      <div className="space-y-1">
-                        <p className="font-medium">تنسيق رقم الهاتف:</p>
-                        <p>• ابدأ برمز البلد (+966 للسعودية)</p>
-                        <p>• مثال: +963912345678</p>
-                        <p>• لا تستخدم مسافات أو رموز أخرى</p>
-                      </div>
-                      <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
             </div>
 
-            <div className="flex gap-3">
-              <Input
-                type="text"
-                value={currentNumber}
-                onChange={(e) => setCurrentNumber(e.target.value)}
-                placeholder="مثال: +963912345678"
-                onKeyPress={handleKeyPress}
-                className="flex-1 h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 rounded-xl"
-              />
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+            {/* أزرار التبديل */}
+            <div className="flex gap-4 mb-6">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => {
+                  setShowNumbers(true);
+                  setShowGroups(false);
+                }}
+                className={`flex-1 p-3 rounded-xl font-medium transition-all ${
+                  showNumbers
+                    ? "bg-blue-500 text-white shadow-lg"
+                    : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
+                }`}
               >
-                <Button
-                  onClick={handleAddNumber}
-                  variant="success"
-                  className="h-12 px-6 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl shadow-lg flex items-center gap-2 transition-all"
+                <div className="flex items-center justify-center gap-2">
+                  <Phone className="h-4 w-4" />
+                  <span>الأرقام ({recipientNumbers.length})</span>
+                </div>
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => {
+                  setShowNumbers(false);
+                  setShowGroups(true);
+                }}
+                className={`flex-1 p-3 rounded-xl font-medium transition-all ${
+                  showGroups
+                    ? "bg-green-500 text-white shadow-lg"
+                    : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
+                }`}
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <MessageSquare className="h-4 w-4" />
+                  <span>المجموعات ({selectedGroups.length})</span>
+                </div>
+              </motion.button>
+            </div>
+
+            {/* قسم إضافة الأرقام */}
+            <AnimatePresence>
+              {showNumbers && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="space-y-4"
                 >
-                  <span>إضافة</span>
-                </Button>
-              </motion.div>
-            </div>
+                  <div className="relative">
+                    <div
+                      className="relative"
+                      onMouseEnter={() => setShowTooltip(true)}
+                      onMouseLeave={() => setShowTooltip(false)}
+                    >
+                      <Info
+                        size={20}
+                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help transition-colors"
+                      />
+                      <AnimatePresence>
+                        {showTooltip && (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                            className="absolute bottom-full left-0 mb-2 w-64 p-3 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-lg shadow-xl z-20"
+                          >
+                            <div className="space-y-1">
+                              <p className="font-medium">تنسيق رقم الهاتف:</p>
+                              <p>• ابدأ برمز البلد (+966 للسعودية)</p>
+                              <p>• مثال: +963912345678</p>
+                              <p>• لا تستخدم مسافات أو رموز أخرى</p>
+                            </div>
+                            <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <Input
+                      type="text"
+                      value={currentNumber}
+                      onChange={(e) => setCurrentNumber(e.target.value)}
+                      placeholder="مثال: +963912345678"
+                      onKeyPress={handleKeyPress}
+                      className="flex-1 h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 rounded-xl pl-10"
+                    />
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Button
+                        onClick={handleAddNumber}
+                        variant="success"
+                        className="h-12 px-6 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl shadow-lg flex items-center gap-2 transition-all"
+                      >
+                        <span>إضافة</span>
+                      </Button>
+                    </motion.div>
+                  </div>
+
+                  {/* عرض الأرقام المضافة */}
+                  {recipientNumbers.length > 0 && (
+                    <div className="space-y-2 max-h-32 overflow-y-auto">
+                      {recipientNumbers.map((number, index) => (
+                        <motion.div
+                          key={number}
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          className="flex items-center justify-between bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg"
+                        >
+                          <span className="text-sm font-medium">{number}</span>
+                          <button
+                            onClick={() => handleRemoveNumber(number)}
+                            className="text-red-500 hover:text-red-700 p-1"
+                          >
+                            <X size={16} />
+                          </button>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* قسم اختيار المجموعات */}
+            <AnimatePresence>
+              {showGroups && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="space-y-4"
+                >
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowGroupDropdown(!showGroupDropdown)}
+                      className="w-full p-4 border-2 border-green-200 dark:border-green-700 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 text-right flex items-center justify-between transition-all"
+                      disabled={groupsLoading}
+                    >
+                      <span>
+                        {groupsLoading
+                          ? "جاري التحميل..."
+                          : "اختر مجموعة للإرسال"}
+                      </span>
+                      <ChevronDown
+                        className={`h-5 w-5 text-green-500 transition-transform ${
+                          showGroupDropdown ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+
+                    <AnimatePresence>
+                      {showGroupDropdown && !groupsLoading && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                          className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 border border-green-200 dark:border-green-700 rounded-xl shadow-xl z-30 max-h-60 overflow-y-auto"
+                        >
+                          {groups.length > 0 ? (
+                            groups.map((group) => (
+                              <motion.button
+                                key={group._id}
+                                onClick={() => handleGroupSelect(group)}
+                                whileHover={{
+                                  backgroundColor: "rgba(34, 197, 94, 0.1)",
+                                }}
+                                className="w-full p-4 text-right hover:bg-green-50 dark:hover:bg-green-900/20 border-b border-gray-100 dark:border-gray-700 last:border-b-0 transition-colors"
+                                disabled={selectedGroups.some(
+                                  (g) => g._id === group._id
+                                )}
+                              >
+                                <div>
+                                  <p className="font-medium text-gray-800 dark:text-gray-200">
+                                    {group.name}
+                                  </p>
+                                  {group.description && (
+                                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                      {group.description}
+                                    </p>
+                                  )}
+                                  {group.membersCount && (
+                                    <span className="inline-block mt-2 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs rounded-full">
+                                      {group.membersCount} عضو
+                                    </span>
+                                  )}
+                                  {selectedGroups.some(
+                                    (g) => g._id === group._id
+                                  ) && (
+                                    <CheckCircle2 className="inline-block mr-2 h-4 w-4 text-green-600" />
+                                  )}
+                                </div>
+                              </motion.button>
+                            ))
+                          ) : (
+                            <div className="p-4 text-center text-gray-500 dark:text-gray-400">
+                              لا توجد مجموعات متاحة
+                            </div>
+                          )}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  {/* عرض المجموعات المختارة */}
+                  {selectedGroups.length > 0 && (
+                    <div className="space-y-2 max-h-32 overflow-y-auto">
+                      {selectedGroups.map((group) => (
+                        <motion.div
+                          key={group._id}
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          className="flex items-center justify-between bg-green-50 dark:bg-green-900/20 p-3 rounded-lg"
+                        >
+                          <div>
+                            <span className="text-sm font-medium">
+                              {group.name}
+                            </span>
+                            {group.membersCount && (
+                              <span className="text-xs text-gray-500 mr-2">
+                                ({group.membersCount} عضو)
+                              </span>
+                            )}
+                          </div>
+                          <button
+                            onClick={() => handleRemoveGroup(group._id)}
+                            className="text-red-500 hover:text-red-700 p-1"
+                          >
+                            <X size={16} />
+                          </button>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
 
           {/* حقل كتابة محتوى الرسالة مع اختيار القوالب */}
