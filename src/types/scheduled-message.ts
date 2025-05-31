@@ -3,4 +3,5 @@ export interface ScheduledMessage {
   number: string;
   message: string;
   scheduledAt: string;
+  recipients: string[];
 }

@@ -1,11 +1,24 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useToast } from "@/hooks/useToast";
 import useLanguage from "@/hooks/useLanguage";
 import Table, { TableColumn, TableRow } from "@/components/molecules/Table";
 import EditButton from "@/components/common/EditButton";
 import DeleteButton from "@/components/common/DeleteButton";
-import { X, Phone, MessageSquare, Clock, Save, AlertCircle } from "lucide-react";
+import {
+  X,
+  Phone,
+  MessageSquare,
+  Clock,
+  Save,
+  AlertCircle,
+} from "lucide-react";
+
+import {
+  getScheduledMessages,
+  updateScheduledMessageOnAPI,
+  deleteScheduledMessage,
+} from "@/services/schedule-massage";
 
 const ScheduledMessagesPage = () => {
   const { language } = useLanguage();
@@ -23,32 +36,30 @@ const ScheduledMessagesPage = () => {
     scheduledAt: "",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [scheduledMessages, setScheduledMessages] = useState<TableRow[]>([]);
 
-  // --- بيانات تجريبية ---
-  const mockData: TableRow[] = [
-    {
-      id: "1",
-      number: "+963987654321",
-      message: "مرحباً! هذه رسالة تجريبية.",
-      scheduledAt: "2025-04-05T14:30:00Z",
-    },
-    {
-      id: "2",
-      number: "+963912345678",
-      message: "تذكير بالموعد الطبي غداً الساعة 10 صباحاً.",
-      scheduledAt: "2025-04-06T10:00:00Z",
-    },
-    {
-      id: "3",
-      number: "+963998877665",
-      message: "السلام عليكم، تم تسليم الشحنة الخاصة بك.",
-      scheduledAt: "2025-04-07T09:15:00Z",
-    },
-  ];
+  // --- جلب البيانات من API ---
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const data = await getScheduledMessages();
 
-  // --- حالة البيانات ---
-  const [scheduledMessages, setScheduledMessages] =
-    useState<TableRow[]>(mockData);
+        const formattedData = data.map((msg: any) => ({
+          id: msg._id,
+          number: msg.recipients[0],
+          message: msg.message,
+          scheduledAt: msg.scheduledTime,
+          status: msg.status,
+        }));
+
+        setScheduledMessages(formattedData);
+      } catch (error) {
+        showToast("فشل في جلب الرسائل المجدولة", "error");
+      }
+    };
+
+    fetchMessages();
+  }, []);
 
   // --- تنسيق التاريخ ---
   const formatScheduledTime = (dateString: string) => {
@@ -70,93 +81,95 @@ const ScheduledMessagesPage = () => {
       message: "",
       scheduledAt: "",
     };
-
     if (!formData.number.trim()) {
       newErrors.number = "رقم الهاتف مطلوب";
     } else if (!/^\+?[0-9]{10,15}$/.test(formData.number.replace(/\s/g, ""))) {
       newErrors.number = "رقم الهاتف غير صحيح";
     }
-
     if (!formData.message.trim()) {
       newErrors.message = "محتوى الرسالة مطلوب";
     } else if (formData.message.trim().length < 5) {
       newErrors.message = "الرسالة قصيرة جداً (الحد الأدنى 5 أحرف)";
     }
-
     if (!formData.scheduledAt) {
       newErrors.scheduledAt = "وقت الإرسال مطلوب";
     } else if (new Date(formData.scheduledAt) <= new Date()) {
       newErrors.scheduledAt = "يجب أن يكون وقت الإرسال في المستقبل";
     }
-
     setErrors(newErrors);
-    return !Object.values(newErrors).some(error => error !== "");
+    return !Object.values(newErrors).some((error) => error !== "");
   };
 
   // --- حذف رسالة ---
   const handleDeleteMessage = async (messageId: string) => {
     try {
-      setScheduledMessages((prev) =>
-        prev.filter((msg) => msg.id !== messageId)
-      );
-      showToast("تم حذف الرسالة بنجاح", "success");
+      const success = await deleteScheduledMessage(messageId);
+      if (success) {
+        setScheduledMessages((prev) =>
+          prev.filter((msg) => msg.id !== messageId)
+        );
+        showToast("تم حذف الرسالة بنجاح", "success");
+      } else {
+        throw new Error("فشل في الحذف");
+      }
     } catch (error) {
       showToast("فشل في حذف الرسالة", "error");
     }
   };
 
-  // دالة فتح النافذة وتعبئة البيانات
+  // --- فتح النافذة وتعبئة البيانات ---
   const handleEditMessage = (message: TableRow) => {
     setEditingMessage(message);
-    
-    // تحويل التاريخ إلى تنسيق datetime-local
     const date = new Date(message.scheduledAt);
-    const localDateTime = new Date(date.getTime() - (date.getTimezoneOffset() * 60000))
+    const localDateTime = new Date(
+      date.getTime() - date.getTimezoneOffset() * 60000
+    )
       .toISOString()
       .slice(0, 16);
-    
     setFormData({
       number: message.number,
       message: message.message,
       scheduledAt: localDateTime,
     });
-    
-    // إعادة تعيين الأخطاء
     setErrors({
       number: "",
       message: "",
       scheduledAt: "",
     });
-    
     setIsModalOpen(true);
   };
 
-  // دالة حفظ التعديلات
+  // --- حفظ التعديلات ---
   const handleSaveMessage = async () => {
-    if (!validateForm()) {
-      return;
-    }
-
+    if (!validateForm() || !editingMessage) return;
     setIsLoading(true);
-    
     try {
-      // محاكاة طلب API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setScheduledMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === editingMessage?.id 
-            ? { 
-                ...msg, 
-                ...formData,
-                scheduledAt: new Date(formData.scheduledAt).toISOString()
-              } 
-            : msg
-        )
-      );
+      const scheduledAtISO = new Date(formData.scheduledAt).toISOString();
 
-      showToast("تم تحديث الرسالة بنجاح", "success");
-      setIsModalOpen(false);
+      const success = await updateScheduledMessageOnAPI(editingMessage.id, {
+        message: formData.message,
+        scheduledAt: scheduledAtISO, // ← تم التصحيح هنا
+        recipients: [formData.number],
+      });
+
+      if (success) {
+        setScheduledMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === editingMessage.id
+              ? {
+                  ...msg,
+                  number: formData.number,
+                  message: formData.message,
+                  scheduledAt: scheduledAtISO,
+                }
+              : msg
+          )
+        );
+        showToast("تم تحديث الرسالة بنجاح", "success");
+        setIsModalOpen(false);
+      } else {
+        throw new Error("فشل في التحديث");
+      }
     } catch (error) {
       showToast("فشل في تحديث الرسالة", "error");
     } finally {
@@ -164,7 +177,7 @@ const ScheduledMessagesPage = () => {
     }
   };
 
-  // دالة إغلاق النافذة
+  // --- إغلاق النافذة ---
   const handleCloseModal = () => {
     if (isLoading) return;
     setIsModalOpen(false);
@@ -223,9 +236,9 @@ const ScheduledMessagesPage = () => {
         loading={false}
       />
 
-      {/* Modal المحسنة */}
+      {/* Modal */}
       {isModalOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-300"
           onClick={handleCloseModal}
         >
@@ -233,7 +246,7 @@ const ScheduledMessagesPage = () => {
             className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 w-full max-w-2xl transform animate-in zoom-in-95 duration-300"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Modal Header المحسن */}
+            {/* Modal Header */}
             <div className="relative p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-gray-800 dark:to-gray-700 rounded-t-3xl">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -258,8 +271,7 @@ const ScheduledMessagesPage = () => {
                 </button>
               </div>
             </div>
-
-            {/* Modal Body المحسن */}
+            {/* Modal Body */}
             <div className="p-6 space-y-6">
               {/* رقم الهاتف */}
               <div className="space-y-2">
@@ -278,9 +290,9 @@ const ScheduledMessagesPage = () => {
                       }
                     }}
                     className={`w-full px-4 py-3 border-2 rounded-xl bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500/20 ${
-                      errors.number 
-                        ? 'border-red-300 dark:border-red-600 focus:border-red-500' 
-                        : 'border-gray-200 dark:border-gray-600 focus:border-green-500'
+                      errors.number
+                        ? "border-red-300 dark:border-red-600 focus:border-red-500"
+                        : "border-gray-200 dark:border-gray-600 focus:border-green-500"
                     }`}
                     placeholder="+963987654321"
                     dir="ltr"
@@ -293,7 +305,6 @@ const ScheduledMessagesPage = () => {
                   )}
                 </div>
               </div>
-
               {/* محتوى الرسالة */}
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -316,9 +327,9 @@ const ScheduledMessagesPage = () => {
                     }}
                     rows={4}
                     className={`w-full px-4 py-3 border-2 rounded-xl bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 resize-none transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500/20 ${
-                      errors.message 
-                        ? 'border-red-300 dark:border-red-600 focus:border-red-500' 
-                        : 'border-gray-200 dark:border-gray-600 focus:border-green-500'
+                      errors.message
+                        ? "border-red-300 dark:border-red-600 focus:border-red-500"
+                        : "border-gray-200 dark:border-gray-600 focus:border-green-500"
                     }`}
                     placeholder="اكتب محتوى الرسالة هنا..."
                   />
@@ -330,7 +341,6 @@ const ScheduledMessagesPage = () => {
                   )}
                 </div>
               </div>
-
               {/* وقت الإرسال */}
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -347,11 +357,13 @@ const ScheduledMessagesPage = () => {
                         setErrors({ ...errors, scheduledAt: "" });
                       }
                     }}
-                    min={new Date(Date.now() + 60000).toISOString().slice(0, 16)}
+                    min={new Date(Date.now() + 60000)
+                      .toISOString()
+                      .slice(0, 16)}
                     className={`w-full px-4 py-3 border-2 rounded-xl bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500/20 ${
-                      errors.scheduledAt 
-                        ? 'border-red-300 dark:border-red-600 focus:border-red-500' 
-                        : 'border-gray-200 dark:border-gray-600 focus:border-green-500'
+                      errors.scheduledAt
+                        ? "border-red-300 dark:border-red-600 focus:border-red-500"
+                        : "border-gray-200 dark:border-gray-600 focus:border-green-500"
                     }`}
                   />
                   {errors.scheduledAt && (
@@ -363,8 +375,7 @@ const ScheduledMessagesPage = () => {
                 </div>
               </div>
             </div>
-
-            {/* Modal Footer المحسن */}
+            {/* Modal Footer */}
             <div className="p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 rounded-b-3xl">
               <div className="flex justify-end gap-3">
                 <button

@@ -37,7 +37,7 @@ export const updateScheduledMessageOnAPI = async (
   updatedData: Partial<ScheduledMessage>
 ): Promise<boolean> => {
   try {
-    await apiClient.patch(`/scheduled-messages/${id}`, updatedData);
+    await apiClient.patch(`/schedules/${id}`, updatedData);
     return true;
   } catch (error) {
     console.error(`فشل في تحديث الرسالة #${id}:`, error);
@@ -47,7 +47,8 @@ export const updateScheduledMessageOnAPI = async (
 
 export const getScheduledMessages = async () => {
   try {
-    const response = await apiClient.get("/scheduled-messages");
+    const response = await apiClient.get("/schedules");
+    console.log(response.data)
     return response.data;
   } catch (error) {
     throw error;
@@ -56,7 +57,7 @@ export const getScheduledMessages = async () => {
 
 export const deleteScheduledMessage = async (messageId: string): Promise<boolean> => {
   try {
-    await apiClient.delete(`/scheduled-messages/${messageId}`);
+    await apiClient.delete(`/schedules/${messageId}`);
     return true;
   } catch (error) {
     console.error(`فشل في حذف الرسالة #${messageId}:`, error);
