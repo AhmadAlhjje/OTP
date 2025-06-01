@@ -10,6 +10,7 @@ import {
 import useLanguage from "@/hooks/useLanguage";
 import { PhoneCall, ChevronDown, Check, Smartphone } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import useTranslation from "@/hooks/useTranslation";
 
 // --- ✅ تعريف الـ interface ---
 interface Account {
@@ -28,6 +29,7 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({ accountName }) => {
   const [active, setActive] = useState<Account | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const { language } = useLanguage();
+  const { t } = useTranslation();
   const isRTL = language === "ar";
 
   useEffect(() => {
@@ -86,7 +88,7 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({ accountName }) => {
             </div>
             
             <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">الحساب الحالي</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{t("Current_account")}</p>
               <div className="font-medium">
                 {/* ✅ أولوية لاسم الحساب النشط، ثم للـ accountName من props */}
                 {active ? (

@@ -6,6 +6,7 @@ import Button from "@/components/atoms/Button";
 import IconWrapper from "@/components/atoms/IconWrapper";
 import { ChevronDown, CheckCircle2, X } from "lucide-react";
 import useTranslation from "@/hooks/useTranslation";
+import LoadingSpinner from "@/components/atoms/LoadingSpinner";
 
 // Interface للمجموعة
 interface GroupFromAPI {
@@ -48,22 +49,23 @@ const GroupSelector: React.FC<GroupSelectorProps> = ({
         <button
           type="button"
           onClick={() => setShowDropdown(!showDropdown)}
-          disabled={loading}
-          className="w-full p-4 border-2 border-green-200 dark:border-green-700 rounded-xl focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 text-right flex items-center justify-between transition-all"
+          className="w-full p-4 border-2 border-green-200 dark:border-green-700 rounded-xl focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 text-right flex items-center justify-between transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <span>
-            {loading ? t("loading_groups") : t("select_group_to_send")}
+          <span className="flex items-center gap-3">
+            {t("select_group_to_send")}
           </span>
           <IconWrapper
             icon={ChevronDown}
             size={20}
             color="#10B981"
-            className={`transition-transform ${showDropdown ? "rotate-180" : ""}`}
+            className={`transition-transform ${
+              showDropdown ? "rotate-180" : ""
+            } `}
           />
         </button>
 
         {/* القائمة المنسدلة للمجموعات */}
-        {showDropdown && !loading && (
+        {showDropdown && (
           <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 border border-green-200 dark:border-green-700 rounded-xl shadow-xl z-30 max-h-60 overflow-y-auto">
             {groups.length > 0 ? (
               groups.map((group) => (
@@ -72,7 +74,7 @@ const GroupSelector: React.FC<GroupSelectorProps> = ({
                   type="button"
                   onClick={() => handleSelect(group)}
                   disabled={selectedGroups.some((g) => g._id === group._id)}
-                  className="w-full p-4 text-right hover:bg-green-50 dark:hover:bg-green-900/20 border-b border-gray-100 dark:border-gray-700 last:border-b-0 transition-colors"
+                  className="w-full p-4 text-right hover:bg-green-50 dark:hover:bg-green-900/20 border-b border-gray-100 dark:border-gray-700 last:border-b-0 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <div>
                     <p className="font-medium text-gray-800 dark:text-gray-200">
@@ -114,7 +116,7 @@ const GroupSelector: React.FC<GroupSelectorProps> = ({
           {selectedGroups.map((group) => (
             <div
               key={group._id}
-              className="flex items-center justify-between bg-green-50 dark:bg-green-900/20 p-3 rounded-lg"
+              className="flex items-center justify-between bg-green-50 dark:bg-green-900/20 p-3 rounded-lg animate-fadeIn"
             >
               <div>
                 <span className="text-sm font-medium">{group.name}</span>
@@ -127,13 +129,23 @@ const GroupSelector: React.FC<GroupSelectorProps> = ({
               <button
                 type="button"
                 onClick={() => handleRemove(group._id)}
-                className="text-red-500 hover:text-red-700 p-1"
+                className="text-red-500 hover:text-red-700 p-1 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
               >
                 <IconWrapper icon={X} size={16} color="#EF4444" />
               </button>
             </div>
           ))}
         </div>
+      )}
+
+      {/* عرض Loading Spinner عند التحميل */}
+      {loading && (
+        <LoadingSpinner
+          message="جاري تحميل المجموعات..."
+          size="md"
+          color="green"
+          pulse={true}
+        />
       )}
     </div>
   );

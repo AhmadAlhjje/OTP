@@ -194,5 +194,8 @@
   "template_id": "Template ID",
   "recipient_numbers": "Recipient Numbers",
   "numbers_added": "Numbers have been added",
-  "no_numbers": "No numbers added"
+  "no_numbers": "No numbers added",
+
+  "Current_account":"Current account",
+  "Loading_groups":"Loading groups"
 }

@@ -6,6 +6,7 @@ import { ChevronDown, FileText, X } from "lucide-react";
 
 // ✅ استيراد CheckCircle2 لأنك تستخدمه في هذا الملف
 import { CheckCircle2 } from "lucide-react"; 
+import useTranslation from "@/hooks/useTranslation";
 
 interface Template {
   id: string;
@@ -32,6 +33,7 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({
   loading = false,
 }) => {
   const [showDropdown, setShowDropdown] = useState(false);
+  const { t } = useTranslation();
 
   const handleSelectTemplate = (template: Template) => {
     setSelectedTemplate(template);
@@ -53,7 +55,7 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({
           className="w-full p-4 border-2 border-purple-200 dark:border-purple-700 rounded-xl focus:ring-2 focus:ring-purple-500 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 flex items-center justify-between"
         >
           <span>
-            {loading ? "جاري التحميل..." : selectedTemplate ? selectedTemplate.name : "اختر قالب رسالة"}
+            {loading ? "جاري التحميل..." : selectedTemplate ? selectedTemplate.name : `${t("select_template")}`}
           </span>
           <IconWrapper
             icon={ChevronDown}
@@ -104,7 +106,7 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({
           <div className="flex items-center gap-2 mt-3 text-purple-700 dark:text-purple-300">
             {/* ✅ استخدام CheckCircle2 بعد الاستيراد */}
             <IconWrapper icon={CheckCircle2} size={16} color="#A855F7" />
-            <span className="text-sm font-medium">سيتم إرسال معرف القالب: {selectedTemplate.id}</span>
+            <span className="text-sm font-medium">سيتم إرسال القالب: {selectedTemplate.name}</span>
           </div>
         </div>
       )}

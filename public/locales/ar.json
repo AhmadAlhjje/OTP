@@ -195,5 +195,8 @@
   "template_id": "معرف القالب",
   "recipient_numbers": "الأرقام المضافة",
   "numbers_added": "يوجد أرقام مضافة",
-  "no_numbers": "لا توجد أرقام مضافة"
+  "no_numbers": "لا توجد أرقام مضافة",
+
+  "Current_account":"الحساب الحالي",
+  "Loading_groups":"جاري تحميل المجموعات"
 }
