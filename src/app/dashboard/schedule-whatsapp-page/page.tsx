@@ -20,6 +20,7 @@ import {
   updateScheduledMessageOnAPI,
   deleteScheduledMessage,
 } from "@/services/schedule-massage";
+import LoadingSpinner from "@/components/atoms/LoadingSpinner";
 
 const ScheduledMessagesPage = () => {
   const { language } = useLanguage();
@@ -28,6 +29,7 @@ const ScheduledMessagesPage = () => {
   const [isMessagePreviewOpen, setIsMessagePreviewOpen] = useState(false);
   const [previewMessage, setPreviewMessage] = useState("");
   const [editingMessage, setEditingMessage] = useState<TableRow | null>(null);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     number: "",
     message: "",
@@ -44,6 +46,7 @@ const ScheduledMessagesPage = () => {
   // --- جلب البيانات من API ---
   useEffect(() => {
     const fetchMessages = async () => {
+      setLoading(true); // 🚀 بدء التحميل
       try {
         const data = await getScheduledMessages();
         console.log("data", data);
@@ -54,13 +57,13 @@ const ScheduledMessagesPage = () => {
           scheduledAt: msg.scheduledTime,
           status: msg.status,
         }));
-
         setScheduledMessages(formattedData);
       } catch (error) {
         showToast("فشل في جلب الرسائل المجدولة", "error");
+      } finally {
+        setLoading(false);
       }
     };
-
     fetchMessages();
   }, []);
 
@@ -259,16 +262,21 @@ const ScheduledMessagesPage = () => {
       </p>
 
       {/* جدول الرسائل */}
-      <Table
-        columns={columns}
-        data={formattedData}
-        searchable={true}
-        filterable={true}
-        striped={true}
-        hoverable={true}
-        emptyMessage="لا توجد رسائل مجدولة"
-        loading={false}
-      />
+      {loading ? (
+        <div className="flex justify-center items-center py-12">
+          <LoadingSpinner message="جاري تحميل الرسائل..." size="lg" />
+        </div>
+      ) : (
+        <Table
+          columns={columns}
+          data={formattedData}
+          searchable={true}
+          filterable={true}
+          striped={true}
+          hoverable={true}
+          emptyMessage="لا توجد رسائل مجدولة"
+        />
+      )}
 
       {/* Modal لمعاينة الرسالة */}
       {isMessagePreviewOpen && (
