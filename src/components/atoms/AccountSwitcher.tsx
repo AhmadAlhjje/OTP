@@ -1,3 +1,4 @@
+// AccountSwitcher.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -10,9 +11,21 @@ import useLanguage from "@/hooks/useLanguage";
 import { PhoneCall, ChevronDown, Check, Smartphone } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const AccountSwitcher = () => {
-  const [accounts, setAccounts] = useState<any[]>([]);
-  const [active, setActive] = useState<any>(null);
+// --- ✅ تعريف الـ interface ---
+interface Account {
+  id: string;
+  name: string;
+  phone: string;
+}
+
+interface AccountSwitcherProps {
+  accountName?: string; // ← تم إضافتها هنا
+}
+
+// --- ✅ تحديث المكون ليستخدم الـ props ---
+const AccountSwitcher: React.FC<AccountSwitcherProps> = ({ accountName }) => {
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [active, setActive] = useState<Account | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const { language } = useLanguage();
   const isRTL = language === "ar";
@@ -21,6 +34,7 @@ const AccountSwitcher = () => {
     const fetchData = async () => {
       const allAccounts = await getWhatsappAccounts();
       const activeAccountData = await getActiveAccount();
+      console.log(allAccounts)
 
       setAccounts(allAccounts);
 
@@ -39,8 +53,10 @@ const AccountSwitcher = () => {
 
   const handleAccountSelect = async (selectedId: string) => {
     const selected = accounts.find((a: any) => a.id === selectedId);
-    setActive(selected);
-    await setActiveAccount(selectedId);
+    if (selected) {
+      setActive(selected);
+      await setActiveAccount(selectedId);
+    }
     setIsOpen(false);
   };
 
@@ -72,12 +88,17 @@ const AccountSwitcher = () => {
             <div>
               <p className="text-xs text-gray-500 dark:text-gray-400">الحساب الحالي</p>
               <div className="font-medium">
+                {/* ✅ أولوية لاسم الحساب النشط، ثم للـ accountName من props */}
                 {active ? (
                   <span className="flex items-center gap-1">
                     {active.name}
                     <span className="text-xs text-gray-500 dark:text-gray-400">
                       ({active.phone})
                     </span>
+                  </span>
+                ) : accountName ? (
+                  <span className="flex items-center gap-1">
+                    {accountName}
                   </span>
                 ) : (
                   <span className="text-gray-400 dark:text-gray-500">لم يتم اختيار حساب</span>

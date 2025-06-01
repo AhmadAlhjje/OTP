@@ -23,7 +23,7 @@ export const getWhatsappAccounts = async () => {
 // حذف حساب WhatsApp حسب الـ ID
 export const deleteWhatsappAccount = async (id: string) => {
   try {
-    const response = await apiClient.delete(`/accounts`);
+    const response = await apiClient.delete(`/whatsapp/account/${id}`);
     if (response.status === 200) {
       console.log(`Account with id ${id} deleted successfully`);
     } else {
@@ -68,7 +68,7 @@ export const getActiveAccount = async () => {
     }
 
     // فك تشفير التوكن JWT (نأخذ الجزء الأوسط فقط)
-    const payloadBase64 = token.split('.')[1];
+    const payloadBase64 = token.split(".")[1];
     const payloadJson = atob(payloadBase64);
     const payload = JSON.parse(payloadJson);
 
@@ -80,7 +80,6 @@ export const getActiveAccount = async () => {
     }
 
     return { id: accountId }; // يمكن أيضًا استدعاء API هنا إذا احتجت مزيدًا من التفاصيل
-
   } catch (error) {
     console.error("فشل في جلب الحساب النشط من التوكن:", error);
     return null;

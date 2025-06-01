@@ -19,6 +19,8 @@ const AccountList = () => {
   }, []);
 
   const handleDelete = async (id: string) => {
+    console.log("KASMDKASMD");
+
     await deleteWhatsappAccount(id);
     setAccounts((prev) => prev.filter((acc) => acc.id !== id));
   };

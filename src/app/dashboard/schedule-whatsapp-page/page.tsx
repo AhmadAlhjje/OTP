@@ -12,6 +12,7 @@ import {
   Clock,
   Save,
   AlertCircle,
+  Eye,
 } from "lucide-react";
 
 import {
@@ -24,6 +25,8 @@ const ScheduledMessagesPage = () => {
   const { language } = useLanguage();
   const { showToast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isMessagePreviewOpen, setIsMessagePreviewOpen] = useState(false);
+  const [previewMessage, setPreviewMessage] = useState("");
   const [editingMessage, setEditingMessage] = useState<TableRow | null>(null);
   const [formData, setFormData] = useState({
     number: "",
@@ -43,10 +46,10 @@ const ScheduledMessagesPage = () => {
     const fetchMessages = async () => {
       try {
         const data = await getScheduledMessages();
-
+        console.log("data", data);
         const formattedData = data.map((msg: any) => ({
           id: msg._id,
-          number: msg.recipients[0],
+          number: msg.whatsappAccount.phone_number,
           message: msg.message,
           scheduledAt: msg.scheduledTime,
           status: msg.status,
@@ -64,7 +67,8 @@ const ScheduledMessagesPage = () => {
   // --- تنسيق التاريخ ---
   const formatScheduledTime = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleString("ar-SA", {
+    return date.toLocaleString("ar-EG", {
+      // أو "en-US" إذا كنت تريد بالإنجليزية
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -72,6 +76,26 @@ const ScheduledMessagesPage = () => {
       minute: "2-digit",
       hour12: true,
     });
+  };
+
+  // --- اختصار الرسالة ---
+  const truncateMessage = (message: string, maxLength: number = 50) => {
+    if (message.length <= maxLength) {
+      return message;
+    }
+    return message.substring(0, maxLength) + "...";
+  };
+
+  // --- عرض الرسالة كاملة ---
+  const handleShowFullMessage = (message: string) => {
+    setPreviewMessage(message);
+    setIsMessagePreviewOpen(true);
+  };
+
+  // --- إغلاق نافذة المعاينة ---
+  const handleClosePreview = () => {
+    setIsMessagePreviewOpen(false);
+    setPreviewMessage("");
   };
 
   // --- التحقق من صحة البيانات ---
@@ -148,7 +172,7 @@ const ScheduledMessagesPage = () => {
 
       const success = await updateScheduledMessageOnAPI(editingMessage.id, {
         message: formData.message,
-        scheduledAt: scheduledAtISO, // ← تم التصحيح هنا
+        scheduledAt: scheduledAtISO,
         recipients: [formData.number],
       });
 
@@ -185,13 +209,6 @@ const ScheduledMessagesPage = () => {
 
   // --- أعمدة الجدول ---
   const columns: TableColumn[] = [
-    {
-      key: "id",
-      label: "تحديد",
-      sortable: false,
-      align: "center",
-      width: "60px",
-    },
     { key: "number", label: "رقم المستقبل", sortable: true, align: "center" },
     { key: "message", label: "محتوى الرسالة", sortable: true },
     {
@@ -207,6 +224,23 @@ const ScheduledMessagesPage = () => {
   const formattedData = scheduledMessages.map((msg) => ({
     ...msg,
     scheduledAt: formatScheduledTime(msg.scheduledAt),
+    message: (
+      <div className="flex items-center gap-2">
+        <span className="text-gray-800 dark:text-gray-200">
+          {truncateMessage(msg.message)}
+        </span>
+        {msg.message.length > 50 && (
+          <button
+            onClick={() => handleShowFullMessage(msg.message)}
+            className="flex items-center gap-1 px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors duration-200"
+            title="عرض الرسالة كاملة"
+          >
+            <Eye className="w-3 h-3" />
+            عرض كامل
+          </button>
+        )}
+      </div>
+    ),
     actions: (
       <div className="flex gap-2">
         <EditButton onClick={() => handleEditMessage(msg)} />
@@ -236,7 +270,78 @@ const ScheduledMessagesPage = () => {
         loading={false}
       />
 
-      {/* Modal */}
+      {/* Modal لمعاينة الرسالة */}
+      {isMessagePreviewOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-300"
+          onClick={handleClosePreview}
+        >
+          <div
+            className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 w-full max-w-2xl max-h-[80vh] flex flex-col transform animate-in zoom-in-95 duration-300"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="relative p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700 rounded-t-3xl">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
+                    <MessageSquare className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200">
+                      محتوى الرسالة
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                      عرض النص الكامل للرسالة
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleClosePreview}
+                  className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all duration-200"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+
+            {/* Body */}
+            <div className="p-6">
+              <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 border border-gray-200 dark:border-gray-600 max-h-96 overflow-y-auto">
+                <div className="text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-wrap break-words text-right">
+                  {previewMessage}
+                </div>
+              </div>
+              <div className="mt-4 flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
+                <span>عدد الأحرف: {previewMessage.length}</span>
+                <span>
+                  عدد الكلمات:{" "}
+                  {
+                    previewMessage
+                      .trim()
+                      .split(/\s+/)
+                      .filter((word) => word.length > 0).length
+                  }
+                </span>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 rounded-b-3xl">
+              <div className="flex justify-end">
+                <button
+                  onClick={handleClosePreview}
+                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
+                >
+                  إغلاق
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal التعديل */}
       {isModalOpen && (
         <div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-300"
@@ -271,6 +376,7 @@ const ScheduledMessagesPage = () => {
                 </button>
               </div>
             </div>
+
             {/* Modal Body */}
             <div className="p-6 space-y-6">
               {/* رقم الهاتف */}
@@ -305,6 +411,7 @@ const ScheduledMessagesPage = () => {
                   )}
                 </div>
               </div>
+
               {/* محتوى الرسالة */}
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -341,6 +448,7 @@ const ScheduledMessagesPage = () => {
                   )}
                 </div>
               </div>
+
               {/* وقت الإرسال */}
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -375,6 +483,7 @@ const ScheduledMessagesPage = () => {
                 </div>
               </div>
             </div>
+
             {/* Modal Footer */}
             <div className="p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 rounded-b-3xl">
               <div className="flex justify-end gap-3">
