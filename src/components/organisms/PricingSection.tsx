@@ -21,7 +21,7 @@ const PricingSection = () => {
     },
     {
       name: "الخطة الأساسية",
-      price: "180 ج.م",
+      price: "180 ل.س",
       period: "شهرياً",
       features: [
         "استخدام أي رقم هاتف",
@@ -35,7 +35,7 @@ const PricingSection = () => {
     },
     {
       name: "الخطة الاحترافية",
-      price: "300 ج.م",
+      price: "300 ل.س",
       period: "شهرياً",
       features: [
         "أرقام غير محدودة",
