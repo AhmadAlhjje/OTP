@@ -1,7 +1,7 @@
 {
   "app_name": "واتساب",
   "login": "تسجيل الدخول",
-  "logout":"تسجيل الخروج",
+  "logout": "تسجيل الخروج",
   "register": "إنشاء حساب",
   "email": "البريد الإلكتروني",
   "password": "كلمة المرور",
@@ -168,7 +168,7 @@
   "loading_groups": "جاري التحميل...",
   "no_groups_available": "لا توجد مجموعات متاحة",
   "members": "عضو",
-  
+
   "write_your_message": "اكتب رسالتك",
   "write_your_message_placeholder": "اكتب رسالتك هنا... يمكنك استخدام الإيموجي والنصوص الطويلة",
   "characters": "حرف",
@@ -178,5 +178,22 @@
   "sending_message": "جاري الإرسال...",
   "schedule_message": "جدولة الرسالة",
   "send_message": "إرسال الرسالة",
-  "template": "قالب"
+  "template": "قالب",
+
+  "recipient_list": "قائمة المستقبلين",
+  "added_numbers_for_sending": "الأرقام المضافة للإرسال",
+  "numbers": "{count} رقم",
+  "no_numbers_added": "لا توجد أرقام مضافة",
+  "add_recipient_numbers_to_start": "أضف أرقام المستقبلين لبدء الإرسال",
+  "can_add_multiple_numbers": "يمكنك إضافة عدة أرقام للإرسال الجماعي",
+  "send_preview": "معاينة الإرسال",
+  "message_type": "نوع الرسالة",
+  "predefined_template": "قالب جاهز",
+  "custom_message": "رسالة مخصصة",
+  "number_of_recipients": "عدد المستقبلين",
+  "send_time": "وقت الإرسال",
+  "template_id": "معرف القالب",
+  "recipient_numbers": "الأرقام المضافة",
+  "numbers_added": "يوجد أرقام مضافة",
+  "no_numbers": "لا توجد أرقام مضافة"
 }

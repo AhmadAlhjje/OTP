@@ -177,5 +177,22 @@
   "sending_message": "Sending message...",
   "schedule_message": "Schedule Message",
   "send_message": "Send Message",
-  "template": "Template"
+  "template": "Template",
+
+  "recipient_list": "Recipient List",
+  "added_numbers_for_sending": "Added numbers for sending",
+  "numbers": "{count} numbers",
+  "no_numbers_added": "No numbers added",
+  "add_recipient_numbers_to_start": "Add recipient numbers to start sending",
+  "can_add_multiple_numbers": "You can add multiple numbers for bulk sending",
+  "send_preview": "Send Preview",
+  "message_type": "Message Type",
+  "predefined_template": "Predefined Template",
+  "custom_message": "Custom Message",
+  "number_of_recipients": "Number of Recipients",
+  "send_time": "Send Time",
+  "template_id": "Template ID",
+  "recipient_numbers": "Recipient Numbers",
+  "numbers_added": "Numbers have been added",
+  "no_numbers": "No numbers added"
 }
