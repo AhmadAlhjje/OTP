@@ -97,8 +97,6 @@ function Sidebar({
           label: t("Scheduled_messages"),
           href: "/dashboard/schedule-whatsapp-page",
         },
-        // { label: t("from_excel"), href: "/dashboard/send/excel" },
-        // { label: t("from_contacts"), href: "/dashboard/send/contacts" },
       ],
     },
     {
@@ -121,38 +119,18 @@ function Sidebar({
       icon: <Bot className="w-5 h-5" />,
       href: "/dashboard/AutoReplyManager",
     },
-    // {
-    //   label: t("contact_templates"),
-    //   icon: <UserPlus className="w-5 h-5" />,
-    //   subItems: [
-    //     {
-    //       label: t("private_contact_templates"),
-    //       href: "/dashboard/TemplatePeoplePage",
-    //     },
-    //   ],
-    // },
     {
       label: t("contacts"),
       icon: <Users className="w-5 h-5" />,
       href: "/dashboard/TemplatePeoplePage",
     },
-    // {
-    //   label: t("balance"),
-    //   icon: <DollarSign className="w-5 h-5" />,
-    //   href: "/dashboard/balance",
-    //   badge: "جديد",
-    // },
-    // {
-    //   label: t("help"),
-    //   icon: <HelpCircle className="w-5 h-5" />,
-    //   href: "/dashboard/help",
-    // },
   ];
 
   return (
     <aside
       className={`
-        bg-[#f7f8fa] text-gray-800 shadow-2xl transition-all duration-300 ease-in-out
+        bg-[#f7f8fa] dark:bg-[#202c33] text-gray-800 dark:text-gray-100 
+        shadow-2xl transition-all duration-300 ease-in-out
         ${
           isLargeScreen
             ? "w-80 h-full relative"
@@ -194,20 +172,20 @@ function Sidebar({
                         ${
                           isActiveRoute(item.href)
                             ? "bg-[#00a884] text-white shadow-sm"
-                            : "text-gray-700 hover:bg-gray-100"
+                            : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#2a3942]"
                         }
                       `}
                     >
                       <div className="flex items-center gap-3">
                         <div
                           className={`
-                          transition-colors flex items-center justify-center
-                          ${
-                            isActiveRoute(item.href)
-                              ? "text-white"
-                              : "text-gray-600"
-                          }
-                        `}
+                            transition-colors flex items-center justify-center
+                            ${
+                              isActiveRoute(item.href)
+                                ? "text-white"
+                                : "text-gray-600 dark:text-gray-400"
+                            }
+                          `}
                         >
                           {item.icon}
                         </div>
@@ -232,21 +210,21 @@ function Sidebar({
                       cursor-pointer transition-all duration-200 group
                       ${
                         hasActiveSubItem(item.subItems) || openSubMenus[index]
-                          ? "bg-gray-100 text-[#00a884]"
-                          : "text-gray-700 hover:bg-gray-50"
+                          ? "bg-gray-100 dark:bg-[#182229] text-[#00a884] dark:text-[#00d9ff]"
+                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2a3942]"
                       }
                     `}
                   >
                     <div className="flex items-center gap-3">
                       <div
                         className={`
-                        transition-colors
-                        ${
-                          hasActiveSubItem(item.subItems)
-                            ? "text-[#00a884]"
-                            : "text-gray-600"
-                        }
-                      `}
+                          transition-colors
+                          ${
+                            hasActiveSubItem(item.subItems)
+                              ? "text-[#00a884] dark:text-[#00d9ff]"
+                              : "text-gray-600 dark:text-gray-400"
+                          }
+                        `}
                       >
                         {item.icon}
                       </div>
@@ -254,14 +232,14 @@ function Sidebar({
                     </div>
                     <div
                       className={`
-                      transition-all duration-300
-                      ${openSubMenus[index] ? "rotate-180" : ""}
-                      ${
-                        hasActiveSubItem(item.subItems)
-                          ? "text-[#00a884]"
-                          : "text-gray-400"
-                      }
-                    `}
+                        transition-all duration-300
+                        ${openSubMenus[index] ? "rotate-180" : ""}
+                        ${
+                          hasActiveSubItem(item.subItems)
+                            ? "text-[#00a884] dark:text-[#00d9ff]"
+                            : "text-gray-400 dark:text-gray-500"
+                        }
+                      `}
                     >
                       <ChevronDown size={16} />
                     </div>
@@ -293,20 +271,20 @@ function Sidebar({
                               ${
                                 isActiveRoute(subItem.href)
                                   ? "bg-[#00a884] text-white font-medium"
-                                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-800"
+                                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#2a3942] hover:text-gray-800 dark:hover:text-gray-200"
                               }
                             `}
                           >
                             <span className="flex items-center gap-2">
                               <div
                                 className={`
-                                w-1.5 h-1.5 rounded-full transition-colors
-                                ${
-                                  isActiveRoute(subItem.href)
-                                    ? "bg-white"
-                                    : "bg-gray-400"
-                                }
-                              `}
+                                  w-1.5 h-1.5 rounded-full transition-colors
+                                  ${
+                                    isActiveRoute(subItem.href)
+                                      ? "bg-white"
+                                      : "bg-gray-400 dark:bg-gray-500"
+                                  }
+                                `}
                               />
                               {subItem.label}
                             </span>
@@ -322,13 +300,13 @@ function Sidebar({
         </nav>
 
         {/* Footer - Fixed at bottom */}
-        <div className="p-3 bg-gray-50 border-t border-gray-200 mt-auto">
-          <div className="mb-3 p-2.5 bg-white rounded-lg border border-gray-100">
+        <div className="p-3 bg-gray-50 dark:bg-[#182229] border-t border-gray-200 dark:border-[#2a3942] mt-auto">
+          <div className="mb-3 p-2.5 bg-white dark:bg-[#202c33] rounded-lg border border-gray-100 dark:border-[#2a3942]">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-600">الحالة</span>
-              <span className="flex items-center gap-2 text-[#00a884] font-medium">
-                <div className="w-2 h-2 bg-[#00a884] rounded-full animate-pulse"></div>
-                متصل
+              <span className="text-gray-600 dark:text-gray-400">{t("status")}</span>
+              <span className="flex items-center gap-2 text-[#00a884] dark:text-[#00d9ff] font-medium">
+                <div className="w-2 h-2 bg-[#00a884] dark:bg-[#00d9ff] rounded-full animate-pulse"></div>
+                {t("Connected")}
               </span>
             </div>
           </div>
@@ -339,8 +317,9 @@ function Sidebar({
             onClick={handleLogout}
             className="
               flex items-center justify-center gap-3 px-3 py-2.5
-              bg-white hover:bg-red-50 text-red-600 hover:text-red-700
-              border border-red-200 hover:border-red-300
+              bg-white dark:bg-red-900/20 hover:bg-red-50 dark:hover:bg-red-900/30 
+              text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300
+              border border-red-200 dark:border-red-800/50 hover:border-red-300 dark:hover:border-red-700
               rounded-lg transition-all duration-200 group
               font-medium text-sm
             "

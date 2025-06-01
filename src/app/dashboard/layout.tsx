@@ -24,7 +24,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const checkScreenSize = () => {
       setIsLargeScreen(window.innerWidth >= 1024);
-      // إغلاق السايدبار تلقائياً عند تكبير الشاشة
       if (window.innerWidth >= 1024) {
         setSidebarOpen(false);
       }
@@ -35,33 +34,38 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <div className="flex flex-col h-screen">
+    <div dir={isRTL ? "rtl" : "ltr"} className="flex flex-col h-screen">
       {/* Navbar - سيظهر في الأعلى دائماً */}
       <Navbar
         isSidebarOpen={sidebarOpen || isLargeScreen}
         toggleSidebar={toggleSidebar}
       />
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar للشاشات الكبيرة - ثابت */}
-        {isLargeScreen && (
-          <div className="w-80">
-            <Sidebar 
-              isOpen={true} 
-              onClose={closeSidebar} 
-              onToggle={toggleSidebar}
-              isLargeScreen={true}
-            />
-          </div>
-        )}
+      <MantineProvider>
+        <div className="flex flex-1 overflow-hidden">
+          {/* Sidebar للشاشات الكبيرة - ثابت */}
+          {isLargeScreen && (
+            <div className="w-80">
+              <Sidebar 
+                isOpen={true} 
+                onClose={closeSidebar} 
+                onToggle={toggleSidebar}
+                isLargeScreen={true}
+              />
+            </div>
+          )}
 
-        {/* Main Content */}
-        <MantineProvider>
-        <main className="flex-1 p-4 overflow-auto bg-gray-100 relative z-10">
-          {children}
-        </main>
-        </MantineProvider>
-      </div>
+          {/* Main Content */}
+          <main 
+            className="flex-1 p-4 overflow-auto 
+            bg-white dark:bg-gray-900 
+            text-gray-900 dark:text-gray-100 
+            relative z-10"
+          >
+            {children}
+          </main>
+        </div>
+      </MantineProvider>
 
       {/* Mobile Sidebar - يظهر فوق المحتوى مع مراعاة ارتفاع النافبار */}
       {sidebarOpen && !isLargeScreen && (
@@ -69,7 +73,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           {/* خلفية شفافة للنقر عليها لإغلاق السايدبار */}
           <div
             className="fixed inset-0 bg-black bg-opacity-50 z-40"
-            style={{ top: '80px' }} // 80px هو ارتفاع النافبار
+            style={{ top: '80px' }}
             onClick={closeSidebar}
           />
           

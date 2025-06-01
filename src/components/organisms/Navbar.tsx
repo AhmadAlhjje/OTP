@@ -11,7 +11,6 @@ import {
   ChevronRight,
   ChevronLeft,
   Globe,
-  Settings,
   MessageCircle,
 } from "lucide-react";
 import useTheme from "@/hooks/useTheme";
@@ -41,9 +40,10 @@ export default function Navbar({
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.3 }}
       className={`w-full h-20 
-        bg-gradient-to-r from-[#00a884] to-[#00a884] dark:from-teal-800 dark:to-teal-700 
+        bg-gradient-to-r from-[#00a884] to-[#00a884] 
+        dark:from-teal-900 dark:to-teal-800
         text-white flex items-center justify-between px-4 sm:px-6 lg:px-8 
-        z-50 relative`}
+        z-50 relative shadow-md dark:shadow-lg dark:shadow-black/20`}
       style={{ position: 'sticky', top: 0 }}
     >
       {/* اسم التطبيق + زر القائمة */}
@@ -74,8 +74,12 @@ export default function Navbar({
               {/* ايقونة الموقع */}
               <MessageCircle size={24} className="hidden sm:block text-white" />
               {!isSidebarOpen && (
-                <DirectionIcon size={18} className="ml-1 hidden sm:block" />
+                <DirectionIcon
+                  size={18}
+                  className={`${isRTL ? 'mr-1' : 'ml-1'} hidden sm:block`}
+                />
               )}
+              <span className="hidden sm:inline">{t("appname")}</span>
             </motion.h1>
           </motion.div>
         </AnimatePresence>
@@ -91,7 +95,7 @@ export default function Navbar({
           aria-label={t("toggle_language")}
         >
           <span className="text-sm hidden sm:block">
-            {language === "ar" ? "English" : "العربية"}
+            {t("languagetoggle")}
           </span>
         </Button>
 
@@ -101,14 +105,6 @@ export default function Navbar({
           icon={theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
           className="text-white hover:bg-teal-500/30"
           aria-label={t("toggle_theme")}
-          children={undefined}
-        />
-
-        <Button
-          variant="icon"
-          icon={<Settings size={20} />}
-          className="text-white hover:bg-teal-500/30 hidden sm:flex"
-          aria-label={t("settings")}
           children={undefined}
         />
       </div>

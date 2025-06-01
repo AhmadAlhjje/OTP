@@ -11,7 +11,9 @@
   "language": "Language",
   "contactSupport": "Contact Support",
   "dashboard": "Dashboard",
+  "status": "Status",
   "home": "Home",
+  "Connected":"Connected",
   "sendMessage": "Send WhatsApp Messages",
   "accountsFromContacts": "Send from Contacts",
   "supportCards": "Support Cards",
@@ -73,8 +75,7 @@
   "accountsPageconnectButton": "Connect",
   "accountsPagescanQrInstruction": "Scan the code using WhatsApp",
 
-
-  "templatePeoplePagetemplate":"People List",
+  "templatePeoplePagetemplate": "People List",
   "templatePeoplePagesaveTemplate": "Save Template",
   "templatePeoplePagesavedTemplates": "Saved Templates",
   "templatePeoplePagepeopleCount": "person(s)",
@@ -87,7 +88,7 @@
   "templatePeoplePagepersonNamePlaceholder": "Person's Name",
   "templatePeoplePagepersonPhonePlaceholder": "Phone Number",
   "templatePeoplePageaddPerson": "Add Person",
-   "templatePeoplePagebackToList": "Back to list",
+  "templatePeoplePagebackToList": "Back to list",
   "templatePeoplePagepeople": "People",
   "templatePeoplePagedeleteTemplate": "Delete template",
   "templatePeoplePageviewAndEdit": "View and edit",
@@ -100,9 +101,23 @@
   "contact_templates": "Contact Templates",
   "private_contact_templates": "Private Contact Templates",
 
-  "Scheduled_messages":"Scheduled Messages",
+  "Scheduled_messages": "Scheduled Messages",
 
-  "auto_replies": "Auto Replies"
+  "auto_replies": "Auto Replies",
 
+  "dashboardsupport_cards": "Support Cards",
+  "dashboardsend_support_card": "Send Support Card",
+  "dashboardaddress_book": "Address Book",
+  "dashboardmanage_groups": "Manage Groups",
+  "dashboardbalance": "Balance",
+  "dashboardadd_balance": "Add Balance",
+  "dashboardwhatsapp_accounts": "WhatsApp Accounts",
+  "dashboardrequest_whatsapp_account": "Request WhatsApp Account",
 
+  "appname": "WhatsApp Manager",
+  "languagetoggle": "Arabic",
+  "toggle_theme": "Toggle Theme",
+  "toggle_language": "Toggle Language",
+  "open_sidebar": "Open Sidebar",
+  "close_sidebar": "Close Sidebar"
 }

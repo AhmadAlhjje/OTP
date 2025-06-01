@@ -11,6 +11,8 @@
   "language": "اللغة",
   "contactSupport": "تواصل مع خدمة العملاء",
   "dashboard": "لوحة التحكم",
+  "status": "الحالة",
+  "Connected":"متصل",
   "home": "الرئيسية",
   "sendMessage": "إرسال رسائل واتساب",
   "accountsFromContacts": "إرسال من دفتر العناوين",
@@ -44,9 +46,6 @@
   "message_templates": "قوالب الرسائل",
   "private_message_templates": "قوالب الرسائل الخاصة",
 
-
-  
-
   "messageTemplatestitle": "قوالب الرسائل",
   "messageTemplatesaddNew": "إضافة قالب جديد",
   "messageTemplatescancel": "إلغاء",
@@ -77,7 +76,7 @@
   "accountsPageconnectButton": "اتصال",
   "accountsPagescanQrInstruction": "امسح الكود باستخدام واتساب",
 
-  "templatePeoplePagetemplate":"قائمة الأشخاص",
+  "templatePeoplePagetemplate": "قائمة الأشخاص",
   "templatePeoplePagesaveTemplate": "حفظ القالب",
   "templatePeoplePagesavedTemplates": "القوالب المحفوظة",
   "templatePeoplePagepeopleCount": "شخص",
@@ -103,7 +102,23 @@
   "contact_templates": "قوالب جهات الاتصال",
   "private_contact_templates": "قوالب جهات الاتصال الخاصة",
 
-  "Scheduled_messages":"الرسائل المجدولة",
+  "Scheduled_messages": "الرسائل المجدولة",
 
-  "auto_replies": "الردود التلقائية"
+  "auto_replies": "الردود التلقائية",
+
+  "dashboardsupport_cards": "بطاقات الدعم",
+  "dashboardsend_support_card": "ارسل بطاقة الدعم",
+  "dashboardaddress_book": "دفتر العناوين",
+  "dashboardmanage_groups": "إدارة المجموعات",
+  "dashboardbalance": "الرصيد",
+  "dashboardadd_balance": "اضافة الرصيد",
+  "dashboardwhatsapp_accounts": "حسابات واتساب",
+  "dashboardrequest_whatsapp_account": "طلب حساب واتساب",
+
+  "appname": "تطبيق إدارة الواتساب",
+  "languagetoggle": "الإنجليزية",
+  "toggle_theme": "تبديل الوضع",
+  "toggle_language": "تبديل اللغة",
+  "open_sidebar": "فتح القائمة الجانبية",
+  "close_sidebar": "إغلاق القائمة الجانبية"
 }
