@@ -72,8 +72,8 @@ const Navbar = ({
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled
-            ? "bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-100"
-            : "bg-white/90 backdrop-blur-sm"
+            ? "bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-100 dark:bg-gray-900/95 dark:border-gray-700"
+            : "bg-white/90 backdrop-blur-sm dark:bg-gray-900/90 dark:border-gray-700"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -85,14 +85,14 @@ const Navbar = ({
               </div>
               <Link
                 href="#"
-                className="text-lg md:text-xl font-bold text-gray-900 bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent"
+                className="text-lg md:text-xl font-bold text-gray-900 dark:text-white bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent"
               >
                 WhatsApp
               </Link>
             </div>
 
             {/* روابط التنقل - ديسيتك */}
-            <div className="hidden md:flex items-center space-x-8 rtl:space-x-reverse">
+            <div className="hidden md:flex items-center space-x-8 rtl:space-x-reverse dark:text-white">
               <NavLink onClick={() => handleNavClick("features")}>
                 المميزات
               </NavLink>
@@ -111,7 +111,7 @@ const Navbar = ({
             <div className="hidden md:flex items-center space-x-4 rtl:space-x-reverse">
               <Link
                 href="/login"
-                className="text-gray-700 hover:text-green-600 font-medium transition-colors duration-200"
+                className="text-gray-700 hover:text-green-600 font-medium transition-colors duration-200 dark:text-white dark:hover:text-green-600"
               >
                 تسجيل الدخول
               </Link>

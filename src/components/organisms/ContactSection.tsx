@@ -6,10 +6,15 @@ import { Phone, Mail, MessageSquare } from "lucide-react";
 
 const ContactSection = () => {
   return (
-    <section id="contact" className="py-20 bg-gradient-to-br from-green-50 to-emerald-50">
+    <section
+      id="contact"
+      className="py-20 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-gray-900 dark:to-gray-800"
+    >
       <div className="container mx-auto px-4 text-center">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-4xl font-bold mb-6 text-gray-900 dark:text-white">جاهز للبدء؟</h2>
+          <h2 className="text-4xl font-bold mb-6 text-gray-900 dark:text-white">
+            جاهز للبدء؟
+          </h2>
           <p className="text-xl text-gray-600 dark:text-gray-300 mb-12">
             انضم إلى آلاف العملاء الذين يثقون بخدمتنا لإرسال رسائل واتساب بفعالية
           </p>
@@ -40,7 +45,7 @@ const ContactSection = () => {
               variant="success"
               icon={<MessageSquare />}
               iconPosition="left"
-              className="hover:bg-green-600 hover:text-white transition-colors"
+              className="hover:bg-green-600 hover:text-white transition-colors dark:hover:bg-green-700 dark:bg-green-600"
             >
               تواصل عبر WhatsApp
             </Button>
@@ -48,7 +53,7 @@ const ContactSection = () => {
               variant="outline"
               icon={<Mail />}
               iconPosition="left"
-              className="border-green-600 text-green-600 hover:bg-green-600 hover:text-white transition-colors"
+              className="border-green-600 text-green-600 hover:bg-green-600 hover:text-white transition-colors dark:text-green-400 dark:border-green-500 dark:hover:bg-green-900/30"
             >
               أرسل رسالة إلكترونية
             </Button>

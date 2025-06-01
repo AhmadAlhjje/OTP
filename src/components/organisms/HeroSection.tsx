@@ -7,13 +7,13 @@ import Link from "../atoms/Link";
 
 const HeroSection = () => {
   return (
-    <section className="pt-20 pb-16 px-4">
+    <section className="pt-20 pb-16 px-4 dark:bg-gray-800">
       <div className="container mx-auto">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* النصوص */}
           <div className="space-y-8">
             <div className="space-y-6">
-              <div className="inline-flex items-center bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 px-4 py-2 rounded-full text-sm">
+              <div className="inline-flex items-center bg-green-100 dark:bg-green-900/30 dark:text-white text-green-800 mt-4 px-4 py-2 rounded-full text-sm">
                 <span>الأفضل في إرسال رسائل واتساب</span>
               </div>
               <h1 className="text-xl lg:text-4xl font-bold leading-tight">
@@ -39,8 +39,9 @@ const HeroSection = () => {
                 icon={<Play />}
                 iconPosition="left"
                 fullWidth={false}
+                className="dark:from-green-600 dark:to-green-700"
               >
-                <Link href="/login"> ابدأ الآن مجاناً</Link>
+                <Link href="/login">ابدأ الآن مجاناً</Link>
               </Button>
               <Button
                 variant="outline"
@@ -48,6 +49,7 @@ const HeroSection = () => {
                 icon={<MessageSquare />}
                 iconPosition="left"
                 fullWidth={false}
+                className="dark:text-green-400 dark:border-green-500 dark:hover:bg-green-900/30"
               >
                 شاهد العرض التوضيحي
               </Button>
@@ -87,19 +89,25 @@ const HeroSection = () => {
                       <MessageSquare className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                      <div className="font-semibold">WhatsApp</div>
+                      <div className="font-semibold text-gray-900 dark:text-white">WhatsApp</div>
                       <div className="text-sm text-green-500">متصل</div>
                     </div>
                   </div>
                   <div className="space-y-3">
                     <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-lg mr-8">
-                      <p className="text-sm">مرحباً! شكراً لاختيارك خدمتنا</p>
+                      <p className="text-sm text-gray-800 dark:text-gray-200">
+                        مرحباً! شكراً لاختيارك خدمتنا
+                      </p>
                     </div>
                     <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg ml-8">
-                      <p className="text-sm">رائع! كيف يمكنني البدء؟</p>
+                      <p className="text-sm text-gray-800 dark:text-gray-200">
+                        رائع! كيف يمكنني البدء؟
+                      </p>
                     </div>
                     <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-lg mr-8">
-                      <p className="text-sm">سنرسل لك رمز التفعيل خلال ثوانٍ</p>
+                      <p className="text-sm text-gray-800 dark:text-gray-200">
+                        سنرسل لك رمز التفعيل خلال ثوانٍ
+                      </p>
                     </div>
                   </div>
                 </div>

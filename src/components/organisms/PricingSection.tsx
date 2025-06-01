@@ -17,7 +17,7 @@ const PricingSection = () => {
         "واجهة برمجية محدودة"
       ],
       popular: false,
-      color: "border-gray-200"
+      color: "border-gray-200 dark:border-gray-700"
     },
     {
       name: "الخطة الأساسية",
@@ -31,7 +31,7 @@ const PricingSection = () => {
         "تقارير مفصلة"
       ],
       popular: false,
-      color: "border-green-200"
+      color: "border-green-200 dark:border-green-800"
     },
     {
       name: "الخطة الاحترافية",
@@ -46,18 +46,18 @@ const PricingSection = () => {
         "إدارة فرق"
       ],
       popular: true,
-      color: "border-green-500"
+      color: "border-green-500 dark:border-green-400"
     },
   ];
 
   return (
-    <section id="pricing" className="py-20 bg-gradient-to-br from-green-50 to-emerald-50">
+    <section id="pricing" className="py-20 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
             خطط تناسب جميع الاحتياجات
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
             اختر الخطة المناسبة لك مع مرونة كاملة للترقية أو التخفيض في أي وقت
           </p>
         </div>
@@ -65,7 +65,7 @@ const PricingSection = () => {
           {plans.map((plan, index) => (
             <div
               key={index}
-              className={`relative bg-white rounded-3xl p-8 shadow-lg border-2 ${plan.color} transition-all hover:shadow-2xl hover:scale-105 ${
+              className={`relative bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-lg border-2 ${plan.color} transition-all hover:shadow-2xl hover:scale-105 ${
                 plan.popular ? 'ring-4 ring-green-500/20' : ''
               }`}
             >
@@ -77,17 +77,17 @@ const PricingSection = () => {
                 </div>
               )}
               <div className="text-center mb-8">
-                <h3 className="text-2xl font-bold mb-4">{plan.name}</h3>
+                <h3 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">{plan.name}</h3>
                 <div className="mb-2">
                   <span className="text-4xl font-bold text-green-600">{plan.price}</span>
-                  <span className="text-gray-600 mr-2">/{plan.period}</span>
+                  <span className="text-gray-600 dark:text-gray-400 mr-2">/{plan.period}</span>
                 </div>
               </div>
               <ul className="space-y-4 mb-8">
                 {plan.features.map((feature, idx) => (
                   <li key={idx} className="flex items-center gap-3">
                     <Check className="h-5 w-5 text-green-500 flex-shrink-0" />
-                    <span className="text-gray-700">{feature}</span>
+                    <span className="text-gray-700 dark:text-gray-300">{feature}</span>
                   </li>
                 ))}
               </ul>
@@ -95,6 +95,7 @@ const PricingSection = () => {
                 variant={plan.popular ? "success" : "outline"}
                 fullWidth
                 loading={false}
+                className={`${plan.popular ? 'dark:bg-green-600 dark:hover:bg-green-700' : 'dark:text-green-400 dark:border-green-500 dark:hover:bg-green-900/20'}`}
               >
                 {plan.price === 'مجاني' ? 'ابدأ مجاناً' : 'اشترك الآن'}
               </Button>
