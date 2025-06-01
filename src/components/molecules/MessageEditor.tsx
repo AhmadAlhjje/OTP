@@ -201,7 +201,7 @@ const MessageEditor: React.FC<MessageEditorProps> = ({
       </div>
 
       {/* Loading Overlay عام */}
-      {templatesLoading && (
+      {/* {templatesLoading && (
         <div className="absolute inset-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
           <div className="text-center">
             <LoadingSpinner 
@@ -213,7 +213,7 @@ const MessageEditor: React.FC<MessageEditorProps> = ({
             />
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 };
