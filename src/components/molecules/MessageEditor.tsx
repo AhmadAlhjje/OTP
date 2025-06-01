@@ -1,11 +1,12 @@
 // molecules/MessageEditor.tsx
 import React from "react";
-import {Textarea} from "@/components/atoms/textarea";
+import { Textarea } from "@/components/atoms/textarea";
 import TemplateSelector from "./TemplateSelector";
 
 // Icons from lucide-react
-import  IconWrapper  from "@/components/atoms/IconWrapper"; // ✅ تم استيراد IconWrapper
-import { MessageSquare, FileText } from "lucide-react";    // ✅ استيراد الرموز الناقصة
+import IconWrapper from "@/components/atoms/IconWrapper";
+import { MessageSquare, FileText } from "lucide-react";
+import useTranslation from "@/hooks/useTranslation";
 
 interface MessageEditorProps {
   message: string;
@@ -33,6 +34,8 @@ const MessageEditor: React.FC<MessageEditorProps> = ({
   setShowTemplateDropdown,
   handleTemplateSelect,
 }) => {
+  const { t } = useTranslation();
+
   const toggleTemplateMode = () => {
     setIsTemplateMode(!isTemplateMode);
     if (!isTemplateMode) {
@@ -48,23 +51,36 @@ const MessageEditor: React.FC<MessageEditorProps> = ({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-xl">
-            {/* استخدام IconWrapper و MessageSquare بعد الاستيراد */}
             <IconWrapper icon={MessageSquare} size={20} color="#8B5CF6" />
           </div>
           <div>
             <h3 className="font-semibold text-gray-800 dark:text-gray-200">
-              محتوى الرسالة
+              {t("message_content")}
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              {isTemplateMode ? "اختر قالب رسالة" : "اكتب رسالتك"}
+              {isTemplateMode ? t("select_template") : t("write_your_message")}
             </p>
           </div>
         </div>
+
         <label className="relative inline-flex items-center cursor-pointer">
-          <input type="checkbox" checked={isTemplateMode} onChange={toggleTemplateMode} className="sr-only" />
-          <div className={`relative w-14 h-7 transition-colors duration-300 rounded-full ${isTemplateMode ? 'bg-gradient-to-r from-purple-400 to-purple-600' : 'bg-gray-300 dark:bg-gray-600'}`}>
-            <div className="absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow-lg flex items-center justify-center transition-transform duration-300 ease-in-out" style={{ transform: isTemplateMode ? 'translateX(28px)' : 'translateX(0)' }}>
-              {/* استخدام IconWrapper و FileText بعد الاستيراد */}
+          <input
+            type="checkbox"
+            checked={isTemplateMode}
+            onChange={toggleTemplateMode}
+            className="sr-only"
+          />
+          <div
+            className={`relative w-14 h-7 transition-colors duration-300 rounded-full ${
+              isTemplateMode ? "bg-gradient-to-r from-purple-400 to-purple-600" : "bg-gray-300 dark:bg-gray-600"
+            }`}
+          >
+            <div
+              className="absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow-lg flex items-center justify-center transition-transform duration-300 ease-in-out"
+              style={{
+                transform: isTemplateMode ? "translateX(28px)" : "translateX(0)",
+              }}
+            >
               <IconWrapper icon={FileText} size={12} color="#8B5CF6" />
             </div>
           </div>
@@ -85,13 +101,13 @@ const MessageEditor: React.FC<MessageEditorProps> = ({
           <Textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder="اكتب رسالتك هنا... يمكنك استخدام الإيموجي والنصوص الطويلة"
+            placeholder={t("write_your_message_placeholder")}
             className="min-h-[180px] resize-none border-2 border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 rounded-xl text-base leading-relaxed"
           />
           <div className="flex justify-between items-center mt-3 text-sm text-gray-500 dark:text-gray-400">
-            <span>{message.length} حرف</span>
+            <span>{message.length} {t("characters")}</span>
             {message.length > 0 && (
-              <span className="text-green-600 dark:text-green-400">✓ جاهز للإرسال</span>
+              <span className="text-green-600 dark:text-green-400">{t("ready_to_send")}</span>
             )}
           </div>
         </div>

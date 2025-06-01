@@ -3,26 +3,22 @@
 import React, { useEffect, useState } from "react";
 import MessageForm from "@/components/organisms/MessageForm";
 import SidebarPreview from "@/components/organisms/SidebarPreview";
-import AccountSwitcher from "@/components/atoms/AccountSwitcher";
 import useLanguage from "@/hooks/useLanguage";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { sendWhatsappMessage as sendImmediateMessage } from "@/services/message-service";
-import {
-  sendWhatsappMessage,
-  updateScheduledMessageOnAPI,
-  deleteScheduledMessage,
-  getScheduledMessages,
-} from "@/services/schedule-massage";
-import { fetchTemplatesFromAPI } from "@/services/templateMassageService"; // ← جلب القوالب من /templates
+import { sendWhatsappMessage } from "@/services/schedule-massage";
+import { fetchTemplatesFromAPI } from "@/services/templateMassageService";
 import { fetchTemplatesFromAPI1 } from "@/services/templateService";
 import { useToast } from "@/hooks/useToast";
 import { getActiveAccount, getWhatsappAccounts } from "@/services/my_accounts";
 import { APITemplate } from "@/types/whatsappTemplate";
+import useTranslation from "@/hooks/useTranslation";
 
 // Interface للحساب النشط
 interface ActiveAccount {
   name: string;
 }
+
 // Interface للمجموعات
 interface GroupFromAPI {
   _id: string;
@@ -61,6 +57,7 @@ const EnhancedWhatsAppScheduler = () => {
   const { language } = useLanguage();
   const { showToast } = useToast();
   const isRTL = language === "ar";
+  const { t } = useTranslation();
 
   // --- التحميل الأولي للحساب النشط ---
   useEffect(() => {
@@ -70,27 +67,28 @@ const EnhancedWhatsAppScheduler = () => {
         const allAccounts = await getWhatsappAccounts();
         // جلب بيانات الحساب النشط
         const activeAccountData = await getActiveAccount();
+
         // البحث عن الحساب النشط في القائمة
         if (activeAccountData?.id && Array.isArray(allAccounts)) {
           const fullAccount = allAccounts.find(
             (account) => account.id === activeAccountData.id
           );
+
           // تحديث الحساب النشط بالبيانات الكاملة
           if (fullAccount) {
             setActiveAccount({ name: fullAccount.name });
           }
         } else {
           setActiveAccount(null);
-          showToast("لا يوجد حساب نشط", "info");
+          showToast(t("no_active_account"), "info");
         }
       } catch (error) {
-        console.error("حدث خطأ أثناء جلب الحساب النشط:", error);
-        showToast("تعذر تحميل الحساب النشط", "error");
+        console.error(t("fetch_active_account_error"), error);
+        showToast(t("failed_to_load_active_account"), "error");
       }
     };
-
     fetchActive();
-  }, []);
+  }, [t]);
 
   // --- جلب القوالب من API ---
   useEffect(() => {
@@ -104,17 +102,16 @@ const EnhancedWhatsAppScheduler = () => {
           ...t,
           id: t._id, // ← هنا تم حفظ id كـ String بدون أي تحويل
         }));
-
         setTemplates(localTemplates); // ✅ إسناد البيانات الموحدة
       } catch (error) {
-        console.error("فشل في جلب قوالب الرسائل");
-        showToast("فشل في جلب قوالب الرسائل من الخادم", "error");
+        console.error(t("failed_to_fetch_message_templates"));
+        showToast(t("failed_to_fetch_templates_from_server"), "error");
       } finally {
         setTemplatesLoading(false);
       }
     };
     fetchTemplates();
-  }, []);
+  }, [t]);
 
   // --- جلب المجموعات من API ---
   useEffect(() => {
@@ -124,48 +121,42 @@ const EnhancedWhatsAppScheduler = () => {
         const fetchedGroups = await fetchTemplatesFromAPI1(); // ← تم تغيير المصدر هنا
         setGroups(fetchedGroups);
       } catch (error) {
-        console.error("فشل في جلب المجموعات");
-        showToast("فشل في جلب المجموعات من الخادم", "error");
+        console.error(t("failed_to_fetch_groups"));
+        showToast(t("failed_to_fetch_groups_from_server"), "error");
       } finally {
         setGroupsLoading(false);
       }
     };
     fetchGroups();
-  }, [showGroupDropdown]); // ← يمكنك إضافة اعتماد على الحالة إذا كنت تريد إعادة التحميل عند فتح القائمة فقط
+  }, [showGroupDropdown, t]); // ← يمكنك إضافة اعتماد على الحالة إذا كنت تريد إعادة التحميل عند فتح القائمة فقط
 
   const handleSend = async () => {
     if (!activeAccount) {
-      showToast("يرجى اختيار حساب واتساب أولاً", "error");
+      showToast(t("please_select_whatsapp_account_first"), "error");
       return;
     }
-
     if (recipientNumbers.length === 0 && selectedGroups.length === 0) {
-      showToast("يرجى إضافة رقم مستلم أو مجموعة واحدة على الأقل", "error");
+      showToast(t("please_add_recipient_or_group"), "error");
       return;
     }
-
     if (isTemplateMode && !selectedTemplate) {
-      showToast("يرجى اختيار قالب رسالة", "error");
+      showToast(t("please_select_template"), "error");
       return;
     }
-
     if (!isTemplateMode && !message.trim()) {
-      showToast("يرجى كتابة نص الرسالة", "error");
+      showToast(t("please_write_message_content"), "error");
       return;
     }
-
     if (isScheduled && !scheduledTime) {
-      showToast("يرجى اختيار وقت الإرسال المجدول", "error");
+      showToast(t("please_select_scheduled_time"), "error");
       return;
     }
-
     if (isScheduled && scheduledTime && scheduledTime <= new Date()) {
-      showToast("وقت الإرسال يجب أن يكون في المستقبل", "error");
+      showToast(t("scheduled_time_must_be_in_future"), "error");
       return;
     }
 
     setIsLoading(true);
-
     try {
       const messageContent = isTemplateMode
         ? selectedTemplate!.id // ← استخدم ! لتأكيد أن القيمة موجودة
@@ -176,33 +167,34 @@ const EnhancedWhatsAppScheduler = () => {
         ...selectedGroups.map((group) => group._id),
       ];
 
+      let res;
       if (isScheduled) {
-        const res = await sendWhatsappMessage({
+        res = await sendWhatsappMessage({
           to: allRecipients,
-          message: messageContent, // ✅ الآن آمن تمامًا
+          message: messageContent,
           scheduledAt: scheduledTime?.toISOString().replace(/\.\d{3}Z$/, "Z"),
         });
 
         if (res.status === 201) {
           setShowScheduleSuccess(true);
           setTimeout(() => setShowScheduleSuccess(false), 3000);
-          showToast("تم جدولة الرسالة بنجاح ✨", "success");
+          showToast(t("message_scheduled_successfully"), "success");
           resetForm();
         } else {
-          showToast("فشل في جدولة الرسالة", "error");
+          showToast(t("failed_to_schedule_message"), "error");
         }
       } else {
-        const res = await sendImmediateMessage({
+        res = await sendImmediateMessage({
           to: allRecipients,
-          message: messageContent, // ✅ الآن آمن تمامًا
+          message: messageContent,
         });
 
         if (res.status === 201) {
-          showToast("تم إرسال الرسالة بنجاح 🚀", "success");
+          showToast(t("message_sent_successfully"), "success");
           resetForm();
         } else {
           showToast(
-            "فشل في الإرسال: " + (res.data.message || "خطأ غير معروف"),
+            `${t("send_failed")}: ${res.data.message || t("unknown_error")}`,
             "error"
           );
         }
@@ -210,10 +202,10 @@ const EnhancedWhatsAppScheduler = () => {
     } catch (error: any) {
       const errorMessage =
         error?.response?.data?.message ||
-        (error instanceof Error ? error.message : "حدث خطأ أثناء الإرسال");
+        (error instanceof Error ? error.message : t("send_error"));
 
       showToast(
-        `حدث خطأ أثناء ${isScheduled ? "الجدولة" : "الإرسال"}: ${errorMessage}`,
+        `${t(isScheduled ? "scheduling" : "sending")}_error: ${errorMessage}`,
         "error"
       );
     } finally {
@@ -242,14 +234,14 @@ const EnhancedWhatsAppScheduler = () => {
   const handleAddNumber = () => {
     const trimmed = currentNumber.trim();
     if (!validatePhoneNumber(trimmed)) {
-      alert("يرجى إدخال رقم هاتف صحيح");
+      alert(t("please_enter_valid_phone_number"));
       return;
     }
     if (!recipientNumbers.includes(trimmed)) {
       setRecipientNumbers([...recipientNumbers, trimmed]);
       setCurrentNumber("");
     } else {
-      alert("هذا الرقم موجود بالفعل");
+      alert(t("number_already_exists"));
     }
   };
 
@@ -281,49 +273,6 @@ const EnhancedWhatsAppScheduler = () => {
     }
   };
 
-  // // --- معالجة الإرسال ---
-  // const handleSend = async () => {
-  //   if (!activeAccount) {
-  //     alert("يرجى اختيار حساب واتساب أولاً");
-  //     return;
-  //   }
-
-  //   if (recipientNumbers.length === 0 && selectedGroups.length === 0) {
-  //     alert("يرجى إضافة رقم مستلم أو مجموعة واحدة على الأقل");
-  //     return;
-  //   }
-
-  //   if (isTemplateMode && !selectedTemplate) {
-  //     alert("يرجى اختيار قالب رسالة");
-  //     return;
-  //   }
-
-  //   if (!isTemplateMode && !message.trim()) {
-  //     alert("يرجى كتابة نص الرسالة");
-  //     return;
-  //   }
-
-  //   if (isScheduled && !scheduledTime) {
-  //     alert("يرجى اختيار وقت الإرسال المجدول");
-  //     return;
-  //   }
-
-  //   if (isScheduled && scheduledTime && scheduledTime <= new Date()) {
-  //     alert("وقت الإرسال يجب أن يكون في المستقبل");
-  //     return;
-  //   }
-
-  //   setIsLoading(true);
-  //   try {
-  //     setShowScheduleSuccess(true);
-  //     setTimeout(() => setShowScheduleSuccess(false), 3000);
-  //   } catch (error) {
-  //     console.error("حدث خطأ أثناء الإرسال:", error);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
   // --- إعادة تعيين النموذج ---
   const resetForm = () => {
     setRecipientNumbers([]);
@@ -344,7 +293,7 @@ const EnhancedWhatsAppScheduler = () => {
 
   // --- تنسيق الوقت ---
   const formatScheduledTime = (date: Date) => {
-    return new Intl.DateTimeFormat("ar-EG", {
+    return new Intl.DateTimeFormat(language === "ar" ? "ar-EG" : "en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -376,10 +325,10 @@ const EnhancedWhatsAppScheduler = () => {
           </div>
           <div>
             <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
-              إرسال رسائل واتساب
+              {t("whatsapp_message_sender")}
             </h2>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              {isScheduled ? "إرسال مجدول للرسائل" : "إرسال فوري للرسائل"}
+              {isScheduled ? t("scheduled_messages") : t("immediate_messages")}
             </p>
           </div>
         </div>
@@ -391,7 +340,9 @@ const EnhancedWhatsAppScheduler = () => {
           >
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-sm font-medium">الحساب النشط:</span>
+              <span className="text-sm font-medium">
+                {t("active_account")}:
+              </span>
               <span className="font-bold">{activeAccount.name}</span>
             </div>
           </motion.div>
@@ -442,7 +393,6 @@ const EnhancedWhatsAppScheduler = () => {
           isLoading={isLoading}
           handleSend={handleSend}
         />
-
         <SidebarPreview
           recipientNumbers={recipientNumbers}
           message={message}
@@ -451,22 +401,6 @@ const EnhancedWhatsAppScheduler = () => {
           selectedTemplate={selectedTemplate}
         />
       </div>
-
-      {/* مبدل الحسابات */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, delay: 0.8 }}
-        className={`fixed bottom-6 ${
-          language === "ar" ? "left-6" : "right-6"
-        } z-50`}
-      >
-        <div className="bg-white/90 backdrop-blur-md dark:bg-gray-800/90 p-2 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50">
-          <AccountSwitcher
-            accountName={activeAccount?.name || "حساب غير محدد"}
-          />
-        </div>
-      </motion.div>
     </div>
   );
 };

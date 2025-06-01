@@ -5,6 +5,7 @@ import React from "react";
 import Button from "@/components/atoms/Button";
 import IconWrapper from "@/components/atoms/IconWrapper";
 import { ChevronDown, CheckCircle2, X } from "lucide-react";
+import useTranslation from "@/hooks/useTranslation";
 
 // Interface للمجموعة
 interface GroupFromAPI {
@@ -38,6 +39,8 @@ const GroupSelector: React.FC<GroupSelectorProps> = ({
   handleSelect = () => {},
   handleRemove = () => {},
 }) => {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-4">
       <div className="relative">
@@ -49,7 +52,7 @@ const GroupSelector: React.FC<GroupSelectorProps> = ({
           className="w-full p-4 border-2 border-green-200 dark:border-green-700 rounded-xl focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 text-right flex items-center justify-between transition-all"
         >
           <span>
-            {loading ? "جاري التحميل..." : "اختر مجموعة للإرسال"}
+            {loading ? t("loading_groups") : t("select_group_to_send")}
           </span>
           <IconWrapper
             icon={ChevronDown}
@@ -82,7 +85,7 @@ const GroupSelector: React.FC<GroupSelectorProps> = ({
                     )}
                     {group.membersCount && (
                       <span className="inline-block mt-2 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs rounded-full">
-                        {group.membersCount} عضو
+                        {group.membersCount} {t("members")}
                       </span>
                     )}
                     {selectedGroups.some((g) => g._id === group._id) && (
@@ -98,7 +101,7 @@ const GroupSelector: React.FC<GroupSelectorProps> = ({
               ))
             ) : (
               <div className="p-4 text-center text-gray-500 dark:text-gray-400">
-                لا توجد مجموعات متاحة
+                {t("no_groups_available")}
               </div>
             )}
           </div>
@@ -117,7 +120,7 @@ const GroupSelector: React.FC<GroupSelectorProps> = ({
                 <span className="text-sm font-medium">{group.name}</span>
                 {group.membersCount && (
                   <span className="text-xs text-gray-500 mr-2">
-                    ({group.membersCount} عضو)
+                    ({group.membersCount} {t("members_count")}, {t("members")})
                   </span>
                 )}
               </div>
