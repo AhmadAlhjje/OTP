@@ -64,76 +64,65 @@ const EnhancedWhatsAppScheduler = () => {
   const { showToast } = useToast();
   const isRTL = language === "ar";
 
-  // --- التحميل الأولي للحساب النشط ---
   useEffect(() => {
-    const fetchActive = async () => {
+    const fetchData = async () => {
       try {
-        // جلب جميع الحسابات
-        const allAccounts = await getWhatsappAccounts();
-        // جلب بيانات الحساب النشط
-        const activeAccountData = await getActiveAccount();
-        // البحث عن الحساب النشط في القائمة
+        // --- تفعيل حالة التحميل ---
+        setGroupsLoading(true);
+        setTemplatesLoading(true);
+
+        // جلب جميع الحسابات وتحديد الحساب النشط
+        const [
+          allAccounts,
+          activeAccountData,
+          fetchedGroups,
+          fetchedTemplates,
+        ] = await Promise.all([
+          getWhatsappAccounts(),
+          getActiveAccount(),
+          fetchTemplatesFromAPI1(), // ← المجموعات
+          fetchTemplatesFromAPI(), // ← القوالب
+        ]);
+
+        // --- معالجة الحساب النشط ---
         if (activeAccountData?.id && Array.isArray(allAccounts)) {
           const fullAccount = allAccounts.find(
             (account) => account.id === activeAccountData.id
           );
-          // تحديث الحساب النشط بالبيانات الكاملة
           if (fullAccount) {
             setActiveAccount({ name: fullAccount.name });
+          } else {
+            setActiveAccount(null);
+            showToast("لا يوجد حساب نشط", "info");
           }
         } else {
           setActiveAccount(null);
           showToast("لا يوجد حساب نشط", "info");
         }
-      } catch (error) {
-        console.error("حدث خطأ أثناء جلب الحساب النشط:", error);
-        showToast("تعذر تحميل الحساب النشط", "error");
-      }
-    };
 
-    fetchActive();
-  }, []);
+        // --- معالجة المجموعات ---
+        setGroups(fetchedGroups);
 
-  // --- جلب القوالب من API ---
-  useEffect(() => {
-    const fetchTemplates = async () => {
-      setTemplatesLoading(true);
-      try {
-        const fetchedTemplates = await fetchTemplatesFromAPI(); // 📥 جلب البيانات من API
-
-        // ✨ تحويل البيانات مع جعل id = _id (كاملًا) ونوعه String
+        // --- معالجة القوالب ---
         const localTemplates = fetchedTemplates.map((t) => ({
           ...t,
-          id: t._id, // ← هنا تم حفظ id كـ String بدون أي تحويل
+          id: t._id,
         }));
+        setTemplates(localTemplates);
+      } catch (error: any) {
+        console.error("حدث خطأ أثناء تحميل البيانات:", error);
 
-        setTemplates(localTemplates); // ✅ إسناد البيانات الموحدة
-      } catch (error) {
-        console.error("فشل في جلب قوالب الرسائل");
-        showToast("فشل في جلب قوالب الرسائل من الخادم", "error");
+        // إظهار رسالة خطأ عامة أو محددة
+        showToast("فشل في تحميل بعض البيانات من الخادم", "error");
       } finally {
+        // --- إنهاء حالة التحميل ---
+        setGroupsLoading(false);
         setTemplatesLoading(false);
       }
     };
-    fetchTemplates();
-  }, []);
 
-  // --- جلب المجموعات من API ---
-  useEffect(() => {
-    const fetchGroups = async () => {
-      setGroupsLoading(true);
-      try {
-        const fetchedGroups = await fetchTemplatesFromAPI1(); // ← تم تغيير المصدر هنا
-        setGroups(fetchedGroups);
-      } catch (error) {
-        console.error("فشل في جلب المجموعات");
-        showToast("فشل في جلب المجموعات من الخادم", "error");
-      } finally {
-        setGroupsLoading(false);
-      }
-    };
-    fetchGroups();
-  }, [showGroupDropdown]); // ← يمكنك إضافة اعتماد على الحالة إذا كنت تريد إعادة التحميل عند فتح القائمة فقط
+    fetchData();
+  }, []);
 
   const handleSend = async () => {
     if (!activeAccount) {
@@ -378,10 +367,12 @@ const EnhancedWhatsAppScheduler = () => {
           </div>
           <div>
             <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
-             {t("sendMessage")}
+              {t("sendMessage")}
             </h2>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              {isScheduled ? `${t("scheduled_messages")}` : `${t("immediate_messages")}`}
+              {isScheduled
+                ? `${t("scheduled_messages")}`
+                : `${t("immediate_messages")}`}
             </p>
           </div>
         </div>
@@ -393,7 +384,9 @@ const EnhancedWhatsAppScheduler = () => {
           >
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-sm font-medium">{t("active_account")} :</span>
+              <span className="text-sm font-medium">
+                {t("active_account")} :
+              </span>
               <span className="font-bold">{activeAccount.name}</span>
             </div>
           </motion.div>
