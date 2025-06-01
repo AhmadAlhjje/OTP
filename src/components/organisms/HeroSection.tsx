@@ -3,6 +3,7 @@
 import React from "react";
 import Button from "../atoms/Button";
 import { Play, MessageSquare } from "lucide-react";
+import Link from "../atoms/Link";
 
 const HeroSection = () => {
   return (
@@ -39,7 +40,7 @@ const HeroSection = () => {
                 iconPosition="left"
                 fullWidth={false}
               >
-                ابدأ الآن مجاناً
+                <Link href="/login"> ابدأ الآن مجاناً</Link>
               </Button>
               <Button
                 variant="outline"

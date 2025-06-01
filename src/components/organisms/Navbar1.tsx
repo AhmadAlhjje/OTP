@@ -120,7 +120,7 @@ const Navbar = ({
                 size="sm"
                 className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
               >
-                ابدأ مجاناً
+                <Link href="/login">ابدأ مجاناً</Link>
               </Button>
             </div>
 
