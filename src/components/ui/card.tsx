@@ -11,7 +11,7 @@ export const Card = ({ children, className }: CardProps) => {
     <div
       className={clsx(
         'rounded-2xl shadow-md p-4 border',
-        'bg-white dark:bg-gray-900',
+        'bg-white dark:bg-gray-800',
         'border-gray-200 dark:border-gray-700',
         className
       )}

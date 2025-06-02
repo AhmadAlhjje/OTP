@@ -58,8 +58,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           {/* Main Content */}
           <main 
             className="flex-1 p-4 overflow-auto 
-            bg-white dark:bg-gray-900 
-            text-gray-900 dark:text-gray-100 
+            bg-white dark:bg-gray-800 
+            text-gray-800 dark:text-gray-100 
             relative z-10"
           >
             {children}

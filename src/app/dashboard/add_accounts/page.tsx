@@ -62,13 +62,13 @@ export default function AccountsPage() {
 
   return (
     <Card>
-      <h1 className="text-xl dark:text-white font-semibold mb-4">
+      <h1 className="text-xl dark:text-white font-semibold mb-4 ">
         {t("accountsPagetitle")}
       </h1>
       <Button className="w-full" onClick={handleConnect}>
         {t("accountsPageconnectButton")}
       </Button>
-      {loading && <LoadingSpinner />}
+      {loading && <LoadingSpinner message="جاري طلب ال QR ..." size="lg" />}
       {qrImageUrl && (
         <div className="mt-6 text-center">
           <h2 className="text-lg mb-2">{t("accountsPagescanQrInstruction")}</h2>
@@ -78,7 +78,7 @@ export default function AccountsPage() {
         </div>
       )}
       {successMessage && (
-        <div className="mt-6 text-center text-green-600 font-semibold">
+        <div className="mt-6 text-center text-green-600 font-semibold ">
           {successMessage}
         </div>
       )}

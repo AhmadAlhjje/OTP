@@ -337,7 +337,7 @@ export default function EnhancedTemplateManagerPage() {
   );
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-900 min-h-screen pb-10">
+    <div className="bg-gray-50 dark:bg-dark-blue-gray min-h-screen pb-10">
       {/* Header Section */}
       <div className="bg-white dark:bg-gray-800 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
