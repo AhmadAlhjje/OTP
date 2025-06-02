@@ -6,7 +6,7 @@ import SidebarPreview from "@/components/organisms/SidebarPreview";
 import AccountSwitcher from "@/components/atoms/AccountSwitcher";
 import useLanguage from "@/hooks/useLanguage";
 import { motion, AnimatePresence } from "framer-motion";
-import { sendWhatsappMessage as sendImmediateMessage } from "@/services/message-service";
+import { sendWhatsappMessage1 as sendImmediateMessage } from "@/services/message-service";
 import {
   sendWhatsappMessage,
   updateScheduledMessageOnAPI,
@@ -170,7 +170,7 @@ const EnhancedWhatsAppScheduler = () => {
       if (isScheduled) {
         const res = await sendWhatsappMessage({
           to: allRecipients,
-          message: messageContent, // ✅ الآن آمن تمامًا
+          message: messageContent, 
           scheduledAt: scheduledTime?.toISOString().replace(/\.\d{3}Z$/, "Z"),
         });
 
@@ -185,7 +185,7 @@ const EnhancedWhatsAppScheduler = () => {
       } else {
         const res = await sendImmediateMessage({
           to: allRecipients,
-          message: messageContent, // ✅ الآن آمن تمامًا
+          message: messageContent, 
         });
 
         if (res.status === 201) {

@@ -39,6 +39,7 @@ export default function AccountsPage() {
 
     wsService.on("authenticated", () => {
       console.log("✅ Authenticated event received");
+      // router.push("/dashboard");
     });
 
     wsService.on("ready", (data) => {

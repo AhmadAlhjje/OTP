@@ -1,7 +1,7 @@
 import { apiClient } from "./apiClient";
 
 // ارسال رسالة واتساب
-export const sendWhatsappMessage = async ({
+export const sendWhatsappMessage1 = async ({
   to,
   message,
 }: {
