@@ -1,6 +1,10 @@
 {
   "app_name": "whatsapp",
   "login": "Login",
+  "loginSuccess":"login Success",
+  "loginFailed":"login Failed",
+  "fillAllFields": "Please fill in all fields",
+  "invalidCredentials": "There is an error in the password or username",
   "logout": "logout",
   "register": "Register",
   "email": "Email",

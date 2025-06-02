@@ -17,9 +17,17 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async (data: { emailOrName: string; password: string }) => {
+    const { emailOrName, password } = data;
+
+    // التحقق من ملء الحقول
+    if (!emailOrName.trim() || !password.trim()) {
+      showToast(t("fillAllFields"), "error");
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const res = await login(data.emailOrName, data.password);
+      const res = await login(emailOrName, password);
 
       if (res.access_token && res.refresh_token) {
         saveTokens(res.access_token, res.refresh_token);
@@ -30,9 +38,15 @@ export default function LoginPage() {
       setTimeout(() => {
         router.push("/dashboard");
       }, 1000);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login Failed:", error);
-      showToast(t("loginFailed"), "error");
+
+      // التعامل مع خطأ 401
+      if (error.response?.status === 401 || error.response?.status === 400) {
+        showToast(t("invalidCredentials"), "error");
+      } else {
+        showToast(t("loginFailed"), "error");
+      }
     } finally {
       setIsLoading(false);
     }
