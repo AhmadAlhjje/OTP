@@ -21,10 +21,12 @@ import {
   deleteScheduledMessage,
 } from "@/services/schedule-massage";
 import LoadingSpinner from "@/components/atoms/LoadingSpinner";
+import useTranslation from "@/hooks/useTranslation";
 
 const ScheduledMessagesPage = () => {
   const { language } = useLanguage();
   const { showToast } = useToast();
+  const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMessagePreviewOpen, setIsMessagePreviewOpen] = useState(false);
   const [previewMessage, setPreviewMessage] = useState("");
@@ -59,7 +61,7 @@ const ScheduledMessagesPage = () => {
         }));
         setScheduledMessages(formattedData);
       } catch (error) {
-        showToast("فشل في جلب الرسائل المجدولة", "error");
+        showToast(t("failed_to_fetch_scheduled_messages"), "error");
       } finally {
         setLoading(false);
       }
@@ -109,19 +111,19 @@ const ScheduledMessagesPage = () => {
       scheduledAt: "",
     };
     if (!formData.number.trim()) {
-      newErrors.number = "رقم الهاتف مطلوب";
+      newErrors.number = t("phone_number_required");
     } else if (!/^\+?[0-9]{10,15}$/.test(formData.number.replace(/\s/g, ""))) {
-      newErrors.number = "رقم الهاتف غير صحيح";
+      newErrors.number = t("invalid_phone_number");
     }
     if (!formData.message.trim()) {
-      newErrors.message = "محتوى الرسالة مطلوب";
+      newErrors.message = t("message_content_required");
     } else if (formData.message.trim().length < 5) {
-      newErrors.message = "الرسالة قصيرة جداً (الحد الأدنى 5 أحرف)";
+      newErrors.message = t("message_too_short");
     }
     if (!formData.scheduledAt) {
-      newErrors.scheduledAt = "وقت الإرسال مطلوب";
+      newErrors.scheduledAt = t("scheduled_time_required");
     } else if (new Date(formData.scheduledAt) <= new Date()) {
-      newErrors.scheduledAt = "يجب أن يكون وقت الإرسال في المستقبل";
+      newErrors.scheduledAt = t("send_time_future");
     }
     setErrors(newErrors);
     return !Object.values(newErrors).some((error) => error !== "");
@@ -135,12 +137,12 @@ const ScheduledMessagesPage = () => {
         setScheduledMessages((prev) =>
           prev.filter((msg) => msg.id !== messageId)
         );
-        showToast("تم حذف الرسالة بنجاح", "success");
+        showToast(t("message_deleted_successfully"), "success");
       } else {
-        throw new Error("فشل في الحذف");
+        throw new Error(t("delete_failed"));
       }
     } catch (error) {
-      showToast("فشل في حذف الرسالة", "error");
+      showToast(t("failed_to_delete_message"), "error");
     }
   };
 
@@ -192,13 +194,13 @@ const ScheduledMessagesPage = () => {
               : msg
           )
         );
-        showToast("تم تحديث الرسالة بنجاح", "success");
+        showToast(t("message_updated_successfully"), "success");
         setIsModalOpen(false);
       } else {
-        throw new Error("فشل في التحديث");
+        throw new Error(t("update_failed"));
       }
     } catch (error) {
-      showToast("فشل في تحديث الرسالة", "error");
+      showToast(t("failed_to_update_message"), "error");
     } finally {
       setIsLoading(false);
     }
@@ -212,15 +214,15 @@ const ScheduledMessagesPage = () => {
 
   // --- أعمدة الجدول ---
   const columns: TableColumn[] = [
-    { key: "number", label: "رقم المستقبل", sortable: true, align: "center" },
-    { key: "message", label: "محتوى الرسالة", sortable: true },
+    { key: "number", label: t("recipient_number"), sortable: true, align: "center" },
+    { key: "message", label: t("message_content"), sortable: true },
     {
       key: "scheduledAt",
-      label: "وقت الإرسال",
+      label: t("send_time"),
       sortable: true,
       align: "center",
     },
-    { key: "actions", label: "الإجراءات", align: "center" },
+    { key: "actions", label: t("actions"), align: "center" },
   ];
 
   // --- تحويل البيانات ---
@@ -236,10 +238,10 @@ const ScheduledMessagesPage = () => {
           <button
             onClick={() => handleShowFullMessage(msg.message)}
             className="flex items-center gap-1 px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors duration-200"
-            title="عرض الرسالة كاملة"
+            title={t("view_full_message")}
           >
             <Eye className="w-3 h-3" />
-            عرض كامل
+            {t("show_full")}
           </button>
         )}
       </div>
@@ -255,16 +257,16 @@ const ScheduledMessagesPage = () => {
   return (
     <div className="p-6 w-full space-y-8 min-h-screen bg-gradient-to-br from-white via-green-50/30 to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-emerald-900/20">
       <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
-        الرسائل المجدولة
+       {t("Scheduled_messages")}
       </h1>
       <p className="text-sm text-gray-600 dark:text-gray-400">
-        عرض وتعديل الرسائل المجدولة
+        {t("view_and_edit_scheduled_messages")}
       </p>
 
       {/* جدول الرسائل */}
       {loading ? (
         <div className="flex justify-center items-center py-12">
-          <LoadingSpinner message="جاري تحميل الرسائل..." size="lg" />
+          <LoadingSpinner message={t("loading_messages")} size="lg" />
         </div>
       ) : (
         <Table
@@ -274,7 +276,7 @@ const ScheduledMessagesPage = () => {
           filterable={true}
           striped={true}
           hoverable={true}
-          emptyMessage="لا توجد رسائل مجدولة"
+          emptyMessage={t("no_scheduled_messages")}
         />
       )}
 
@@ -297,10 +299,10 @@ const ScheduledMessagesPage = () => {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200">
-                      محتوى الرسالة
+                     {t("message_content")}
                     </h3>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                      عرض النص الكامل للرسالة
+                     {t("view_full_message_description")}
                     </p>
                   </div>
                 </div>
@@ -321,9 +323,9 @@ const ScheduledMessagesPage = () => {
                 </div>
               </div>
               <div className="mt-4 flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
-                <span>عدد الأحرف: {previewMessage.length}</span>
+                <span>{t("char_count")}: {previewMessage.length}</span>
                 <span>
-                  عدد الكلمات:{" "}
+                  {t("word_count")}:{" "}
                   {
                     previewMessage
                       .trim()
@@ -341,7 +343,7 @@ const ScheduledMessagesPage = () => {
                   onClick={handleClosePreview}
                   className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
                 >
-                  إغلاق
+                  {t("close")}
                 </button>
               </div>
             </div>
@@ -368,10 +370,10 @@ const ScheduledMessagesPage = () => {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200">
-                      تعديل الرسالة المجدولة
+                      {t("edit_scheduled_message")}
                     </h3>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                      قم بتعديل محتوى وتوقيت الرسالة
+                      {t("edit_message_details")}
                     </p>
                   </div>
                 </div>
@@ -391,7 +393,7 @@ const ScheduledMessagesPage = () => {
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                   <Phone className="w-4 h-4 text-green-600" />
-                  رقم المستقبل
+                    {t("recipient_number")}
                 </label>
                 <div className="relative">
                   <input
@@ -424,7 +426,7 @@ const ScheduledMessagesPage = () => {
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                   <MessageSquare className="w-4 h-4 text-green-600" />
-                  محتوى الرسالة
+                  {t("message_content")}
                   <span className="text-xs text-gray-400">
                     ({formData.message.length}/500)
                   </span>
@@ -446,7 +448,7 @@ const ScheduledMessagesPage = () => {
                         ? "border-red-300 dark:border-red-600 focus:border-red-500"
                         : "border-gray-200 dark:border-gray-600 focus:border-green-500"
                     }`}
-                    placeholder="اكتب محتوى الرسالة هنا..."
+                    placeholder={t("write_message_content")}
                   />
                   {errors.message && (
                     <div className="flex items-center gap-1 mt-2 text-red-500 text-sm">
@@ -461,7 +463,7 @@ const ScheduledMessagesPage = () => {
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                   <Clock className="w-4 h-4 text-green-600" />
-                  وقت الإرسال المجدول
+                  {t("scheduled_send_time")}
                 </label>
                 <div className="relative">
                   <input
@@ -500,7 +502,7 @@ const ScheduledMessagesPage = () => {
                   disabled={isLoading}
                   className="px-6 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  إلغاء
+                  {t("cancel")}
                 </button>
                 <button
                   onClick={handleSaveMessage}
@@ -510,12 +512,12 @@ const ScheduledMessagesPage = () => {
                   {isLoading ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      جاري الحفظ...
+                      {t("saving_changes")}
                     </>
                   ) : (
                     <>
                       <Save className="w-4 h-4" />
-                      حفظ التغييرات
+                      {t("save_changes")}
                     </>
                   )}
                 </button>

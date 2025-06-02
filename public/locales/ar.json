@@ -232,20 +232,23 @@
   "cancel": "إلغاء",
   "close": "إغلاق",
   "no_scheduled_messages": "لا توجد رسائل مجدولة",
-  "message_updated_successfully": "تم تحديث الرسالة بنجاح ",
+  "message_updated_successfully": "تم تحديث الرسالة بنجاح",
   "failed_to_update_message": "فشل في تحديث الرسالة",
-  "message_deleted_successfully": "تم حذف الرسالة بنجاح ",
+  "message_deleted_successfully": "تم حذف الرسالة بنجاح",
   "failed_to_delete_message": "فشل في حذف الرسالة",
   "failed_to_fetch_scheduled_messages": "فشل في جلب الرسائل المجدولة",
   "view_and_edit_scheduled_messages": "عرض وتعديل الرسائل المجدولة",
 
   "no_data_to_display": "لا توجد بيانات للعرض",
-  "no_results_match": "لم يتم العثور على أي نتائج تطابق \"{query}\". جرب مصطلح بحث مختلف.",
+  "no_results_match": "لم يتم العثور على أي نتائج تطابق",
+  "try_different_search": "جرب مصطلح بحث مختلف.",
   "no_data_available": "لا توجد بيانات متاحة حالياً. يمكنك إضافة بيانات جديدة أو تحديث الصفحة.",
   "clear_search": "مسح البحث",
+  "search_results": "نتائج البحث",
   "showing": "عرض",
   "of": "من أصل",
   "items": "عناصر",
+  "item": "عنصر",
   "search_results_count": "{count} نتيجة بحث",
 
   "added_successfully": "تمت الإضافة بنجاح!",
@@ -270,5 +273,17 @@
   "valid_phone_number_required": "يرجى إدخال رقم هاتف صحيح",
   "send": "الإرسال",
   "schedule": "الجدولة",
-  "error_occurred": "حدث خطأ أثناء"  
+  "error_occurred": "حدث خطأ أثناء"  ,
+
+  "send_time_future": "يجب أن يكون وقت الإرسال في المستقبل",
+
+  "delete_failed": "فشل في الحذف",
+  "update_failed": "فشل في التحديث",
+  "scheduled_time": "وقت الإرسال",
+
+  "show_full": "عرض كامل",
+  "loading_messages": "جاري تحميل الرسائل...",
+
+  "char_count": "عدد الأحرف",
+  "word_count": "عدد الكلمات"
 }

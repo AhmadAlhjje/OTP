@@ -239,12 +239,15 @@
   "view_and_edit_scheduled_messages": "View and edit scheduled messages",
 
   "no_data_to_display": "No data to display",
-  "no_results_match": "No results match \"{query}\". Try a different search term.",
+  "no_results_match": "No results match",
+  "try_different_search": "Try a different search term.",
   "no_data_available": "No data available at the moment. You can add new data or refresh the page.",
   "clear_search": "Clear search",
+  "search_results": "Search Results",
   "showing": "Showing",
   "of": "of",
   "items": "items",
+  "item": "item",
   "search_results_count": "{count} search results",
 
   "failed_fetch_scheduled_messages": "Failed to fetch scheduled messages",
@@ -269,5 +272,17 @@
   "valid_phone_number_required": "Please enter a valid phone number",
   "send": "sending",
   "schedule": "scheduling",
-  "error_occurred": "An error occurred"
+  "error_occurred": "An error occurred",
+
+  "send_time_future": "The send time must be in the future",
+
+  "delete_failed": "Failed to delete",
+  "update_failed": "Failed to update",
+  "scheduled_time": "Scheduled Time",
+
+  "show_full": "Full view",
+  "loading_messages": "Loading messages...",
+
+  "char_count": "Character count",
+  "word_count": "Word count"
 }

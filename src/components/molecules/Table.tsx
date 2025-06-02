@@ -7,6 +7,7 @@ import {
   Check,
   Eye,
 } from "lucide-react";
+import useTranslation from "@/hooks/useTranslation";
 
 // --- أنواع البيانات ---
 export interface TableColumn {
@@ -46,6 +47,7 @@ const Table: React.FC<TableProps> = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
   const [isAnimating, setIsAnimating] = useState(false);
+  const { t } = useTranslation();
 
   // --- معالجة الترتيب ---
   const handleSort = useCallback(
@@ -128,15 +130,15 @@ const Table: React.FC<TableProps> = ({
           </h3>
           <p className="text-sm text-center max-w-sm leading-relaxed">
             {searchQuery
-              ? `لم يتم العثور على أي نتائج تطابق "${searchQuery}". جرب مصطلح بحث مختلف.`
-              : "لا توجد بيانات متاحة حالياً. يمكنك إضافة بيانات جديدة أو تحديث الصفحة."}
+              ? `${t("no_results_match")}"${searchQuery}". ${t("try_different_search")}`
+              : t("no_data_available")}
           </p>
           {searchQuery && (
             <button
               onClick={() => setSearchQuery("")}
               className="mt-4 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105"
             >
-              مسح البحث
+              {t("clear_search")}
             </button>
           )}
         </div>
@@ -265,15 +267,15 @@ const Table: React.FC<TableProps> = ({
                 <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                   <Eye className="h-4 w-4 text-emerald-500" />
                   <span className="font-medium">
-                    عرض{" "}
+                    {t("showing")}{" "}
                     <span className="text-emerald-600 dark:text-emerald-400 font-bold">
                       {filteredData.length}
                     </span>{" "}
-                    من أصل{" "}
+                    {t("of")}{" "}
                     <span className="text-emerald-600 dark:text-emerald-400 font-bold">
                       {data.length}
                     </span>{" "}
-                    عنصر
+                    {t("item")}
                   </span>
                 </div>
               </div>
@@ -282,7 +284,7 @@ const Table: React.FC<TableProps> = ({
                   <div className="flex items-center gap-2 bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 px-3 py-1.5 rounded-full">
                     <Search className="h-3 w-3" />
                     <span className="text-xs font-semibold">
-                      نتائج البحث: {filteredData.length}
+                      {t("search_results")} {filteredData.length}
                     </span>
                   </div>
                 )}
