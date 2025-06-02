@@ -284,5 +284,9 @@
   "loading_messages": "Loading messages...",
 
   "char_count": "Character count",
-  "word_count": "Word count"
+  "word_count": "Word count",
+
+  "messageTemplatesnoTemplates": "No templates found",
+  "messageTemplatesgetStarted": "Get started by creating a new message template",
+  "messageTemplatesaddFirst": "Add your first template"
 }

@@ -285,5 +285,9 @@
   "loading_messages": "جاري تحميل الرسائل...",
 
   "char_count": "عدد الأحرف",
-  "word_count": "عدد الكلمات"
+  "word_count": "عدد الكلمات",
+
+  "messageTemplatesnoTemplates": "لم يتم العثور على أي قوالب",
+  "messageTemplatesgetStarted": "ابدأ بإنشاء قالب رسالة جديد",
+  "messageTemplatesaddFirst": "أضف أول قالب لك"
 }
