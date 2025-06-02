@@ -15,24 +15,59 @@ export default function RegisterPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  // ارسال البيانات إلى الخادم
+  // --- التحقق من صحة الحقول ---
+  const validateForm = (data: { name: string; email: string; phone: string; password: string }) => {
+    const { name, email, phone, password } = data;
+
+    if (!name.trim()) {
+      showToast(t("enterEmail"), "error");
+      return false;
+    }
+
+    if (!email.trim()) {
+      showToast(t("enterEmail"), "success");
+      return false;
+    }
+
+    if (!phone.trim()) {
+      showToast(t("enterPhone"), "success");
+      return false;
+    }
+
+    if (!password) {
+      showToast(t("enterPassword"), "success");
+      return false;
+    }
+
+    if (password.length < 6) {
+      showToast(t("passwordMinLength"), "success");
+      return false;
+    }
+
+    return true;
+  };
+
+  // --- إرسال البيانات ---
   const handleRegister = async (data: {
     name: string;
     email: string;
     phone: string;
     password: string;
   }) => {
+    // --- التحقق من الحقول ---
+    if (!validateForm(data)) return;
+
     setIsLoading(true);
     try {
       const res = await register(data.name, data.email, data.phone, data.password);
       console.log("Register Response:", res);
-      showToast("تم التسجيل بنجاح!", "success");
+      showToast(t("registrationSuccess"), "success");
       setTimeout(() => {
         router.push("/login");
       }, 1000);
     } catch (error) {
       console.error("Register Failed:", error);
-      showToast("فشل في التسجيل", "error");
+      showToast(t("registrationFailed"), "success");
     } finally {
       setIsLoading(false);
     }
