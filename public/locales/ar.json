@@ -23,6 +23,8 @@
   "language": "اللغة",
   "contactSupport": "تواصل مع خدمة العملاء",
   "dashboard": "لوحة التحكم",
+  "linked_accounts": "الحسابات المرتبطة",
+  "no_accounts": "لا توجد حسابات متاحة",
   "status": "الحالة",
   "Connected": "متصل",
   "home": "الرئيسية",
