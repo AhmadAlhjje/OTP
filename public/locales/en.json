@@ -245,5 +245,10 @@
   "showing": "Showing",
   "of": "of",
   "items": "items",
-  "search_results_count": "{count} search results"
+  "search_results_count": "{count} search results",
+
+  "failed_fetch_scheduled_messages": "Failed to fetch scheduled messages",
+  "requesting_qr": "Requesting QR code...",
+  "preparing_account": "Preparing account for use...",
+  "added_successfully": "Added successfully!"
 }

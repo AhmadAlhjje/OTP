@@ -246,5 +246,10 @@
   "showing": "عرض",
   "of": "من أصل",
   "items": "عناصر",
-  "search_results_count": "{count} نتيجة بحث"
+  "search_results_count": "{count} نتيجة بحث",
+
+  "added_successfully": "تمت الإضافة بنجاح!",
+  "requesting_qr": "جاري طلب الـ QR...",
+  "preparing_account": "جاري تحضير الحساب للعمل...",
+  "failed_fetch_scheduled_messages": "فشل في جلب الرسائل المجدولة"
 }
