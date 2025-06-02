@@ -28,7 +28,7 @@ const Toast: React.FC<ToastProps> = ({ id, message, type, onClose }) => {
   return (
     <div
       className={`${getToastStyles()}
-        fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg
+        fixed bottom-12 left-10 px-6 py-3 rounded-lg shadow-lg
         transform transition-all duration-300 ease-in-out
         flex items-center justify-between max-w-xs z-50`}
       role="alert"

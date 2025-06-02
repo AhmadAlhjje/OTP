@@ -22,6 +22,7 @@ import {
   User,
 } from "lucide-react";
 import useTranslation from "@/hooks/useTranslation";
+import { useToast } from "@/hooks/useToast";
 
 type Person = {
   _id?: string; // ← اختياري
@@ -62,6 +63,7 @@ export default function EnhancedTemplateManagerPage() {
   } | null>(null);
   const [editingTemplate, setEditingTemplate] = useState<number | null>(null);
   const [editingPerson, setEditingPerson] = useState<number | null>(null);
+  const { showToast } = useToast();
 
   const selectedTemplate = templates.find((t) => t.id === selectedTemplateId);
 
@@ -140,7 +142,7 @@ export default function EnhancedTemplateManagerPage() {
       resetForm();
     } catch (error) {
       console.error("حدث خطأ أثناء حفظ القالب:", error);
-      alert("فشل في حفظ القالب. يرجى المحاولة لاحقًا.");
+      showToast("فشل في حفظ القالب. يرجى المحاولة لاحقًا.", "error");
     }
   };
   // Reset form
@@ -174,7 +176,7 @@ export default function EnhancedTemplateManagerPage() {
           (t) => t.id === itemToDelete.id
         );
         if (!templateToDelete || !templateToDelete._id) {
-          alert("معرف القالب غير موجود");
+          showToast("معرف القالب غير موجود", "error");
           return;
         }
 
@@ -185,7 +187,7 @@ export default function EnhancedTemplateManagerPage() {
             setSelectedTemplateId(null);
           }
         } else {
-          alert("فشل في حذف القالب من السيرفر");
+          showToast("فشل في حذف القالب من السيرفر", "error");
         }
       } else if (itemToDelete.type === "person" && itemToDelete.templateId) {
         const template = templates.find(
@@ -205,7 +207,7 @@ export default function EnhancedTemplateManagerPage() {
       }
     } catch (error) {
       console.error("حدث خطأ أثناء الحذف:", error);
-      alert("حدث خطأ أثناء الحذف.");
+      showToast("حدث خطأ أثناء الحذف.", "error");
     }
 
     setShowConfirmation(false);
@@ -225,7 +227,7 @@ export default function EnhancedTemplateManagerPage() {
     newDescription: string = ""
   ) => {
     if (!newName.trim()) {
-      alert("يجب إدخال اسم للقالب");
+      showToast("يجب إدخال اسم للقالب", "info");
       return;
     }
 
@@ -233,7 +235,7 @@ export default function EnhancedTemplateManagerPage() {
       // العثور على القالب المحلي الذي يحتوي على _id من السيرفر
       const templateToUpdate = templates.find((t) => t.id === id);
       if (!templateToUpdate || !templateToUpdate._id) {
-        alert("معرف القالب غير موجود");
+        showToast("معرف القالب غير موجود", "error");
         return;
       }
 
@@ -259,10 +261,10 @@ export default function EnhancedTemplateManagerPage() {
       setTemplateName("");
       setTemplateDescription("");
 
-      alert("تم تحديث القالب بنجاح!");
+      showToast("تم تحديث القالب بنجاح!", "success");
     } catch (error) {
       console.error("حدث خطأ أثناء تحديث القالب:", error);
-      alert("فشل في تحديث القالب. يرجى المحاولة لاحقًا.");
+      showToast("فشل في تحديث القالب. يرجى المحاولة لاحقًا.", "error");
     }
   };
 
@@ -279,7 +281,7 @@ export default function EnhancedTemplateManagerPage() {
     );
 
     if (!templateToUpdate || !templateToUpdate._id) {
-      alert("معرف القالب غير موجود");
+      showToast("معرف القالب غير موجود", "success");
       return;
     }
 
@@ -311,10 +313,10 @@ export default function EnhancedTemplateManagerPage() {
       setPersonName("");
       setPersonPhone("");
 
-      alert("تم تحديث الشخص بنجاح!");
+      showToast("تم تحديث الشخص بنجاح!", "success");
     } catch (error) {
       console.error("حدث خطأ أثناء تحديث الشخص:", error);
-      alert("فشل في تحديث الشخص. يرجى المحاولة لاحقًا.");
+      showToast("فشل في تحديث الشخص. يرجى المحاولة لاحقًا.", "error");
     }
   };
 
