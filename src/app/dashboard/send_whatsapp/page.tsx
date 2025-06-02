@@ -1,4 +1,3 @@
-// EnhancedWhatsAppScheduler.tsx
 "use client";
 import React, { useEffect, useState } from "react";
 import MessageForm from "@/components/organisms/MessageForm";
@@ -93,11 +92,11 @@ const EnhancedWhatsAppScheduler = () => {
             setActiveAccount({ name: fullAccount.name });
           } else {
             setActiveAccount(null);
-            showToast("لا يوجد حساب نشط", "info");
+            showToast(t("no_active_account"), "info");
           }
         } else {
           setActiveAccount(null);
-          showToast("لا يوجد حساب نشط", "info");
+          showToast(t("no_active_account"), "info");
         }
 
         // --- معالجة المجموعات ---
@@ -110,10 +109,10 @@ const EnhancedWhatsAppScheduler = () => {
         }));
         setTemplates(localTemplates);
       } catch (error: any) {
-        console.error("حدث خطأ أثناء تحميل البيانات:", error);
+        console.error(t("error_occurred_during"), error);
 
         // إظهار رسالة خطأ عامة أو محددة
-        showToast("فشل في تحميل بعض البيانات من الخادم", "error");
+        showToast(t("failed_to_load_data"), "error");
       } finally {
         // --- إنهاء حالة التحميل ---
         setGroupsLoading(false);
@@ -126,32 +125,32 @@ const EnhancedWhatsAppScheduler = () => {
 
   const handleSend = async () => {
     if (!activeAccount) {
-      showToast("يرجى اختيار حساب واتساب أولاً", "error");
+      showToast(t("toastno_account"), "error");
       return;
     }
 
     if (recipientNumbers.length === 0 && selectedGroups.length === 0) {
-      showToast("يرجى إضافة رقم مستلم أو مجموعة واحدة على الأقل", "error");
+      showToast(t("toastno_recipients"), "error");
       return;
     }
 
     if (isTemplateMode && !selectedTemplate) {
-      showToast("يرجى اختيار قالب رسالة", "error");
+      showToast(t("toastno_template"), "error");
       return;
     }
 
     if (!isTemplateMode && !message.trim()) {
-      showToast("يرجى كتابة نص الرسالة", "error");
+      showToast(t("toastno_message"), "error");
       return;
     }
 
     if (isScheduled && !scheduledTime) {
-      showToast("يرجى اختيار وقت الإرسال المجدول", "error");
+      showToast(t("toastno_schedule_time"), "error");
       return;
     }
 
     if (isScheduled && scheduledTime && scheduledTime <= new Date()) {
-      showToast("وقت الإرسال يجب أن يكون في المستقبل", "error");
+      showToast(t("toastinvalid_schedule_time"), "error");
       return;
     }
 
@@ -170,30 +169,31 @@ const EnhancedWhatsAppScheduler = () => {
       if (isScheduled) {
         const res = await sendWhatsappMessage({
           to: allRecipients,
-          message: messageContent, 
+          message: messageContent,
           scheduledAt: scheduledTime?.toISOString().replace(/\.\d{3}Z$/, "Z"),
         });
 
         if (res.status === 201) {
           setShowScheduleSuccess(true);
           setTimeout(() => setShowScheduleSuccess(false), 3000);
-          showToast("تم جدولة الرسالة بنجاح ✨", "success");
+          showToast(t("toastmessage_scheduled"), "success");
           resetForm();
         } else {
-          showToast("فشل في جدولة الرسالة", "error");
+          showToast(t("message_scheduled_failed"), "error");
         }
       } else {
         const res = await sendImmediateMessage({
           to: allRecipients,
-          message: messageContent, 
+          message: messageContent,
         });
 
         if (res.status === 201) {
-          showToast("تم إرسال الرسالة بنجاح 🚀", "success");
+          showToast(t("toastmessage_sent"), "success");
           resetForm();
         } else {
           showToast(
-            "فشل في الإرسال: " + (res.data.message || "خطأ غير معروف"),
+            t("send_failed_with_reason") +
+              (res.data.message || t("unknown_error")),
             "error"
           );
         }
@@ -201,10 +201,10 @@ const EnhancedWhatsAppScheduler = () => {
     } catch (error: any) {
       const errorMessage =
         error?.response?.data?.message ||
-        (error instanceof Error ? error.message : "حدث خطأ أثناء الإرسال");
+        (error instanceof Error ? error.message : t("send_failed_with_reason"));
 
       showToast(
-        `حدث خطأ أثناء ${isScheduled ? "الجدولة" : "الإرسال"}: ${errorMessage}`,
+        `${t("error_occurred")} ${isScheduled ? t("schedule") : t("send")}: ${errorMessage}`,
         "error"
       );
     } finally {
@@ -233,14 +233,14 @@ const EnhancedWhatsAppScheduler = () => {
   const handleAddNumber = () => {
     const trimmed = currentNumber.trim();
     if (!validatePhoneNumber(trimmed)) {
-      alert("يرجى إدخال رقم هاتف صحيح");
+      showToast(t("enter_valid_number"), "info");
       return;
     }
     if (!recipientNumbers.includes(trimmed)) {
       setRecipientNumbers([...recipientNumbers, trimmed]);
       setCurrentNumber("");
     } else {
-      alert("هذا الرقم موجود بالفعل");
+      showToast(t("number_already_exists"), "info");
     }
   };
 
@@ -458,7 +458,7 @@ const EnhancedWhatsAppScheduler = () => {
       >
         <div className="bg-white/90 backdrop-blur-md dark:bg-gray-800/90 p-2 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50">
           <AccountSwitcher
-            accountName={activeAccount?.name || "حساب غير محدد"}
+            accountName={activeAccount?.name || t("no_account_selected")}
           />
         </div>
       </motion.div>

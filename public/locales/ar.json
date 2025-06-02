@@ -251,5 +251,24 @@
   "added_successfully": "تمت الإضافة بنجاح!",
   "requesting_qr": "جاري طلب الـ QR...",
   "preparing_account": "جاري تحضير الحساب للعمل...",
-  "failed_fetch_scheduled_messages": "فشل في جلب الرسائل المجدولة"
+  "failed_fetch_scheduled_messages": "فشل في جلب الرسائل المجدولة",
+
+  "no_account_selected": "حساب غير محدد",
+
+  "failed_to_load_data": "فشل في تحميل بعض البيانات من الخادم",
+  "select_whatsapp_account_first": "يرجى اختيار حساب واتساب أولاً",
+  "add_recipient_or_group": "يرجى إضافة رقم مستلم أو مجموعة واحدة على الأقل",
+  "select_message_template": "يرجى اختيار قالب رسالة",
+  "write_message_text": "يرجى كتابة نص الرسالة",
+  "send_time_must_be_future": "وقت الإرسال يجب أن يكون في المستقبل",
+  "message_scheduled_success": "تم جدولة الرسالة بنجاح ",
+  "message_scheduled_failed": "فشل في جدولة الرسالة",
+  "message_send_success": "تم إرسال الرسالة بنجاح ",
+  "send_failed_with_reason": "فشل في الإرسال : ",
+  "unknown_error": "خطأ غير معروف",
+  "error_occurred_during": ": حدث خطأ أثناء تحميل البيانات",
+  "valid_phone_number_required": "يرجى إدخال رقم هاتف صحيح",
+  "send": "الإرسال",
+  "schedule": "الجدولة",
+  "error_occurred": "حدث خطأ أثناء"  
 }

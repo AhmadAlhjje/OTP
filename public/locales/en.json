@@ -250,5 +250,24 @@
   "failed_fetch_scheduled_messages": "Failed to fetch scheduled messages",
   "requesting_qr": "Requesting QR code...",
   "preparing_account": "Preparing account for use...",
-  "added_successfully": "Added successfully!"
+  "added_successfully": "Added successfully!",
+
+  "no_account_selected": "No account selected",
+
+  "failed_to_load_data": "Failed to load some data from the server",
+  "select_whatsapp_account_first": "Please select a WhatsApp account first",
+  "add_recipient_or_group": "Please add at least one recipient number or group",
+  "select_message_template": "Please select a message template",
+  "write_message_text": "Please write a message text",
+  "send_time_must_be_future": "The send time must be in the future",
+  "message_scheduled_success": "Message has been successfully scheduled ",
+  "message_scheduled_failed": "Failed to schedule the message",
+  "message_send_success": "Message sent successfully ",
+  "send_failed_with_reason": "Send failed: ",
+  "unknown_error": "Unknown error",
+  "error_occurred_during": "An error occurred during ",
+  "valid_phone_number_required": "Please enter a valid phone number",
+  "send": "sending",
+  "schedule": "scheduling",
+  "error_occurred": "An error occurred"
 }
