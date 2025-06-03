@@ -289,5 +289,25 @@
 
   "messageTemplatesnoTemplates": "لم يتم العثور على أي قوالب",
   "messageTemplatesgetStarted": "ابدأ بإنشاء قالب رسالة جديد",
-  "messageTemplatesaddFirst": "أضف أول قالب لك"
+  "messageTemplatesaddFirst": "أضف أول قالب لك",
+
+  "auto_reply_management": "إدارة الردود الآلية للرسائل الواردة",
+  "auto_reply": "رد تلقائي",
+  "list_of_auto_replies": "قائمة الردود التلقائية",
+  "no_search_results": "لا توجد نتائج للبحث",
+  "no_auto_replies": "لا توجد ردود تلقائية",
+  "try_different_keywords": "جرب البحث بكلمات مختلفة",
+  "add_auto_replies_to_start": "أضف ردود تلقائية للبدء في استخدام الميزة",
+  "changes_saved_successfully": "تم حفظ التغييرات بنجاح",
+
+  "manage_automated_replies": "إدارة الردود الآلية للرسائل الواردة",
+  "active": "نشط",
+  "no_items_found": "لا يوجد عناصر",
+
+  "search_in_replies": "البحث في الردود",
+  "search_by_keywords_or_replies": "ابحث في الكلمات المفتاحية أو الردود",
+  "add_new_auto_reply": "إضافة رد تلقائي جديد",
+  "create_new_auto_reply": "أنشئ رد تلقائي جديد",
+  "add_auto_reply": "إضافة رد تلقائي",
+  "auto_replies_list": "قائمة الردود التلقائية"
 }

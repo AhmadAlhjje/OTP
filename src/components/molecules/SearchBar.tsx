@@ -3,6 +3,7 @@
  */
 import React from "react";
 import { Search } from "lucide-react";
+import useTranslation from "@/hooks/useTranslation";
 
 interface SearchBarProps {
   searchTerm: string;
@@ -10,6 +11,7 @@ interface SearchBarProps {
 }
 
 export const SearchBar = ({ searchTerm, onSearchChange }: SearchBarProps) => {
+  const { t } = useTranslation();
   return (
     <div className="relative">
       <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
@@ -17,7 +19,7 @@ export const SearchBar = ({ searchTerm, onSearchChange }: SearchBarProps) => {
         type="text"
         value={searchTerm}
         onChange={(e) => onSearchChange(e.target.value)}
-        placeholder="ابحث عن كلمة مفتاحية أو رد..."
+        placeholder={t("search_by_keywords_or_replies")}
         className="w-full pr-12 pl-4 py-3 border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"
       />
     </div>

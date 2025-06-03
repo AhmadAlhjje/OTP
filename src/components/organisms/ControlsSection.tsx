@@ -5,6 +5,7 @@ import React from "react";
 import { Plus, Search } from "lucide-react";
 import Button from "@/components/atoms/Button";
 import { SearchBar } from "../molecules/SearchBar";
+import useTranslation from "@/hooks/useTranslation";
 
 interface ControlsSectionProps {
   searchTerm: string;
@@ -17,6 +18,8 @@ export const ControlsSection = ({
   onSearchChange,
   onAddReply,
 }: ControlsSectionProps) => {
+  const { t } = useTranslation();
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
       {/* Search Bar */}
@@ -27,10 +30,10 @@ export const ControlsSection = ({
           </div>
           <div>
             <h3 className="font-semibold text-gray-800 dark:text-gray-200">
-              البحث في الردود
+              {t("search_in_replies")}
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              ابحث في الكلمات المفتاحية أو الردود
+              {t("search_by_keywords_or_replies")}
             </p>
           </div>
         </div>
@@ -45,10 +48,10 @@ export const ControlsSection = ({
           </div>
           <div>
             <h3 className="font-semibold text-gray-800 dark:text-gray-200">
-              إضافة رد جديد
+              {t("add_new_auto_reply")}
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              أنشئ رد تلقائي جديد
+              {t("create_new_auto_reply")}
             </p>
           </div>
         </div>
@@ -59,7 +62,7 @@ export const ControlsSection = ({
           iconPosition="left"
           size="md"
         >
-          إضافة رد تلقائي
+          {t("add_auto_reply")}
         </Button>
       </div>
     </div>

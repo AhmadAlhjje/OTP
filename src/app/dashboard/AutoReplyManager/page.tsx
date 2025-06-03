@@ -22,6 +22,7 @@ import {
   updateAutoReplyOnAPI,
   deleteAutoReplyFromAPI,
 } from "@/services/autoReplyAPI.ts";
+import useTranslation from "@/hooks/useTranslation";
 
 export const AutoReplyManager = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -32,6 +33,7 @@ export const AutoReplyManager = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
+  const { t } = useTranslation();
 
   //  جلب البيانات من السيرفر عند التحميل الأولي
   useEffect(() => {
@@ -99,10 +101,10 @@ export const AutoReplyManager = () => {
     <div className="p-6 w-full min-h-screen bg-gradient-to-br from-white via-green-50/30 to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-emerald-900/20">
       {/* Header Section */}
       <HeaderSection
-        title="الردود التلقائية"
-        description="إدارة الردود الآلية للرسائل الواردة"
+        title={t("auto_replies")}
+        description={t("auto_reply_management")}
         itemCount={autoReplies.length}
-        itemLabel="رد تلقائي"
+        itemLabel={t("auto_reply")}
       />
 
       {/* Controls Section */}
@@ -118,11 +120,11 @@ export const AutoReplyManager = () => {
         searchTerm={searchTerm}
         onEdit={handleEditReply}
         onDelete={handleDeleteReply}
-        title="قائمة الردود التلقائية"
-        emptySearchText="لا توجد نتائج للبحث"
-        emptyDefaultText="لا توجد ردود تلقائية"
-        emptySearchSuggestion="جرب البحث بكلمات مختلفة"
-        emptyDefaultActionText="أضف ردود تلقائية للبدء في استخدام الميزة"
+        title={t("list_of_auto_replies")}
+        emptySearchText={t("no_search_results")}
+        emptyDefaultText={t("no_auto_replies")}
+        emptySearchSuggestion={t("try_different_keywords")}
+        emptyDefaultActionText={t("add_auto_replies_to_start")}
       />
 
       {/* Modal Form */}
@@ -160,7 +162,7 @@ export const AutoReplyManager = () => {
         {showSuccess && (
           <Toast
             id="save-success"
-            message="تم الحفظ بنجاح!"
+            message={t("changes_saved_successfully")}
             type="success"
             onClose={() => setShowSuccess(false)}
           />

@@ -1,17 +1,8 @@
-/**
- * HeaderSection.tsx
- *
- * عنصر رأس الصفحة الديناميكي
- * يقبل:
- * - عنوان
- * - وصف
- * - عدد العناصر
- * - نص قبل العدد (مثل: "نشط:")
- * - أيقونات مخصصة
- */
+"use client";
 
 import React from "react";
 import { Bot, Zap } from "lucide-react";
+import useTranslation from "@/hooks/useTranslation";
 
 interface HeaderSectionProps {
   title?: string;
@@ -23,13 +14,15 @@ interface HeaderSectionProps {
 }
 
 export const HeaderSection = ({
-  title = "الردود التلقائية",
-  description = "إدارة الردود الآلية للرسائل الواردة",
+  title = "auto_replies",        // ← سنصبح تستخدم القيم من الترجمة
+  description = "manage_automated_replies",
   itemCount = 0,
-  itemLabel = "رد تلقائي",
+  itemLabel = "auto_reply",     // ← تم تحويله إلى key
   icon = <Bot />,
   statusIcon = <Zap />,
 }: HeaderSectionProps) => {
+  const { t } = useTranslation();
+
   return (
     <div className="flex items-center justify-between mb-8">
       {/* القسم الأيسر: الاسم والوصف */}
@@ -44,10 +37,10 @@ export const HeaderSection = ({
         </div>
         <div>
           <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
-            {title}
+            {t(title)}
           </h1>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            {description}
+            {t(description)}
           </p>
         </div>
       </div>
@@ -57,10 +50,14 @@ export const HeaderSection = ({
         <div className="bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/40 dark:to-emerald-900/40 text-green-800 dark:text-green-300 px-5 py-3 rounded-xl shadow-lg border border-green-200 dark:border-green-700">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="text-sm font-medium">{itemCount ? "نشط" : "لا يوجد عناصر"}</span>
+            <span className="text-sm font-medium">
+              {itemCount ? t("active") : t("no_items_found")}
+            </span>
             {itemCount !== undefined && (
               <>
-                <span className="font-bold">{itemCount} {itemLabel}</span>
+                <span className="font-bold">
+                  {itemCount} {t(itemLabel)}
+                </span>
               </>
             )}
           </div>

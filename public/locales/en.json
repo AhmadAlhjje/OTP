@@ -288,5 +288,25 @@
 
   "messageTemplatesnoTemplates": "No templates found",
   "messageTemplatesgetStarted": "Get started by creating a new message template",
-  "messageTemplatesaddFirst": "Add your first template"
+  "messageTemplatesaddFirst": "Add your first template",
+
+  "auto_reply_management": "Automated Replies Management for Incoming Messages",
+  "auto_reply": "Auto Reply",
+  "list_of_auto_replies": "List of Auto Replies",
+  "no_search_results": "No Search Results Found",
+  "no_auto_replies": "No Auto Replies Available",
+  "try_different_keywords": "Try searching with different keywords",
+  "add_auto_replies_to_start": "Add auto replies to start using the feature",
+  "changes_saved_successfully": "Changes saved successfully",
+
+  "manage_automated_replies": "Manage automated replies for incoming messages",
+  "active": "Active",
+  "no_items_found": "No items found",
+
+  "search_in_replies": "Search in Replies",
+  "search_by_keywords_or_replies": "Search by keywords or replies",
+  "add_new_auto_reply": "Add New Auto Reply",
+  "create_new_auto_reply": "Create a new auto reply",
+  "add_auto_reply": "Add Auto Reply",
+  "auto_replies_list": "Auto Replies List"
 }
