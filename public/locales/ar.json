@@ -463,5 +463,26 @@
   "footerrights_reserved": "جميع الحقوق محفوظة.",
   "footerprivacy_policy": "سياسة الخصوصية",
   "footerterms_of_use": "شروط الاستخدام",
-  "footercookies": "ملفات تعريف الارتباط"
+  "footercookies": "ملفات تعريف الارتباط",
+
+  "manageYourWhatsappLikeNeverBefore": "إدارة واتساب الخاص بك كما لم تفعل من قبل",
+  "welcomeBack": "مرحباً بعودتك",
+  "loginToAccessYourAccount": "سجّل الدخول للوصول إلى حسابك",
+  "emailOrUsername": "البريد الإلكتروني أو اسم المستخدم",
+  "enterEmailOrUsername": "أدخل البريد الإلكتروني أو اسم المستخدم",
+
+  "WhatsApp_Dashboard": "لوحة تحكم واتساب",
+  "Business_Communication_Hub": "مركز التواصل التجاري",
+  "Secure_Encrypted": "آمن ومشفّر ",
+  "Real_time_Analytics": "تحليلات فورية ",
+  "Multi_device_Support": "دعم متعدد الأجهزة ",
+
+  "createAccount": "أنشئ حسابك",
+  "fillInYourDetailsToGetStarted": "أدخل تفاصيلك لتبدأ",
+  "startYourJourneyToday": "ابدأ رحلتك اليوم",
+  "Join_Our_Community": "انضم إلى مجتمعنا",
+  "Free_30_day_trial": "تجربة مجانية لمدة 30 يوماً",
+  "_Customer_Support": "دعم فني على مدار الساعة",
+  "Advanced_Analytics_Dashboard": "لوحة تحليلات متقدمة",
+  "No_Setup_Fees": "بدون رسوم إعداد"
 }
