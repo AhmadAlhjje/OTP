@@ -6,6 +6,9 @@ import Link from "../atoms/Link";
 import { MessageSquare, X, Menu } from "lucide-react";
 import NavLink from "../atoms/NavLink";
 import useTranslation from "@/hooks/useTranslation";
+import { Globe, Moon, Sun } from "lucide-react";
+import useTheme from "@/hooks/useTheme";
+import useLanguage from "@/hooks/useLanguage";
 
 const Navbar = ({
   scrollToSection,
@@ -14,6 +17,8 @@ const Navbar = ({
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const { theme, toggleTheme } = useTheme();
+  const { language, toggleLanguage } = useLanguage();
   const { t } = useTranslation();
 
   // إغلاق القائمة عند تغيير حجم الشاشة
@@ -111,6 +116,28 @@ const Navbar = ({
 
             {/* أزرار العمل - ديسيتك */}
             <div className="hidden md:flex items-center space-x-4 rtl:space-x-reverse">
+              {/* زر تبديل اللغة */}
+              <Button
+                variant="ghost"
+                onClick={toggleLanguage}
+                icon={<Globe size={18} />}
+                className="text-gray-700 hover:text-green-600 dark:text-white dark:hover:text-green-400"
+                aria-label="تبديل اللغة"
+              >
+                <span className="text-sm hidden sm:block">
+                  {language === "ar" ? "EN" : "AR"}
+                </span>
+              </Button>
+
+              {/* زر تبديل المظهر (داكن/مضيء) */}
+              <Button
+                variant="icon"
+                onClick={toggleTheme}
+                icon={theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+                className="text-gray-700 hover:text-green-600 dark:text-white dark:hover:text-green-400"
+                aria-label="تبديل المظهر"
+                children={undefined}
+              />
               <Link
                 href="/login"
                 className="text-gray-700 hover:text-green-600 font-medium transition-colors duration-200 dark:text-white dark:hover:text-green-600"
@@ -225,9 +252,7 @@ const Navbar = ({
         {/* معلومات إضافية */}
         <div className="absolute bottom-0 left-0 right-0 p-6 bg-gray-50 border-t border-gray-200">
           <div className="text-center">
-            <p className="text-sm text-gray-600 mb-2">
-              {t("navbarneed_help")}
-            </p>
+            <p className="text-sm text-gray-600 mb-2">{t("navbarneed_help")}</p>
             <Link
               href="/support"
               className="text-sm text-green-600 hover:text-green-700 font-medium"
