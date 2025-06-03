@@ -12,10 +12,13 @@ import {
   Zap,
 } from "lucide-react";
 import Button from "../atoms/Button";
+import useTranslation from "@/hooks/useTranslation";
 
 const FeaturesSection = () => {
+  const { t } = useTranslation();
   const [activeFeature, setActiveFeature] = useState(0);
 
+  // --- تبديل المميزات تلقائياً ---
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveFeature((prev) => (prev + 1) % 6);
@@ -23,47 +26,42 @@ const FeaturesSection = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // --- قائمة المميزات ---
   const features = [
     {
       icon: <Send className="w-6 h-6" />,
-      title: "واجهة برمجية سهلة الاستخدام والتكامل",
-      description:
-        "API قوي ومرن يمكن دمجه بسهولة مع أنظمتك الحالية",
+      title: t("featureseasy_api_integration"),
+      description: t("featureseasy_api_integration_desc"),
       color: "from-blue-500 to-cyan-500",
     },
     {
       icon: <Shield className="w-6 h-6" />,
-      title: "حماية كاملة لبياناتك وخصوصية عملائك",
-      description:
-        "تشفير متقدم وحماية شاملة لجميع البيانات المرسلة",
+      title: t("featuresfull_data_protection"),
+      description: t("featuresfull_data_protection_desc"),
       color: "from-green-500 to-emerald-500",
     },
     {
       icon: <Zap className="w-6 h-6" />,
-      title: "إرسال آلاف الرسائل في ثوانٍ معدودة",
-      description:
-        "سرعة فائقة في الإرسال مع ضمان الوصول",
+      title: t("featureshigh_speed_delivery"),
+      description: t("featureshigh_speed_delivery_desc"),
       color: "from-yellow-500 to-orange-500",
     },
     {
       icon: <Megaphone className="w-6 h-6" />,
-      title: "إعلانات بدون حظر",
-      description:
-        "إرسال إعلانات دون التعرض للحظر من واتساب",
+      title: t("featuresmarketing_without_block"),
+      description: t("featuresmarketing_without_block_desc"),
       color: "from-purple-500 to-pink-500",
     },
     {
       icon: <Bot className="w-6 h-6" />,
-      title: "رد تلقائي ذكي",
-      description:
-        "نظام ذكي للردود التلقائية مع تخصيص كامل",
+      title: t("featuressmart_auto_replies"),
+      description: t("featuressmart_auto_replies_desc"),
       color: "from-indigo-500 to-blue-500",
     },
     {
       icon: <Users className="w-6 h-6" />,
-      title: "إرسال جماعي متقدم",
-      description:
-        "إرسال لآلاف المستقبلين مع إدارة ذكية للقوائم",
+      title: t("featuresbulk_messaging"),
+      description: t("featuresbulk_messaging_desc"),
       color: "from-red-500 to-rose-500",
     },
   ];
@@ -73,14 +71,15 @@ const FeaturesSection = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-            مميزات استثنائية
+            {t("featuresexceptional_features")}
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            اكتشف مجموعة شاملة من المميزات المتقدمة التي تجعل إرسال رسائل واتساب أسهل وأكثر فعالية
+            {t("featurescomprehensive_features")}
           </p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* القائمة الجانبية للمميزات */}
           <div className="space-y-6">
             {features.map((feature, index) => (
               <FeatureCard
@@ -92,6 +91,7 @@ const FeaturesSection = () => {
             ))}
           </div>
 
+          {/* عرض التفاصيل للميزة الحالية */}
           <div className="lg:sticky lg:top-24">
             <div className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-3xl p-8 shadow-2xl transition-colors duration-300">
               <div
@@ -111,7 +111,7 @@ const FeaturesSection = () => {
                 icon={<ArrowRight />}
                 className="dark:from-green-600 dark:to-emerald-600"
               >
-                تعرف على المزيد
+                {t("featureslearn_more")}
               </Button>
             </div>
           </div>

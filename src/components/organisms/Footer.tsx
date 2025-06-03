@@ -2,8 +2,11 @@
 
 import React from "react";
 import { MessageSquare, Mail, Phone } from "lucide-react";
+import useTranslation from "@/hooks/useTranslation";
 
 const Footer = () => {
+  const { t } = useTranslation();
+
   return (
     <footer className="bg-gray-900 text-white py-16">
       <div className="container mx-auto px-4">
@@ -17,8 +20,7 @@ const Footer = () => {
               <span className="text-2xl font-bold">WhatsApp</span>
             </div>
             <p className="text-gray-400 leading-relaxed mb-6 max-w-md">
-              منصة رائدة في مجال إرسال رسائل واتساب برمجياً، نوفر حلول متقدمة
-              وموثوقة للشركات والأفراد.
+              {t("footercompany_description")}
             </p>
             <div className="flex space-x-4 rtl:space-x-reverse">
               <a
@@ -44,14 +46,14 @@ const Footer = () => {
 
           {/* روابط سريعة */}
           <div>
-            <h4 className="text-lg font-semibold mb-6">روابط سريعة</h4>
+            <h4 className="text-lg font-semibold mb-6">{t("footerquick_links")}</h4>
             <ul className="space-y-3">
               <li>
                 <a
                   href="#features"
                   className="text-gray-400 hover:text-white transition-colors"
                 >
-                  المميزات
+                  {t("footerfeatures")}
                 </a>
               </li>
               <li>
@@ -59,7 +61,7 @@ const Footer = () => {
                   href="#pricing"
                   className="text-gray-400 hover:text-white transition-colors"
                 >
-                  الأسعار
+                  {t("footerpricing")}
                 </a>
               </li>
               <li>
@@ -67,7 +69,7 @@ const Footer = () => {
                   href="#faq"
                   className="text-gray-400 hover:text-white transition-colors"
                 >
-                  الأسئلة الشائعة
+                  {t("footerfaq")}
                 </a>
               </li>
               <li>
@@ -75,7 +77,7 @@ const Footer = () => {
                   href="#"
                   className="text-gray-400 hover:text-white transition-colors"
                 >
-                  الوثائق
+                  {t("footerdocumentation")}
                 </a>
               </li>
             </ul>
@@ -83,14 +85,14 @@ const Footer = () => {
 
           {/* الدعم */}
           <div>
-            <h4 className="text-lg font-semibold mb-6">الدعم</h4>
+            <h4 className="text-lg font-semibold mb-6">{t("footersupport")}</h4>
             <ul className="space-y-3">
               <li>
                 <a
                   href="#"
                   className="text-gray-400 hover:text-white transition-colors"
                 >
-                  مركز المساعدة
+                  {t("footerhelp_center")}
                 </a>
               </li>
               <li>
@@ -98,7 +100,7 @@ const Footer = () => {
                   href="#"
                   className="text-gray-400 hover:text-white transition-colors"
                 >
-                  تواصل معنا
+                  {t("footercontact_us")}
                 </a>
               </li>
               <li>
@@ -106,7 +108,7 @@ const Footer = () => {
                   href="#"
                   className="text-gray-400 hover:text-white transition-colors"
                 >
-                  بلاغ مشكلة
+                  {t("footerreport_issue")}
                 </a>
               </li>
               <li>
@@ -114,28 +116,28 @@ const Footer = () => {
                   href="#"
                   className="text-gray-400 hover:text-white transition-colors"
                 >
-                  حالة الخدمة
+                  {t("footerservice_status")}
                 </a>
               </li>
             </ul>
           </div>
         </div>
 
-        {/* خط الفصل */}
+        {/* خط الفصل السفلي */}
         <div className="border-t border-gray-800 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="text-gray-400 mb-4 md:mb-0">
-              © 2024 WhatsApp. جميع الحقوق محفوظة.
+              © 2024 WhatsApp. {t("footerrights_reserved")}
             </div>
             <div className="flex space-x-6 rtl:space-x-reverse text-gray-400">
               <a href="#" className="hover:text-white transition-colors">
-                سياسة الخصوصية
+                {t("footerprivacy_policy")}
               </a>
               <a href="#" className="hover:text-white transition-colors">
-                شروط الاستخدام
+                {t("footerterms_of_use")}
               </a>
               <a href="#" className="hover:text-white transition-colors">
-                ملفات تعريف الارتباط
+                {t("footercookies")}
               </a>
             </div>
           </div>

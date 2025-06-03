@@ -3,8 +3,11 @@
 import React from "react";
 import Button from "../atoms/Button";
 import { Phone, Mail, MessageSquare } from "lucide-react";
+import useTranslation from "@/hooks/useTranslation";
 
 const ContactSection = () => {
+  const { t } = useTranslation();
+
   return (
     <section
       id="contact"
@@ -12,29 +15,35 @@ const ContactSection = () => {
     >
       <div className="container mx-auto px-4 text-center">
         <div className="max-w-4xl mx-auto">
+          {/* العنوان */}
           <h2 className="text-4xl font-bold mb-6 text-gray-900 dark:text-white">
-            جاهز للبدء؟
+            {t("contactready_to_start")}
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-300 mb-12">
-            انضم إلى آلاف العملاء الذين يثقون بخدمتنا لإرسال رسائل واتساب بفعالية
+            {t("contactjoin_our_customers")}
           </p>
 
+          {/* البطاقات */}
           <div className="grid md:grid-cols-2 gap-8 mb-12">
             {/* البطاقة الأولى */}
             <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 shadow-md hover:shadow-lg transition-shadow">
               <Phone className="h-12 w-12 text-green-600 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">اتصل بنا</h3>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                {t("contactcall_us")}
+              </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                للاستفسارات العاجلة والدعم المباشر
+                {t("contacturgent_inquiries")}
               </p>
             </div>
 
             {/* البطاقة الثانية */}
             <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 shadow-md hover:shadow-lg transition-shadow">
               <Mail className="h-12 w-12 text-green-600 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">راسلنا</h3>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                {t("contactmessage_us")}
+              </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                للاستفسارات التفصيلية والدعم التقني
+                {t("contactdetailed_inquiries")}
               </p>
             </div>
           </div>
@@ -47,7 +56,7 @@ const ContactSection = () => {
               iconPosition="left"
               className="hover:bg-green-600 hover:text-white transition-colors dark:hover:bg-green-700 dark:bg-green-600"
             >
-              تواصل عبر WhatsApp
+              {t("contactcontact_via_whatsapp")}
             </Button>
             <Button
               variant="outline"
@@ -55,7 +64,7 @@ const ContactSection = () => {
               iconPosition="left"
               className="border-green-600 text-green-600 hover:bg-green-600 hover:text-white transition-colors dark:text-green-400 dark:border-green-500 dark:hover:bg-green-900/30"
             >
-              أرسل رسالة إلكترونية
+              {t("contactsend_email")}
             </Button>
           </div>
         </div>

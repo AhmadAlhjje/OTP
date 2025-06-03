@@ -4,8 +4,11 @@ import React from "react";
 import Button from "../atoms/Button";
 import { Play, MessageSquare } from "lucide-react";
 import Link from "../atoms/Link";
+import useTranslation from "@/hooks/useTranslation";
 
 const HeroSection = () => {
+  const { t } = useTranslation();
+
   return (
     <section className="pt-20 pb-16 px-4 dark:bg-gray-800">
       <div className="container mx-auto">
@@ -13,21 +16,20 @@ const HeroSection = () => {
           {/* النصوص */}
           <div className="space-y-8">
             <div className="space-y-6">
-              <div className="inline-flex items-center bg-green-100 dark:bg-green-900/30 dark:text-white text-green-800 mt-4 px-4 py-2 rounded-full text-sm">
-                <span>الأفضل في إرسال رسائل واتساب</span>
+              <div className="inline-flex items-center bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-white mt-4 px-4 py-2 rounded-full text-sm">
+                <span>{t("hero_sectionbest_in_whatsapp")}</span>
               </div>
               <h1 className="text-xl lg:text-4xl font-bold leading-tight">
                 <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                  أرسل رسائل واتساب
+                  {t("hero_sectionsend_messages")}
                 </span>
                 <br />
                 <span className="text-gray-900 dark:text-white">
-                  بكل سهولة واحترافية
+                  {t("hero_sectioneasy_and_professional")}
                 </span>
               </h1>
               <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
-                منصة متكاملة وموثوقة لإرسال رسائل واتساب برمجياً مع واجهة برمجية
-                قوية ومرنة. ابدأ الآن واستمتع بسرعة وأمان لا مثيل لهما.
+                {t("hero_sectiondescription")}
               </p>
             </div>
 
@@ -41,7 +43,7 @@ const HeroSection = () => {
                 fullWidth={false}
                 className="dark:from-green-600 dark:to-green-700"
               >
-                <Link href="/login">ابدأ الآن مجاناً</Link>
+                <Link href="/login">{t("hero_sectionget_started")}</Link>
               </Button>
               <Button
                 variant="outline"
@@ -51,7 +53,7 @@ const HeroSection = () => {
                 fullWidth={false}
                 className="dark:text-green-400 dark:border-green-500 dark:hover:bg-green-900/30"
               >
-                شاهد العرض التوضيحي
+                {t("hero_sectionwatch_demo")}
               </Button>
             </div>
 
@@ -60,19 +62,19 @@ const HeroSection = () => {
               <div className="text-center">
                 <div className="text-3xl font-bold text-green-600">99.9%</div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">
-                  معدل التسليم
+                  {t("hero_sectiondelivery_rate")}
                 </div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-green-600">1M+</div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">
-                  رسالة يومياً
+                  {t("hero_sectionmessages_per_day")}
                 </div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-green-600">24/7</div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">
-                  دعم فني
+                  {t("hero_sectioncustomer_support")}
                 </div>
               </div>
             </div>
@@ -90,30 +92,30 @@ const HeroSection = () => {
                     </div>
                     <div>
                       <div className="font-semibold text-gray-900 dark:text-white">WhatsApp</div>
-                      <div className="text-sm text-green-500">متصل</div>
+                      <div className="text-sm text-green-500">{t("hero_sectionconnected")}</div>
                     </div>
                   </div>
                   <div className="space-y-3">
                     <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-lg mr-8">
                       <p className="text-sm text-gray-800 dark:text-gray-200">
-                        مرحباً! شكراً لاختيارك خدمتنا
+                        {t("hero_sectionmessage_1")}
                       </p>
                     </div>
                     <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg ml-8">
                       <p className="text-sm text-gray-800 dark:text-gray-200">
-                        رائع! كيف يمكنني البدء؟
+                        {t("hero_sectionmessage_2")}
                       </p>
                     </div>
                     <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-lg mr-8">
                       <p className="text-sm text-gray-800 dark:text-gray-200">
-                        سنرسل لك رمز التفعيل خلال ثوانٍ
+                        {t("hero_sectionmessage_3")}
                       </p>
                     </div>
                   </div>
                 </div>
 
                 {/* مؤشر تحميل */}
-                <div className="flex items-center justify-center">
+                <div className="flex items-center justify-center mt-4">
                   <div className="flex space-x-2 rtl:space-x-reverse">
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce"></div>
                     <div
@@ -129,7 +131,7 @@ const HeroSection = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div>  
       </div>
     </section>
   );

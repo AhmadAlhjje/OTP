@@ -5,6 +5,7 @@ import Button from "../atoms/Button";
 import Link from "../atoms/Link";
 import { MessageSquare, X, Menu } from "lucide-react";
 import NavLink from "../atoms/NavLink";
+import useTranslation from "@/hooks/useTranslation";
 
 const Navbar = ({
   scrollToSection,
@@ -13,6 +14,7 @@ const Navbar = ({
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const { t } = useTranslation();
 
   // إغلاق القائمة عند تغيير حجم الشاشة
   useEffect(() => {
@@ -94,16 +96,16 @@ const Navbar = ({
             {/* روابط التنقل - ديسيتك */}
             <div className="hidden md:flex items-center space-x-8 rtl:space-x-reverse dark:text-white">
               <NavLink onClick={() => handleNavClick("features")}>
-                المميزات
+                {t("navbarfeatures")}
               </NavLink>
               <NavLink onClick={() => handleNavClick("pricing")}>
-                الأسعار
+                {t("navbarpricing")}
               </NavLink>
               <NavLink onClick={() => handleNavClick("faq")}>
-                الأسئلة الشائعة
+                {t("navbarfaq")}
               </NavLink>
               <NavLink onClick={() => handleNavClick("contact")}>
-                اتصل بنا
+                {t("navbarcontact_us")}
               </NavLink>
             </div>
 
@@ -113,14 +115,14 @@ const Navbar = ({
                 href="/login"
                 className="text-gray-700 hover:text-green-600 font-medium transition-colors duration-200 dark:text-white dark:hover:text-green-600"
               >
-                تسجيل الدخول
+                {t("navbarlogin")}
               </Link>
               <Button
                 variant="primary"
                 size="sm"
                 className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
               >
-                <Link href="/login">ابدأ مجاناً</Link>
+                <Link href="/login">{t("navbarget_started")}</Link>
               </Button>
             </div>
 
@@ -147,7 +149,7 @@ const Navbar = ({
         </div>
       </nav>
 
-      {/* Overlay للخلفية عند فتح القائمة */}
+      {/* خلفية ضبابية عند فتح القائمة */}
       {isMenuOpen && (
         <div
           className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
@@ -181,10 +183,10 @@ const Navbar = ({
         <div className="py-6">
           <div className="space-y-1 px-6">
             {[
-              { label: "المميزات", id: "features" },
-              { label: "الأسعار", id: "pricing" },
-              { label: "الأسئلة الشائعة", id: "faq" },
-              { label: "اتصل بنا", id: "contact" },
+              { label: t("navbarfeatures"), id: "features" },
+              { label: t("navbarpricing"), id: "pricing" },
+              { label: t("navbarfaq"), id: "faq" },
+              { label: t("navbarcontact_us"), id: "contact" },
             ].map((item, index) => (
               <button
                 key={item.id}
@@ -207,7 +209,7 @@ const Navbar = ({
               className="block w-full py-3 px-4 text-center text-gray-700 hover:text-green-600 hover:bg-gray-50 rounded-lg transition-all duration-200 font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
-              تسجيل الدخول
+              {t("navbarlogin")}
             </Link>
             <Button
               variant="primary"
@@ -215,7 +217,7 @@ const Navbar = ({
               className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
               onClick={() => setIsMenuOpen(false)}
             >
-              ابدأ مجاناً
+              {t("navbarget_started")}
             </Button>
           </div>
         </div>
@@ -223,13 +225,15 @@ const Navbar = ({
         {/* معلومات إضافية */}
         <div className="absolute bottom-0 left-0 right-0 p-6 bg-gray-50 border-t border-gray-200">
           <div className="text-center">
-            <p className="text-sm text-gray-600 mb-2">تحتاج مساعدة؟</p>
+            <p className="text-sm text-gray-600 mb-2">
+              {t("navbarneed_help")}
+            </p>
             <Link
               href="/support"
               className="text-sm text-green-600 hover:text-green-700 font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
-              تواصل مع الدعم الفني
+              {t("navbarcontact_support")}
             </Link>
           </div>
         </div>
