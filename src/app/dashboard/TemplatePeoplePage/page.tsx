@@ -142,7 +142,7 @@ export default function EnhancedTemplateManagerPage() {
       resetForm();
     } catch (error) {
       console.error("حدث خطأ أثناء حفظ القالب:", error);
-      showToast("فشل في حفظ القالب. يرجى المحاولة لاحقًا.", "error");
+      showToast(`${t("failed_to_save_template")}`, "error");
     }
   };
   // Reset form
@@ -176,7 +176,7 @@ export default function EnhancedTemplateManagerPage() {
           (t) => t.id === itemToDelete.id
         );
         if (!templateToDelete || !templateToDelete._id) {
-          showToast("معرف القالب غير موجود", "error");
+          showToast(`${t("template_id_not_found")}`, "error");
           return;
         }
 
@@ -187,7 +187,7 @@ export default function EnhancedTemplateManagerPage() {
             setSelectedTemplateId(null);
           }
         } else {
-          showToast("فشل في حذف القالب من السيرفر", "error");
+          showToast(`${t("failed_to_delete_template")}`, "error");
         }
       } else if (itemToDelete.type === "person" && itemToDelete.templateId) {
         const template = templates.find(
@@ -207,7 +207,7 @@ export default function EnhancedTemplateManagerPage() {
       }
     } catch (error) {
       console.error("حدث خطأ أثناء الحذف:", error);
-      showToast("حدث خطأ أثناء الحذف.", "error");
+      showToast(`${t("error_occurred_during_deletion")}`, "error");
     }
 
     setShowConfirmation(false);
@@ -227,7 +227,7 @@ export default function EnhancedTemplateManagerPage() {
     newDescription: string = ""
   ) => {
     if (!newName.trim()) {
-      showToast("يجب إدخال اسم للقالب", "info");
+      showToast(`${t("template_name_required")}`, "info");
       return;
     }
 
@@ -235,7 +235,7 @@ export default function EnhancedTemplateManagerPage() {
       // العثور على القالب المحلي الذي يحتوي على _id من السيرفر
       const templateToUpdate = templates.find((t) => t.id === id);
       if (!templateToUpdate || !templateToUpdate._id) {
-        showToast("معرف القالب غير موجود", "error");
+        showToast(`${t("template_id_not_found")}`, "error");
         return;
       }
 
@@ -261,10 +261,10 @@ export default function EnhancedTemplateManagerPage() {
       setTemplateName("");
       setTemplateDescription("");
 
-      showToast("تم تحديث القالب بنجاح!", "success");
+      showToast(`${t("template_updated_successfully")}`, "success");
     } catch (error) {
       console.error("حدث خطأ أثناء تحديث القالب:", error);
-      showToast("فشل في تحديث القالب. يرجى المحاولة لاحقًا.", "error");
+      showToast(`${t("failed_to_update_template")} :`, "error");
     }
   };
 
@@ -281,7 +281,7 @@ export default function EnhancedTemplateManagerPage() {
     );
 
     if (!templateToUpdate || !templateToUpdate._id) {
-      showToast("معرف القالب غير موجود", "success");
+      showToast(`${t("template_id_not_found")}`, "success");
       return;
     }
 
@@ -313,10 +313,10 @@ export default function EnhancedTemplateManagerPage() {
       setPersonName("");
       setPersonPhone("");
 
-      showToast("تم تحديث الشخص بنجاح!", "success");
+      showToast(`${t("person_updated_successfully")}`, "success");
     } catch (error) {
-      console.error("حدث خطأ أثناء تحديث الشخص:", error);
-      showToast("فشل في تحديث الشخص. يرجى المحاولة لاحقًا.", "error");
+      console.error(`${t("failed_to_update_person")}`, error);
+      showToast(`${t("failed_to_update_person")}`, "error");
     }
   };
 
@@ -351,7 +351,7 @@ export default function EnhancedTemplateManagerPage() {
                   {t("templatePeoplePagetitle")}
                 </h1>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  إدارة قوائم الأشخاص والمجموعات
+                  {t("manage_people_and_groups_lists")}
                 </p>
               </div>
             </div>
@@ -366,12 +366,12 @@ export default function EnhancedTemplateManagerPage() {
               {showForm ? (
                 <>
                   {/* <X size={18} /> */}
-                  إلغاء
+                  {t("cancel")}
                 </>
               ) : (
                 <>
                   {/* <Plus size={18} /> */}
-                  إضافة قالب جديد
+                  {t("add_new_template")}
                 </>
               )}
             </Button>
@@ -385,14 +385,14 @@ export default function EnhancedTemplateManagerPage() {
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8 transition-all ease-in-out duration-300">
             <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
               {/* <Plus className="w-5 h-5" /> */}
-              إنشاء قالب جديد
+              {t("templatePeoplePagecreateNewTemplate")}
             </h2>
 
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    اسم القالب
+                    {t("templatePeoplePagetemplateName")}
                   </label>
                   <Input
                     placeholder={t("templatePeoplePagetemplateNamePlaceholder")}
@@ -417,7 +417,7 @@ export default function EnhancedTemplateManagerPage() {
               <div className="border-t pt-4">
                 <h3 className="text-md font-medium text-gray-900 dark:text-white mb-3 flex items-center gap-2">
                   {/* <UserPlus className="w-4 h-4" /> */}
-                  إضافة الأشخاص
+                  {t("templatePeoplePageaddPeople")}
                 </h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
@@ -448,7 +448,7 @@ export default function EnhancedTemplateManagerPage() {
                 {newPeople.length > 0 && (
                   <div className="space-y-2">
                     <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      الأشخاص المضافون ({newPeople.length})
+                      {t("templatePeoplePageaddedPeople")} ({newPeople.length})
                     </h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 max-h-40 overflow-y-auto">
                       {newPeople.map((person) => (
@@ -488,7 +488,7 @@ export default function EnhancedTemplateManagerPage() {
                   onClick={resetForm}
                   className="bg-gray-200 hover:bg-gray-300 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white"
                 >
-                  إلغاء
+                  {t("cancel")}
                 </Button>
                 <Button
                   onClick={handleSaveTemplate}
@@ -508,7 +508,7 @@ export default function EnhancedTemplateManagerPage() {
           <div className="flex-1 max-w-md">
             <Input
               type="search"
-              placeholder="البحث في القوالب والأشخاص..."
+              placeholder={t("search_in_templates_and_people")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               icon={<Search className="w-5 h-5" />}
@@ -517,13 +517,13 @@ export default function EnhancedTemplateManagerPage() {
           </div>
           <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-4">
             <span>
-              إجمالي القوالب:{" "}
+              {t("total_templates")} :{" "}
               <span className="font-semibold text-blue-600">
                 {templates.length}
               </span>
             </span>
             <span>
-              إجمالي الأشخاص:{" "}
+              {t("total_people")}:{" "}
               <span className="font-semibold text-green-600">
                 {templates.reduce((sum, t) => sum + t.people.length, 0)}
               </span>
@@ -581,7 +581,7 @@ export default function EnhancedTemplateManagerPage() {
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                       <Users className="w-4 h-4" />
-                      <span>{template.people.length} شخص</span>
+                      <span>{template.people.length} {t("templatePeoplePagepeopleCount")}</span>
                     </div>
                   </div>
 
@@ -631,7 +631,7 @@ export default function EnhancedTemplateManagerPage() {
                             variant="ghost"
                             size="sm"
                             className="text-blue-600 hover:text-blue-800 p-1"
-                            title="تعديل القالب"
+                            title={t("messageTemplateseditTemplate")}
                           >
                             <Edit size={16} />
                           </Button>
@@ -640,7 +640,7 @@ export default function EnhancedTemplateManagerPage() {
                             variant="ghost"
                             size="sm"
                             className="text-red-600 hover:text-red-800 p-1"
-                            title="حذف القالب"
+                            title={t("templatePeoplePagedeleteTemplate")}
                           >
                             <Trash2 size={16} />
                           </Button>
@@ -654,10 +654,10 @@ export default function EnhancedTemplateManagerPage() {
                         variant="ghost"
                         size="sm"
                         className="text-green-600 hover:text-green-800 text-xs"
-                        title="نسخ البيانات"
+                        title={t("copy_data")}
                       >
                         <Copy size={14} className="mr-1" />
-                        نسخ
+                        {t("messageTemplatescopy")}
                       </Button>
                       <Button
                         onClick={() => setSelectedTemplateId(template.id)}
@@ -675,10 +675,10 @@ export default function EnhancedTemplateManagerPage() {
           <div className="text-center py-12">
             <Users className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-lg font-medium text-gray-900 dark:text-white">
-              {searchTerm ? "لا توجد نتائج للبحث" : "لا توجد قوالب"}
+              {searchTerm ? `${t("no_search_results")}` : `${t("templatePeoplePagenoTemplates")}`}
             </h3>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              {searchTerm ? "جرب البحث بكلمات مختلفة" : "ابدأ بإنشاء قالب جديد"}
+              {searchTerm ? `${t("try_different_keywords")}` : `${t("start_by_creating_new_template")}`}
             </p>
             {!showForm && !searchTerm && (
               <div className="mt-6">
@@ -687,7 +687,7 @@ export default function EnhancedTemplateManagerPage() {
                   className="bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   {/* <Plus className="mr-2 h-4 w-4" /> */}
-                  إنشاء أول قالب
+                  {t("templatePeoplePagecreateYourFirst")}
                 </Button>
               </div>
             )}
@@ -724,14 +724,14 @@ export default function EnhancedTemplateManagerPage() {
               <div className="p-6 overflow-y-auto max-h-[60vh]">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                    الأشخاص ({selectedTemplate.people.length})
+                    {t("templatePeoplePagepeople")} ({selectedTemplate.people.length})
                   </h3>
                   <Button
                     onClick={() => copyTemplateData(selectedTemplate)}
                     className="bg-green-600 hover:bg-green-700 text-white text-sm"
                   >
                     {/* <Copy size={16} className="mr-2" /> */}
-                    نسخ جميع البيانات
+                    {t("copy_all_data")}
                   </Button>
                 </div>
 
@@ -746,12 +746,12 @@ export default function EnhancedTemplateManagerPage() {
                           <Input
                             value={personName || person.name}
                             onChange={(e) => setPersonName(e.target.value)}
-                            placeholder="اسم الشخص"
+                            placeholder={t("templatePeoplePagepersonNamePlaceholder")}
                           />
                           <Input
                             value={personPhone || person.phone}
                             onChange={(e) => setPersonPhone(e.target.value)}
-                            placeholder="رقم الهاتف"
+                            placeholder={t("templatePeoplePagepersonPhonePlaceholder")}
                           />
                           <div className="flex gap-2">
                             <Button
@@ -830,7 +830,7 @@ export default function EnhancedTemplateManagerPage() {
                             className="text-green-600 hover:text-green-800 text-xs mt-2"
                           >
                             <Copy size={12} className="mr-1" />
-                            نسخ الرقم
+                            {t("copy_number")}
                           </Button>
                         </div>
                       )}
@@ -847,25 +847,25 @@ export default function EnhancedTemplateManagerPage() {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-3">
-                تأكيد الحذف
+                {t("confirm_deletion")}
               </h3>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
                 {itemToDelete?.type === "template"
-                  ? "هل أنت متأكد من حذف هذا القالب؟ سيتم حذف جميع الأشخاص المرتبطين به."
-                  : "هل أنت متأكد من حذف هذا الشخص؟"}
+                  ? `${t("delete_template_confirmation")}`
+                  : `${t("delete_person_confirmation")}`}
               </p>
               <div className="flex justify-end space-x-3 rtl:space-x-reverse">
                 <Button
                   onClick={cancelDelete}
                   className="bg-gray-200 hover:bg-gray-300 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white"
                 >
-                  إلغاء
+                  {t("cancel")}
                 </Button>
                 <Button
                   onClick={confirmDelete}
                   className="bg-red-600 hover:bg-red-700 text-white"
                 >
-                  حذف
+                  {t("messageTemplatesdelete")}
                 </Button>
               </div>
             </div>
