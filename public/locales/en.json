@@ -483,5 +483,8 @@
   "Free_30_day_trial": "Free 30-day trial",
   "_Customer_Support": "24/7 customer support",
   "Advanced_Analytics_Dashboard": "Advanced analytics dashboard",
-  "No_Setup_Fees": "No setup fees"
+  "No_Setup_Fees": "No setup fees",
+
+  "navbartheme": "Toggle theme",
+  "navbarlanguage": "Change language"
 }

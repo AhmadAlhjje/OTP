@@ -186,24 +186,24 @@ const Navbar = ({
 
       {/* القائمة الجانبية - جوال */}
       <div
-        className={`fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-2xl z-50 md:hidden transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-2xl dark:bg-gray-900 z-50 md:hidden transform transition-transform duration-300 ease-in-out ${
           isMenuOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
         {/* رأس القائمة */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-100">
+        <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-700 dark:text-white">
           <div className="flex items-center space-x-2 rtl:space-x-reverse">
             <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center">
               <MessageSquare className="w-4 h-4 text-white" />
             </div>
             <span className="font-bold text-gray-900">WhatsApp</span>
           </div>
-          <button
+          {/* <button
             onClick={() => setIsMenuOpen(false)}
             className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
           >
             <X className="w-5 h-5 text-gray-700" />
-          </button>
+          </button> */}
         </div>
 
         {/* روابط التنقل */}
@@ -218,12 +218,39 @@ const Navbar = ({
               <button
                 key={item.id}
                 onClick={() => handleNavClick(item.id)}
-                className="w-full text-right py-3 px-4 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg transition-all duration-200 font-medium"
+                className="w-full text-right py-3 px-4 text-gray-700 dark:text-gray-200 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-gray-800 rounded-lg ..."
                 style={{ animationDelay: `${index * 50}ms` }}
               >
                 {item.label}
               </button>
             ))}
+          </div>
+
+          {/* فاصل بين الروابط وأزرار الإعدادات */}
+          <div className="my-6 mx-6 border-t border-gray-200"></div>
+
+          {/* أزرار الإعدادات - وضع العرض واللغة */}
+          <div className="px-6 space-y-4">
+            {/* زر تبديل المظهر */}
+            <button
+              onClick={toggleTheme}
+              className="flex items-center justify-between w-full py-3 px-4 text-gray-700 dark:text-gray-200 hover:text-green-600 dark:hover:text-green-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg ..."
+            >
+              <span>{t("navbartheme")}</span>
+              {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+
+            {/* زر تبديل اللغة */}
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center justify-between w-full py-3 px-4 text-gray-700 dark:text-gray-200 hover:text-green-600 dark:hover:text-green-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg ..."
+            >
+              <span>{t("navbarlanguage")}</span>
+              <Globe size={20} />
+              {/* <span className="text-sm bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                {language === "ar" ? "EN" : "AR"}
+              </span> */}
+            </button>
           </div>
 
           {/* فاصل */}
@@ -233,7 +260,7 @@ const Navbar = ({
           <div className="px-6 space-y-3">
             <Link
               href="/login"
-              className="block w-full py-3 px-4 text-center text-gray-700 hover:text-green-600 hover:bg-gray-50 rounded-lg transition-all duration-200 font-medium"
+              className="block w-full py-3 px-4 text-center text-gray-700 hover:text-green-600 hover:bg-gray-50 rounded-lg transition-all duration-200 font-medium dark:text-white"
               onClick={() => setIsMenuOpen(false)}
             >
               {t("navbarlogin")}
@@ -250,7 +277,7 @@ const Navbar = ({
         </div>
 
         {/* معلومات إضافية */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 bg-gray-50 border-t border-gray-200">
+        <div className="absolute bottom-0 left-0 right-0 p-6 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
           <div className="text-center">
             <p className="text-sm text-gray-600 mb-2">{t("navbarneed_help")}</p>
             <Link
