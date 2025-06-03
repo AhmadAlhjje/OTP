@@ -103,7 +103,7 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({ accountName }) => {
                     {accountName}
                   </span>
                 ) : (
-                  <span className="text-gray-400 dark:text-gray-500">لم يتم اختيار حساب</span>
+                  <span className="text-gray-400 dark:text-gray-500">{t("no_account_selected")}</span>
                 )}
               </div>
             </div>
@@ -129,7 +129,7 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({ accountName }) => {
               <div className="p-2 max-h-60 overflow-y-auto">
                 {accounts.length === 0 ? (
                   <div className="p-3 text-center text-gray-500 dark:text-gray-400">
-                    لا توجد حسابات متاحة
+                    {t("no_accounts")}
                   </div>
                 ) : (
                   accounts.map((acc) => (
