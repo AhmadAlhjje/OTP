@@ -24,7 +24,7 @@ import {
 } from "@/services/autoReplyAPI.ts";
 import useTranslation from "@/hooks/useTranslation";
 
-export const AutoReplyManager = () => {
+const AutoReplyManager = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [autoReplies, setAutoReplies] = useState<AutoReply[]>([]);
   const [editingReply, setEditingReply] = useState<AutoReply | null>(null);
