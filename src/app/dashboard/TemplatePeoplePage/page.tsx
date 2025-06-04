@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Input from "@/components/atoms/Input";
+import { getActiveAccount } from "@/services/my_accounts";
 import Button from "@/components/atoms/Button";
 import {
   deleteTemplateFromAPI,
@@ -42,6 +43,7 @@ type Template = {
 
 export default function EnhancedTemplateManagerPage() {
   const { t } = useTranslation();
+  const [activeAccount, setActiveAccount] = useState<any>(null);
 
   // State Management
   const [templates, setTemplates] = useState<Template[]>([]);
@@ -69,35 +71,50 @@ export default function EnhancedTemplateManagerPage() {
 
   // Load demo data
   useEffect(() => {
-    const loadTemplates = async () => {
-      const remoteTemplates = await fetchTemplatesFromAPI1();
+    const loadTemplatesAndAccount = async () => {
+      try {
+        const [remoteTemplates, activeAccountData] = await Promise.all([
+          fetchTemplatesFromAPI1(),
+          getActiveAccount(),
+        ]);
 
-      if (remoteTemplates.length > 0) {
-        // تحويل النتائج من API إلى البنية المحلية
-        const localTemplates = remoteTemplates.map((remote) => ({
-          _id: remote._id, // ← сохрани ID من السيرفر
-          id: Date.now() + Math.floor(Math.random() * 1000), // ID محلي للاستخدام في UI
-          name: remote.name,
-          people: remote.contacts.map((contact) => ({
-            _id: contact._id, // ← сохрани ID الشخص من السيرفر
-            id: Date.now(),
-            name: contact.name,
-            phone: contact.phone_number,
-          })),
-          createdAt: new Date().toLocaleDateString("ar-SA"),
-        }));
+        let localTemplates: any = [];
+        if (remoteTemplates.length > 0) {
+          // تحويل النتائج من API إلى البنية المحلية
+          localTemplates = remoteTemplates.map((remote) => ({
+            _id: remote._id,
+            id: Date.now() + Math.floor(Math.random() * 1000),
+            name: remote.name,
+            people: remote.contacts.map((contact) => ({
+              _id: contact._id,
+              id: Date.now(),
+              name: contact.name,
+              phone: contact.phone_number,
+            })),
+            createdAt: new Date().toLocaleDateString("ar-SA"),
+          }));
+        }
+
         setTemplates(localTemplates);
-      } else {
-        // يمكنك هنا عرض رسالة خطأ للمستخدم أو استخدام بيانات افتراضية مؤقتة
-        console.warn("لم يتم العثور على أي قوالب من الخادم.");
+
+        if (activeAccountData?.id) {
+          setActiveAccount({ id: activeAccountData.id });
+        }
+      } catch (error) {
+        console.error("فشل في تحميل البيانات");
       }
     };
 
-    loadTemplates();
+    loadTemplatesAndAccount();
   }, []);
 
   // Add person to temporary list
   const handleAddPersonToNewTemplate = () => {
+    if (!activeAccount) {
+      showToast(t("select_whatsapp_account_first"), "error");
+      return;
+    }
+
     if (personName && personPhone) {
       const newPerson: Person = {
         id: Date.now(),
@@ -112,12 +129,16 @@ export default function EnhancedTemplateManagerPage() {
 
   // Save new template
   const handleSaveTemplate = async () => {
+    if (!activeAccount) {
+      showToast(t("select_whatsapp_account_first"), "error");
+      return;
+    }
+
     if (!templateName || newPeople.length === 0) {
-      return; // تأكد من أن هناك اسم للقالب وأشخاص مضافين
+      return; // تحقق من الاسم والأشخاص
     }
 
     try {
-      // تحويل people إلى phone_numbers كما في هيكل الـ API
       const payload = {
         name: templateName,
         phone_numbers: newPeople.map(({ name, phone }) => ({
@@ -126,15 +147,10 @@ export default function EnhancedTemplateManagerPage() {
         })),
       };
 
-      console.log(payload);
-      // إرسال البيانات إلى API
       const response = await saveTemplateToAPI(payload);
-
-      // بعد النجاح، نضيف القالب إلى القائمة المحلية (يمكن استخدام ID من الاستجابة)
       const newTemplate: Template = {
         id: response.id || Date.now(),
         name: templateName,
-        description: templateDescription,
         people: newPeople,
         createdAt: new Date().toLocaleDateString("ar-SA"),
       };
@@ -274,45 +290,42 @@ export default function EnhancedTemplateManagerPage() {
     newName: string,
     newPhone: string
   ) => {
+    if (!activeAccount) {
+      showToast(t("select_whatsapp_account_first"), "error");
+      return;
+    }
+
     if (!selectedTemplate) return;
 
     const templateToUpdate = templates.find(
       (t) => t.id === selectedTemplate.id
     );
-
     if (!templateToUpdate || !templateToUpdate._id) {
-      showToast(`${t("template_id_not_found")}`, "success");
+      showToast(`${t("template_id_not_found")}`, "error");
       return;
     }
 
     try {
-      // تحديث قائمة الأشخاص محليًا
       const updatedPeople = selectedTemplate.people.map((p) =>
         p.id === personId ? { ...p, name: newName, phone: newPhone } : p
       );
 
-      // بناء payload ليتم إرساله إلى API
       const payload = {
         name: selectedTemplate.name,
         phone_numbers: updatedPeople.map(({ name, phone }) => ({
           name,
-          phone_number: phone, // ← متأكد أن الحقل هو phone_number
+          phone_number: phone,
         })),
       };
 
-      // إرسال التعديل إلى السيرفر
       await updateTemplateToAPI(templateToUpdate._id, payload);
-
-      // تحديث حالة الواجهة
       const updatedTemplates = templates.map((t) =>
         t.id === selectedTemplate.id ? { ...t, people: updatedPeople } : t
       );
-
       setTemplates(updatedTemplates);
       setEditingPerson(null);
       setPersonName("");
       setPersonPhone("");
-
       showToast(`${t("person_updated_successfully")}`, "success");
     } catch (error) {
       console.error(`${t("failed_to_update_person")}`, error);
@@ -356,7 +369,13 @@ export default function EnhancedTemplateManagerPage() {
               </div>
             </div>
             <Button
-              onClick={() => setShowForm(!showForm)}
+              onClick={() => {
+                if (!activeAccount) {
+                  showToast(t("select_whatsapp_account_first"), "error");
+                  return;
+                }
+                setShowForm(!showForm);
+              }}
               className={`flex items-center gap-2 ${
                 showForm
                   ? "bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-white"
@@ -364,10 +383,7 @@ export default function EnhancedTemplateManagerPage() {
               } rounded-full px-4 py-2 transition-all`}
             >
               {showForm ? (
-                <>
-                  {/* <X size={18} /> */}
-                  {t("cancel")}
-                </>
+                <>{t("cancel")}</>
               ) : (
                 <>
                   {/* <Plus size={18} /> */}
@@ -581,7 +597,10 @@ export default function EnhancedTemplateManagerPage() {
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                       <Users className="w-4 h-4" />
-                      <span>{template.people.length} {t("templatePeoplePagepeopleCount")}</span>
+                      <span>
+                        {template.people.length}{" "}
+                        {t("templatePeoplePagepeopleCount")}
+                      </span>
                     </div>
                   </div>
 
@@ -675,15 +694,28 @@ export default function EnhancedTemplateManagerPage() {
           <div className="text-center py-12">
             <Users className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-lg font-medium text-gray-900 dark:text-white">
-              {searchTerm ? `${t("no_search_results")}` : `${t("templatePeoplePagenoTemplates")}`}
+              {searchTerm
+                ? `${t("no_search_results")}`
+                : `${t("templatePeoplePagenoTemplates")}`}
             </h3>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              {searchTerm ? `${t("try_different_keywords")}` : `${t("start_by_creating_new_template")}`}
+              {searchTerm
+                ? `${t("try_different_keywords")}`
+                : `${t("start_by_creating_new_template")}`}
             </p>
             {!showForm && !searchTerm && (
               <div className="mt-6">
                 <Button
-                  onClick={() => setShowForm(true)}
+                  onClick={() => {
+                    if (!activeAccount) {
+                      showToast(
+                        t("select_whatsapp_account_first"),
+                        "error"
+                      );
+                      return;
+                    }
+                    setShowForm(true);
+                  }}
                   className="bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   {/* <Plus className="mr-2 h-4 w-4" /> */}
@@ -724,7 +756,8 @@ export default function EnhancedTemplateManagerPage() {
               <div className="p-6 overflow-y-auto max-h-[60vh]">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                    {t("templatePeoplePagepeople")} ({selectedTemplate.people.length})
+                    {t("templatePeoplePagepeople")} (
+                    {selectedTemplate.people.length})
                   </h3>
                   <Button
                     onClick={() => copyTemplateData(selectedTemplate)}
@@ -746,12 +779,16 @@ export default function EnhancedTemplateManagerPage() {
                           <Input
                             value={personName || person.name}
                             onChange={(e) => setPersonName(e.target.value)}
-                            placeholder={t("templatePeoplePagepersonNamePlaceholder")}
+                            placeholder={t(
+                              "templatePeoplePagepersonNamePlaceholder"
+                            )}
                           />
                           <Input
                             value={personPhone || person.phone}
                             onChange={(e) => setPersonPhone(e.target.value)}
-                            placeholder={t("templatePeoplePagepersonPhonePlaceholder")}
+                            placeholder={t(
+                              "templatePeoplePagepersonPhonePlaceholder"
+                            )}
                           />
                           <div className="flex gap-2">
                             <Button

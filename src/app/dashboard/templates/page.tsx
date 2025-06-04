@@ -3,14 +3,8 @@ import React, { useState, useEffect } from "react";
 import Input from "@/components/atoms/Input";
 import { Textarea } from "@/components/atoms/textarea";
 import Button from "@/components/atoms/Button";
-import {
-  Pencil,
-  Trash2,
-  Plus,
-  Search,
-  MessageSquare,
-  CheckCircle,
-} from "lucide-react";
+import { getActiveAccount } from "@/services/my_accounts";
+import { Pencil, Trash2, Search, MessageSquare } from "lucide-react";
 import useTranslation from "@/hooks/useTranslation";
 
 // Import API functions
@@ -20,6 +14,7 @@ import {
   fetchTemplatesFromAPI,
   deleteTemplateFromAPI,
 } from "@/services/templateMassageService";
+import { useToast } from "@/hooks/useToast";
 
 // Template Type with new fields
 export type Template = {
@@ -45,35 +40,52 @@ export default function MessageTemplatesPage() {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [templateToDelete, setTemplateToDelete] = useState<number | null>(null);
   const { t } = useTranslation();
+  const [activeAccount, setActiveAccount] = useState<any>(null);
+  const { showToast } = useToast();
 
   // Load templates from API
   useEffect(() => {
-    const loadTemplates = async () => {
-      const apiTemplates = await fetchTemplatesFromAPI();
-      console.log(apiTemplates);
-      const localTemplates = apiTemplates.map((t) => ({
-        _id: t._id,
-        id: parseInt(t._id.slice(-6), 16),
-        name: t.name,
-        content: t.content || "",
-        createdAt: new Date(t.created_at).toLocaleDateString("ar-SA"),
-        type: t.type || "",
-        tags: t.tags || [],
-      }));
-      setTemplates(localTemplates);
+    const loadTemplatesAndAccount = async () => {
+      try {
+        // جلب القوالب
+        const apiTemplates = await fetchTemplatesFromAPI();
+        const localTemplates = apiTemplates.map((t) => ({
+          _id: t._id,
+          id: parseInt(t._id.slice(-6), 16),
+          name: t.name,
+          content: t.content || "",
+          createdAt: new Date(t.created_at).toLocaleDateString("ar-SA"),
+          type: t.type || "",
+          tags: t.tags || [],
+        }));
+        setTemplates(localTemplates);
+
+        // جلب الحساب النشط
+        const account = await getActiveAccount();
+        if (account?.id) {
+          setActiveAccount(account);
+        }
+      } catch (error) {
+        console.error("فشل تحميل البيانات");
+      }
     };
 
     if (templates.length === 0) {
-      loadTemplates();
+      loadTemplatesAndAccount();
     }
   }, []);
 
   const handleAdd = async () => {
+    if (!activeAccount) {
+      showToast(t("select_whatsapp_account_first"), "error");
+      return;
+    }
+
     if (!name || !content) return;
 
     const templateData = {
       name,
-      content, // ← تم إرسال النص مباشرة
+      content,
       type: type || "",
       tags: tags.length > 0 ? tags : [],
     };
@@ -81,24 +93,21 @@ export default function MessageTemplatesPage() {
     try {
       if (isEditing && editingId) {
         const templateToUpdate = templates.find((t) => t.id === editingId);
-
         if (templateToUpdate?._id) {
           await updateTemplateToAPI(templateToUpdate._id, {
             name,
-            content, // ← تم إرسال النص مباشرة
+            content,
           });
         }
-
         setTemplates(
           templates.map((t) =>
             t.id === editingId ? { ...t, name, content, type, tags } : t
           )
         );
       } else {
-        // إضافة قالب جديد
         await saveTemplateToAPI({
           name,
-          content, // ← تم إرسال النص مباشرة
+          content,
         });
 
         const newTemplate = {
@@ -191,7 +200,13 @@ export default function MessageTemplatesPage() {
               </h1>
             </div>
             <Button
-              onClick={() => setShowForm(!showForm)}
+              onClick={() => {
+                if (!activeAccount) {
+                  showToast(t("select_whatsapp_account_first"), "error");
+                  return;
+                }
+                setShowForm(!showForm);
+              }}
               className={`flex items-center gap-2 ${
                 showForm
                   ? "bg-gray-200 text-gray-800"
@@ -349,7 +364,16 @@ export default function MessageTemplatesPage() {
             {!showForm && !searchTerm && (
               <div className="mt-6">
                 <Button
-                  onClick={() => setShowForm(true)}
+                  onClick={() => {
+                    if (!activeAccount) {
+                      showToast(
+                        t("select_whatsapp_account_first"),
+                        "error"
+                      );
+                      return;
+                    }
+                    setShowForm(true);
+                  }}
                   className="bg-green-600 hover:bg-green-700 text-white inline-flex items-center"
                 >
                   {t("messageTemplatesaddFirst")}

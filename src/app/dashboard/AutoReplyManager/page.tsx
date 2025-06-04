@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { AutoReply } from "@/types/auto-reply";
+import { getActiveAccount } from "@/services/my_accounts";
 
 // Organisms
 import { HeaderSection } from "@/components/organisms/HeaderSection";
@@ -23,6 +24,7 @@ import {
   deleteAutoReplyFromAPI,
 } from "@/services/autoReplyAPI.ts";
 import useTranslation from "@/hooks/useTranslation";
+import { useToast } from "@/hooks/useToast";
 
 const AutoReplyManager = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -32,29 +34,53 @@ const AutoReplyManager = () => {
   const [formData, setFormData] = useState({ keyword: "", response: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [loadingData, setLoadingData] = useState(true);
+  const [activeAccount, setActiveAccount] = useState<any>(null);
+  const { showToast } = useToast();
   const { t } = useTranslation();
 
   //  جلب البيانات من السيرفر عند التحميل الأولي
   useEffect(() => {
-    const loadReplies = async () => {
-      setLoadingData(true);
-      const replies = await fetchAutoRepliesFromAPI();
-      setAutoReplies(replies);
-      setLoadingData(false);
+    const loadRepliesAndAccount = async () => {
+      setIsLoading(true);
+      try {
+        // جلب البيانات
+        const replies = await fetchAutoRepliesFromAPI();
+        setAutoReplies(replies);
+
+        // جلب الحساب النشط
+        const account = await getActiveAccount();
+        if (account?.id) {
+          setActiveAccount(account);
+        }
+      } catch (error) {
+        console.error("فشل في تحميل البيانات");
+      } finally {
+        setIsLoading(false);
+      }
     };
-    loadReplies();
+
+    loadRepliesAndAccount();
   }, []);
 
   //  فتح نافذة الإضافة
   const handleNewReply = () => {
+    if (!activeAccount) {
+      showToast(t("select_whatsapp_account_first"), "error");
+      return;
+    }
+
     setEditingReply(null);
     setFormData({ keyword: "", response: "" });
     setIsModalOpen(true);
   };
 
-  //  فتح نافذة التعديل
+  // فتح نافذة التعديل
   const handleEditReply = (reply: AutoReply) => {
+    if (!activeAccount) {
+      showToast(t("select_whatsapp_account_first"), "error");
+      return;
+    }
+
     setEditingReply(reply);
     setFormData({ keyword: reply.keyword, response: reply.response });
     setIsModalOpen(true);
@@ -68,7 +94,10 @@ const AutoReplyManager = () => {
 
     if (editingReply) {
       //  تعديل
-      const updatedReply = await updateAutoReplyOnAPI(editingReply._id, formData);
+      const updatedReply = await updateAutoReplyOnAPI(
+        editingReply._id,
+        formData
+      );
       if (updatedReply) {
         setAutoReplies((prev) =>
           prev.map((r) => (r._id === editingReply._id ? updatedReply : r))

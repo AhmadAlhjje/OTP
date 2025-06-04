@@ -22,10 +22,12 @@
   "alreadyHaveAccount": "Already have an account?",
   "noAccountYet": "Don't have an account yet?",
   "language": "Language",
+  "disconnect_account":"Disconnect Account",
+  "account_selected_success":"Account Selected Success",
   "contactSupport": "Contact Support",
   "linked_accounts": "Linked Accounts",
   "dashboard": "Dashboard",
-  "status": "Status",
+  "status": "The Account",
   "home": "Home",
   "Connected": "Connected",
   "sendMessage": "Send WhatsApp Messages",
@@ -256,6 +258,7 @@
   "added_successfully": "Added successfully!",
 
   "no_account_selected": "No account selected",
+  "choose_account":"Choose Account",
 
   "failed_to_load_data": "Failed to load some data from the server",
   "select_whatsapp_account_first": "Please select a WhatsApp account first",

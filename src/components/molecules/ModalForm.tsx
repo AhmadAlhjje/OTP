@@ -5,6 +5,7 @@ import React from "react";
 import { Plus, Edit3, X, Save, Sparkles } from "lucide-react";
 import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
+import { Textarea } from "../atoms/textarea";
 
 interface ModalFormProps {
   isEditing: boolean;
@@ -79,8 +80,8 @@ export const ModalForm = ({
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
             الرد التلقائي *
           </label>
-          <Input
-            type="textarea"
+          <Textarea
+            // type="textarea"
             value={formData.response}
             onChange={(e) =>
               setFormData({ ...formData, response: e.target.value })

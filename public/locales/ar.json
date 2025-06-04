@@ -25,7 +25,9 @@
   "dashboard": "لوحة التحكم",
   "linked_accounts": "الحسابات المرتبطة",
   "no_accounts": "لا توجد حسابات متاحة",
-  "status": "الحالة",
+  "status": "الحساب",
+  "disconnect_account":"إلغاء تحديد الحساب",
+  "account_selected_success":"تم إختيار الحساب بنجاح",
   "Connected": "متصل",
   "home": "الرئيسية",
   "sendMessage": "إرسال رسائل واتساب",
@@ -257,6 +259,7 @@
   "failed_fetch_scheduled_messages": "فشل في جلب الرسائل المجدولة",
 
   "no_account_selected": "حساب غير محدد",
+  "choose_account":"اختر حساب",
 
   "failed_to_load_data": "فشل في تحميل بعض البيانات من الخادم",
   "select_whatsapp_account_first": "يرجى اختيار حساب واتساب أولاً",
