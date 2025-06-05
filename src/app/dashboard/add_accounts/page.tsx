@@ -1,5 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useAccountUpdate } from "@/hooks/useAccountUpdate";
 import { Card } from "@/components/ui/card";
 import Button from "@/components/atoms/Button";
 import useTranslation from "@/hooks/useTranslation";
@@ -17,6 +18,7 @@ export default function AccountsPage() {
   const { t } = useTranslation();
   const { showToast } = useToast();
   const router = useRouter();
+  const { refreshAccounts } = useAccountUpdate();
 
   const handleConnect = () => {
     const token = Cookies.get("access_token");
@@ -48,9 +50,7 @@ export default function AccountsPage() {
     wsService.on("ready", (data) => {
       console.log("🔔 WhatsApp client is ready:", data);
       setQrImageUrl(null);
-      // setSuccessMessage(
-      //   t("accountsPageSuccessMessage") || "تمت الإضافة بنجاح!"
-      // );
+      refreshAccounts();
       showToast(t("added_successfully"), "success");
       setTimeout(() => {
         router.push("/dashboard");

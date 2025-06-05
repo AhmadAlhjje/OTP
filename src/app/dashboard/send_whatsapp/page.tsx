@@ -2,15 +2,11 @@
 import React, { useEffect, useState } from "react";
 import MessageForm from "@/components/organisms/MessageForm";
 import SidebarPreview from "@/components/organisms/SidebarPreview";
-import AccountSwitcher from "@/components/atoms/AccountSwitcher";
 import useLanguage from "@/hooks/useLanguage";
 import { motion, AnimatePresence } from "framer-motion";
 import { sendWhatsappMessage1 as sendImmediateMessage } from "@/services/message-service";
 import {
   sendWhatsappMessage,
-  updateScheduledMessageOnAPI,
-  deleteScheduledMessage,
-  getScheduledMessages,
 } from "@/services/schedule-massage";
 import { fetchTemplatesFromAPI } from "@/services/templateMassageService"; // ← جلب القوالب من /templates
 import { fetchTemplatesFromAPI1 } from "@/services/templateService";
@@ -62,7 +58,6 @@ const EnhancedWhatsAppScheduler = () => {
   const { t } = useTranslation();
   const { showToast } = useToast();
   const isRTL = language === "ar";
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -269,15 +264,15 @@ const EnhancedWhatsAppScheduler = () => {
     setShowTemplateDropdown(false);
   };
 
-  const handleTemplateModeToggle = () => {
-    setIsTemplateMode(!isTemplateMode);
-    if (!isTemplateMode) {
-      setMessage("");
-      setSelectedTemplate(null);
-    } else {
-      setSelectedTemplate(null);
-    }
-  };
+  // const handleTemplateModeToggle = () => {
+  //   setIsTemplateMode(!isTemplateMode);
+  //   if (!isTemplateMode) {
+  //     setMessage("");
+  //     setSelectedTemplate(null);
+  //   } else {
+  //     setSelectedTemplate(null);
+  //   }
+  // };
 
   // --- إعادة تعيين النموذج ---
   const resetForm = () => {

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
+import { useOnAccountUpdate } from "@/hooks/useAccountUpdate";
 import Cookies from "js-cookie";
 import {
   MessageSquareText,
@@ -56,18 +57,36 @@ function Sidebar({
   const isRTL = language === "ar";
 
   const [accounts, setAccounts] = useState<{ id: string; name: string }[]>([]);
+  const loadAccounts = async () => {
+    try {
+      const allAccounts = await getWhatsappAccounts();
+      const activeAccount = await getActiveAccount();
+      console.log("activeAccount" ,activeAccount)
+      if (Array.isArray(allAccounts)) {
+        setAccounts(allAccounts);
+        const activeId =
+          activeAccount?.id || localStorage.getItem("activeAccountId") || null;
+        setSelectedAccountId(activeId);
+        setStatus(activeId ? "connected" : "disconnected");
+      }
+    } catch (error) {
+      setStatus("disconnected");
+    }
+  };
   const [selectedAccountId, setSelectedAccountId] = useState<string | null>(
     null
   );
   const [status, setStatus] = useState<
     "loading" | "connected" | "disconnected"
   >("loading");
-
+  useOnAccountUpdate(loadAccounts);
   useEffect(() => {
     const loadAccounts = async () => {
       try {
         const allAccounts = await getWhatsappAccounts();
         const activeAccount = await getActiveAccount();
+
+        console.log("getActiveAccount",activeAccount?.id)
 
         if (Array.isArray(allAccounts)) {
           setAccounts(allAccounts);
@@ -90,7 +109,7 @@ function Sidebar({
     };
 
     loadAccounts();
-  }, []);
+  }, [selectedAccountId]);
 
   const handleChangeAccount = async (accountId: string) => {
     if (!accountId) {
@@ -137,7 +156,7 @@ function Sidebar({
   };
 
   const getSelectedAccountName = () => {
-    const account = accounts.find(acc => acc.id === selectedAccountId);
+    const account = accounts.find((acc) => acc.id === selectedAccountId);
     return account ? account.name : t("choose_account");
   };
 
@@ -371,30 +390,46 @@ function Sidebar({
                   hover:border-[#00a884] dark:hover:border-[#00d9ff]
                   focus:ring-2 focus:ring-[#00a884]/20 dark:focus:ring-[#00d9ff]/20
                   focus:border-[#00a884] dark:focus:border-[#00d9ff]
-                  ${isSelectOpen ? 'border-[#00a884] dark:border-[#00d9ff] ring-2 ring-[#00a884]/20 dark:ring-[#00d9ff]/20' : ''}
+                  ${
+                    isSelectOpen
+                      ? "border-[#00a884] dark:border-[#00d9ff] ring-2 ring-[#00a884]/20 dark:ring-[#00d9ff]/20"
+                      : ""
+                  }
                   text-gray-700 dark:text-gray-200
                   flex items-center justify-between
                   group
                 `}
               >
                 <div className="flex items-center gap-3">
-                  <div className={`
+                  <div
+                    className={`
                     w-2.5 h-2.5 rounded-full transition-colors
-                    ${status === 'connected' ? 'bg-green-500 animate-pulse shadow-green-500/50 shadow-sm' : 
-                      status === 'loading' ? 'bg-yellow-500 animate-pulse' : 
-                      'bg-red-500'}
-                  `}></div>
+                    ${
+                      status === "connected"
+                        ? "bg-green-500 animate-pulse shadow-green-500/50 shadow-sm"
+                        : status === "loading"
+                        ? "bg-yellow-500 animate-pulse"
+                        : "bg-red-500"
+                    }
+                  `}
+                  ></div>
                   <span className="font-medium truncate">
-                    {selectedAccountId ? getSelectedAccountName() : t("choose_account")}
+                    {selectedAccountId
+                      ? getSelectedAccountName()
+                      : t("choose_account")}
                   </span>
                 </div>
-                <ChevronDown 
-                  size={18} 
+                <ChevronDown
+                  size={18}
                   className={`
                     transition-all duration-300 text-gray-500 dark:text-gray-400
                     group-hover:text-[#00a884] dark:group-hover:text-[#00d9ff]
-                    ${isSelectOpen ? 'rotate-180 text-[#00a884] dark:text-[#00d9ff]' : ''}
-                  `} 
+                    ${
+                      isSelectOpen
+                        ? "rotate-180 text-[#00a884] dark:text-[#00d9ff]"
+                        : ""
+                    }
+                  `}
                 />
               </button>
 
@@ -407,7 +442,7 @@ function Sidebar({
                         {t("choose_account")}
                       </div>
                     )}
-                    
+
                     {accounts.map((account) => (
                       <button
                         key={account.id}
@@ -417,19 +452,23 @@ function Sidebar({
                           hover:bg-gray-50 dark:hover:bg-gray-700
                           transition-colors duration-150
                           flex items-center justify-between
-                          ${selectedAccountId === account.id ? 
-                            'bg-[#00a884]/10 dark:bg-[#00d9ff]/10 text-[#00a884] dark:text-[#00d9ff] font-medium' : 
-                            'text-gray-700 dark:text-gray-200'
+                          ${
+                            selectedAccountId === account.id
+                              ? "bg-[#00a884]/10 dark:bg-[#00d9ff]/10 text-[#00a884] dark:text-[#00d9ff] font-medium"
+                              : "text-gray-700 dark:text-gray-200"
                           }
                         `}
                       >
                         <span className="truncate">{account.name}</span>
                         {selectedAccountId === account.id && (
-                          <Check size={16} className="text-[#00a884] dark:text-[#00d9ff] flex-shrink-0" />
+                          <Check
+                            size={16}
+                            className="text-[#00a884] dark:text-[#00d9ff] flex-shrink-0"
+                          />
                         )}
                       </button>
                     ))}
-                    
+
                     {/* {selectedAccountId && (
                       <button
                         onClick={() => handleChangeAccount("")}
@@ -449,18 +488,30 @@ function Sidebar({
                 {t("status")}
               </span>
               <div className="flex items-center gap-2">
-                <div className={`
+                <div
+                  className={`
                   w-2 h-2 rounded-full transition-colors
-                  ${status === 'connected' ? 'bg-green-500 animate-pulse shadow-green-500/50 shadow-sm' : 
-                    status === 'loading' ? 'bg-yellow-500 animate-pulse' : 
-                    'bg-red-500'}
-                `}></div>
-                <span className={`
+                  ${
+                    status === "connected"
+                      ? "bg-green-500 animate-pulse shadow-green-500/50 shadow-sm"
+                      : status === "loading"
+                      ? "bg-yellow-500 animate-pulse"
+                      : "bg-red-500"
+                  }
+                `}
+                ></div>
+                <span
+                  className={`
                   text-xs font-semibold tracking-wide
-                  ${status === 'connected' ? 'text-green-600 dark:text-green-400' : 
-                    status === 'loading' ? 'text-yellow-600 dark:text-yellow-400' : 
-                    'text-red-600 dark:text-red-400'}
-                `}>
+                  ${
+                    status === "connected"
+                      ? "text-green-600 dark:text-green-400"
+                      : status === "loading"
+                      ? "text-yellow-600 dark:text-yellow-400"
+                      : "text-red-600 dark:text-red-400"
+                  }
+                `}
+                >
                   {status === "loading" && t("loading")}
                   {status === "connected" && t("Connected")}
                   {status === "disconnected" && t("no_account_selected")}
@@ -493,8 +544,8 @@ function Sidebar({
 
       {/* Overlay to close dropdown when clicking outside */}
       {isSelectOpen && (
-        <div 
-          className="fixed inset-0 z-40" 
+        <div
+          className="fixed inset-0 z-40"
           onClick={() => setIsSelectOpen(false)}
         />
       )}
