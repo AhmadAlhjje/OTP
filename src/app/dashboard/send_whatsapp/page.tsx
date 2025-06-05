@@ -2,17 +2,22 @@
 import React, { useEffect, useState } from "react";
 import MessageForm from "@/components/organisms/MessageForm";
 import SidebarPreview from "@/components/organisms/SidebarPreview";
+import AccountSwitcher from "@/components/atoms/AccountSwitcher";
 import useLanguage from "@/hooks/useLanguage";
 import { motion, AnimatePresence } from "framer-motion";
 import { sendWhatsappMessage1 as sendImmediateMessage } from "@/services/message-service";
-import { sendWhatsappMessage } from "@/services/schedule-massage";
+import {
+  sendWhatsappMessage,
+  updateScheduledMessageOnAPI,
+  deleteScheduledMessage,
+  getScheduledMessages,
+} from "@/services/schedule-massage";
 import { fetchTemplatesFromAPI } from "@/services/templateMassageService"; // ← جلب القوالب من /templates
 import { fetchTemplatesFromAPI1 } from "@/services/templateService";
 import { useToast } from "@/hooks/useToast";
 import { getActiveAccount, getWhatsappAccounts } from "@/services/my_accounts";
 import { APITemplate } from "@/types/whatsappTemplate";
 import useTranslation from "@/hooks/useTranslation";
-import { useAccountStore } from "@/hooks/useAccountStore";
 
 // Interface للحساب النشط
 interface ActiveAccount {
@@ -27,7 +32,9 @@ interface GroupFromAPI {
 }
 
 const EnhancedWhatsAppScheduler = () => {
-  const { selectedAccount } = useAccountStore();
+  const [activeAccount, setActiveAccount] = useState<ActiveAccount | null>(
+    null
+  );
   const [currentNumber, setCurrentNumber] = useState("");
   const [recipientNumbers, setRecipientNumbers] = useState<string[]>([]);
   const [message, setMessage] = useState("");
@@ -39,8 +46,8 @@ const EnhancedWhatsAppScheduler = () => {
   const [selectedGroups, setSelectedGroups] = useState<GroupFromAPI[]>([]);
   const [groupsLoading, setGroupsLoading] = useState(false);
   const [showGroupDropdown, setShowGroupDropdown] = useState(false);
-  // const [showNumbers, setShowNumbers] = useState(true);
-  // const [showGroups, setShowGroups] = useState(false);
+  const [showNumbers, setShowNumbers] = useState(true);
+  const [showGroups, setShowGroups] = useState(false);
 
   // Template related states
   const [templates, setTemplates] = useState<APITemplate[]>([]);
@@ -55,19 +62,42 @@ const EnhancedWhatsAppScheduler = () => {
   const { t } = useTranslation();
   const { showToast } = useToast();
   const isRTL = language === "ar";
+
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // --- تفعيل حالة التحميل ---
         setGroupsLoading(true);
         setTemplatesLoading(true);
 
-        // جلب البيانات الأخرى (المجموعات والقوالب)
-        const [allAccounts, fetchedGroups, fetchedTemplates] =
-          await Promise.all([
-            getWhatsappAccounts(),
-            fetchTemplatesFromAPI1(), // ← المجموعات
-            fetchTemplatesFromAPI(), // ← القوالب
-          ]);
+        // جلب جميع الحسابات وتحديد الحساب النشط
+        const [
+          allAccounts,
+          activeAccountData,
+          fetchedGroups,
+          fetchedTemplates,
+        ] = await Promise.all([
+          getWhatsappAccounts(),
+          getActiveAccount(),
+          fetchTemplatesFromAPI1(), // ← المجموعات
+          fetchTemplatesFromAPI(), // ← القوالب
+        ]);
+
+        // --- معالجة الحساب النشط ---
+        if (activeAccountData?.id && Array.isArray(allAccounts)) {
+          const fullAccount = allAccounts.find(
+            (account) => account.id === activeAccountData.id
+          );
+          if (fullAccount) {
+            setActiveAccount({ name: fullAccount.name });
+          } else {
+            setActiveAccount(null);
+            showToast(t("no_active_account"), "info");
+          }
+        } else {
+          setActiveAccount(null);
+          showToast(t("no_active_account"), "info");
+        }
 
         // --- معالجة المجموعات ---
         setGroups(fetchedGroups);
@@ -80,8 +110,11 @@ const EnhancedWhatsAppScheduler = () => {
         setTemplates(localTemplates);
       } catch (error: any) {
         console.error(t("error_occurred_during"), error);
+
+        // إظهار رسالة خطأ عامة أو محددة
         showToast(t("failed_to_load_data"), "error");
       } finally {
+        // --- إنهاء حالة التحميل ---
         setGroupsLoading(false);
         setTemplatesLoading(false);
       }
@@ -91,7 +124,7 @@ const EnhancedWhatsAppScheduler = () => {
   }, []);
 
   const handleSend = async () => {
-    if (!selectedAccount) {
+    if (!activeAccount) {
       showToast(t("toastno_account"), "error");
       return;
     }
@@ -171,9 +204,7 @@ const EnhancedWhatsAppScheduler = () => {
         (error instanceof Error ? error.message : t("send_failed_with_reason"));
 
       showToast(
-        `${t("error_occurred")} ${
-          isScheduled ? t("schedule") : t("send")
-        }: ${errorMessage}`,
+        `${t("error_occurred")} ${isScheduled ? t("schedule") : t("send")}: ${errorMessage}`,
         "error"
       );
     } finally {
@@ -200,11 +231,6 @@ const EnhancedWhatsAppScheduler = () => {
   };
 
   const handleAddNumber = () => {
-    if (!selectedAccount) {
-      showToast(t("select_whatsapp_account_first"), "error");
-      return;
-    }
-
     const trimmed = currentNumber.trim();
     if (!validatePhoneNumber(trimmed)) {
       showToast(t("enter_valid_number"), "info");
@@ -236,13 +262,56 @@ const EnhancedWhatsAppScheduler = () => {
     setShowTemplateDropdown(false);
   };
 
-  // const handleTemplateModeToggle = () => {
-  //   setIsTemplateMode(!isTemplateMode);
-  //   if (!isTemplateMode) {
-  //     setMessage("");
-  //     setSelectedTemplate(null);
-  //   } else {
-  //     setSelectedTemplate(null);
+  const handleTemplateModeToggle = () => {
+    setIsTemplateMode(!isTemplateMode);
+    if (!isTemplateMode) {
+      setMessage("");
+      setSelectedTemplate(null);
+    } else {
+      setSelectedTemplate(null);
+    }
+  };
+
+  // // --- معالجة الإرسال ---
+  // const handleSend = async () => {
+  //   if (!activeAccount) {
+  //     alert("يرجى اختيار حساب واتساب أولاً");
+  //     return;
+  //   }
+
+  //   if (recipientNumbers.length === 0 && selectedGroups.length === 0) {
+  //     alert("يرجى إضافة رقم مستلم أو مجموعة واحدة على الأقل");
+  //     return;
+  //   }
+
+  //   if (isTemplateMode && !selectedTemplate) {
+  //     alert("يرجى اختيار قالب رسالة");
+  //     return;
+  //   }
+
+  //   if (!isTemplateMode && !message.trim()) {
+  //     alert("يرجى كتابة نص الرسالة");
+  //     return;
+  //   }
+
+  //   if (isScheduled && !scheduledTime) {
+  //     alert("يرجى اختيار وقت الإرسال المجدول");
+  //     return;
+  //   }
+
+  //   if (isScheduled && scheduledTime && scheduledTime <= new Date()) {
+  //     alert("وقت الإرسال يجب أن يكون في المستقبل");
+  //     return;
+  //   }
+
+  //   setIsLoading(true);
+  //   try {
+  //     setShowScheduleSuccess(true);
+  //     setTimeout(() => setShowScheduleSuccess(false), 3000);
+  //   } catch (error) {
+  //     console.error("حدث خطأ أثناء الإرسال:", error);
+  //   } finally {
+  //     setIsLoading(false);
   //   }
   // };
 
@@ -307,7 +376,7 @@ const EnhancedWhatsAppScheduler = () => {
             </p>
           </div>
         </div>
-        {selectedAccount && (
+        {activeAccount && (
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -318,7 +387,7 @@ const EnhancedWhatsAppScheduler = () => {
               <span className="text-sm font-medium">
                 {t("active_account")} :
               </span>
-              <span className="font-bold">{selectedAccount.name}</span>
+              <span className="font-bold">{activeAccount.name}</span>
             </div>
           </motion.div>
         )}
@@ -379,7 +448,7 @@ const EnhancedWhatsAppScheduler = () => {
       </div>
 
       {/* مبدل الحسابات */}
-      {/* <motion.div
+      <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, delay: 0.8 }}
@@ -392,7 +461,7 @@ const EnhancedWhatsAppScheduler = () => {
             accountName={activeAccount?.name || t("no_account_selected")}
           />
         </div>
-      </motion.div> */}
+      </motion.div>
     </div>
   );
 };
