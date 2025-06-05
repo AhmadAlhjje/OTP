@@ -468,15 +468,6 @@ function Sidebar({
                         )}
                       </button>
                     ))}
-
-                    {/* {selectedAccountId && (
-                      <button
-                        onClick={() => handleChangeAccount("")}
-                        className="w-full px-4 py-3 text-sm text-left text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-150 border-t border-gray-100 dark:border-gray-700"
-                      >
-                        {t("disconnect_account")}
-                      </button>
-                    )} */}
                   </div>
                 </div>
               )}
