@@ -7,44 +7,20 @@ import Cookies from "js-cookie";
 import {
   MessageSquareText,
   Users,
-  DollarSign,
-  HelpCircle,
   ChevronDown,
-  ChevronRight,
   LogOut,
   LayoutDashboard,
   MessageCircle,
-  FileText,
   ClipboardList,
-  BookOpen,
-  UserPlus,
-  Menu,
-  X,
-  Home,
-  Settings,
-  Activity,
   Bot,
 } from "lucide-react";
 
 import useTranslation from "@/hooks/useTranslation";
 import useLanguage from "@/hooks/useLanguage";
 import Button from "../atoms/Button";
+import { SidebarItemProps, SidebarProps } from "@/types/sidbar";
 
-interface SidebarItemProps {
-  label: string;
-  icon: React.ReactNode;
-  href?: string;
-  onClick?: () => void;
-  subItems?: { label: string; href: string }[];
-  badge?: string | number;
-}
 
-interface SidebarProps {
-  isOpen: boolean;
-  onClose?: () => void;
-  onToggle?: () => void;
-  isLargeScreen?: boolean;
-}
 
 function Sidebar({
   isOpen,

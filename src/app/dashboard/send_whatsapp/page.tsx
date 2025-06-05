@@ -4,52 +4,30 @@ import MessageForm from "@/components/organisms/MessageForm";
 import SidebarPreview from "@/components/organisms/SidebarPreview";
 import AccountSwitcher from "@/components/atoms/AccountSwitcher";
 import useLanguage from "@/hooks/useLanguage";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { sendWhatsappMessage1 as sendImmediateMessage } from "@/services/message-service";
-import {
-  sendWhatsappMessage,
-  updateScheduledMessageOnAPI,
-  deleteScheduledMessage,
-  getScheduledMessages,
-} from "@/services/schedule-massage";
+import { sendWhatsappMessage } from "@/services/schedule-massage";
 import { fetchTemplatesFromAPI } from "@/services/templateMassageService"; // ← جلب القوالب من /templates
 import { fetchTemplatesFromAPI1 } from "@/services/templateService";
 import { useToast } from "@/hooks/useToast";
 import { getActiveAccount, getWhatsappAccounts } from "@/services/my_accounts";
 import { APITemplate } from "@/types/whatsappTemplate";
 import useTranslation from "@/hooks/useTranslation";
-
-// Interface للحساب النشط
-interface ActiveAccount {
-  name: string;
-}
-// Interface للمجموعات
-interface GroupFromAPI {
-  _id: string;
-  name: string;
-  description?: string;
-  membersCount?: number;
-}
+import { GroupFromAPI } from "@/types/send_whatsapp";
+import { useAccountStore } from "@/hooks/useAccountStore";
 
 const EnhancedWhatsAppScheduler = () => {
-  const [activeAccount, setActiveAccount] = useState<ActiveAccount | null>(
-    null
-  );
+  const { activeAccount, setActiveAccount } = useAccountStore();
   const [currentNumber, setCurrentNumber] = useState("");
   const [recipientNumbers, setRecipientNumbers] = useState<string[]>([]);
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isScheduled, setIsScheduled] = useState(false);
   const [scheduledTime, setScheduledTime] = useState<Date | null>(null);
-  const [showScheduleSuccess, setShowScheduleSuccess] = useState(false);
   const [groups, setGroups] = useState<GroupFromAPI[]>([]);
   const [selectedGroups, setSelectedGroups] = useState<GroupFromAPI[]>([]);
   const [groupsLoading, setGroupsLoading] = useState(false);
   const [showGroupDropdown, setShowGroupDropdown] = useState(false);
-  const [showNumbers, setShowNumbers] = useState(true);
-  const [showGroups, setShowGroups] = useState(false);
-
-  // Template related states
   const [templates, setTemplates] = useState<APITemplate[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<APITemplate | null>(
     null
@@ -57,11 +35,9 @@ const EnhancedWhatsAppScheduler = () => {
   const [isTemplateMode, setIsTemplateMode] = useState(false);
   const [templatesLoading, setTemplatesLoading] = useState(false);
   const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
-
   const { language } = useLanguage();
   const { t } = useTranslation();
   const { showToast } = useToast();
-  const isRTL = language === "ar";
 
   useEffect(() => {
     const fetchData = async () => {
@@ -92,11 +68,11 @@ const EnhancedWhatsAppScheduler = () => {
             setActiveAccount({ name: fullAccount.name });
           } else {
             setActiveAccount(null);
-            showToast(t("no_active_account"), "info");
+            // showToast(t("no_active_account"), "info");
           }
         } else {
           setActiveAccount(null);
-          showToast(t("no_active_account"), "info");
+          // showToast(t("no_active_account"), "info");
         }
 
         // --- معالجة المجموعات ---
@@ -124,6 +100,10 @@ const EnhancedWhatsAppScheduler = () => {
   }, []);
 
   const handleSend = async () => {
+    if (!activeAccount) {
+      showToast(t("toastno_account"), "error");
+      return;
+    }
     if (!activeAccount) {
       showToast(t("toastno_account"), "error");
       return;
@@ -174,8 +154,6 @@ const EnhancedWhatsAppScheduler = () => {
         });
 
         if (res.status === 201) {
-          setShowScheduleSuccess(true);
-          setTimeout(() => setShowScheduleSuccess(false), 3000);
           showToast(t("toastmessage_scheduled"), "success");
           resetForm();
         } else {
@@ -204,7 +182,9 @@ const EnhancedWhatsAppScheduler = () => {
         (error instanceof Error ? error.message : t("send_failed_with_reason"));
 
       showToast(
-        `${t("error_occurred")} ${isScheduled ? t("schedule") : t("send")}: ${errorMessage}`,
+        `${t("error_occurred")} ${
+          isScheduled ? t("schedule") : t("send")
+        }: ${errorMessage}`,
         "error"
       );
     } finally {
@@ -214,6 +194,10 @@ const EnhancedWhatsAppScheduler = () => {
 
   // --- اختيار مجموعة ---
   const handleGroupSelect = (group: GroupFromAPI) => {
+    if (!activeAccount) {
+      showToast(t("toastno_account"), "error");
+      return;
+    }
     if (!selectedGroups.some((g) => g._id === group._id)) {
       setSelectedGroups([...selectedGroups, group]);
     }
@@ -231,6 +215,10 @@ const EnhancedWhatsAppScheduler = () => {
   };
 
   const handleAddNumber = () => {
+    if (!activeAccount) {
+      showToast(t("toastno_account"), "error");
+      return;
+    }
     const trimmed = currentNumber.trim();
     if (!validatePhoneNumber(trimmed)) {
       showToast(t("enter_valid_number"), "info");
@@ -271,49 +259,6 @@ const EnhancedWhatsAppScheduler = () => {
       setSelectedTemplate(null);
     }
   };
-
-  // // --- معالجة الإرسال ---
-  // const handleSend = async () => {
-  //   if (!activeAccount) {
-  //     alert("يرجى اختيار حساب واتساب أولاً");
-  //     return;
-  //   }
-
-  //   if (recipientNumbers.length === 0 && selectedGroups.length === 0) {
-  //     alert("يرجى إضافة رقم مستلم أو مجموعة واحدة على الأقل");
-  //     return;
-  //   }
-
-  //   if (isTemplateMode && !selectedTemplate) {
-  //     alert("يرجى اختيار قالب رسالة");
-  //     return;
-  //   }
-
-  //   if (!isTemplateMode && !message.trim()) {
-  //     alert("يرجى كتابة نص الرسالة");
-  //     return;
-  //   }
-
-  //   if (isScheduled && !scheduledTime) {
-  //     alert("يرجى اختيار وقت الإرسال المجدول");
-  //     return;
-  //   }
-
-  //   if (isScheduled && scheduledTime && scheduledTime <= new Date()) {
-  //     alert("وقت الإرسال يجب أن يكون في المستقبل");
-  //     return;
-  //   }
-
-  //   setIsLoading(true);
-  //   try {
-  //     setShowScheduleSuccess(true);
-  //     setTimeout(() => setShowScheduleSuccess(false), 3000);
-  //   } catch (error) {
-  //     console.error("حدث خطأ أثناء الإرسال:", error);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
 
   // --- إعادة تعيين النموذج ---
   const resetForm = () => {
