@@ -5,15 +5,14 @@ import SidebarPreview from "@/components/organisms/SidebarPreview";
 import useLanguage from "@/hooks/useLanguage";
 import { motion, AnimatePresence } from "framer-motion";
 import { sendWhatsappMessage1 as sendImmediateMessage } from "@/services/message-service";
-import {
-  sendWhatsappMessage,
-} from "@/services/schedule-massage";
+import { sendWhatsappMessage } from "@/services/schedule-massage";
 import { fetchTemplatesFromAPI } from "@/services/templateMassageService"; // ← جلب القوالب من /templates
 import { fetchTemplatesFromAPI1 } from "@/services/templateService";
 import { useToast } from "@/hooks/useToast";
 import { getActiveAccount, getWhatsappAccounts } from "@/services/my_accounts";
 import { APITemplate } from "@/types/whatsappTemplate";
 import useTranslation from "@/hooks/useTranslation";
+import { useAccountStore } from "@/hooks/useAccountStore";
 
 // Interface للحساب النشط
 interface ActiveAccount {
@@ -28,9 +27,7 @@ interface GroupFromAPI {
 }
 
 const EnhancedWhatsAppScheduler = () => {
-  const [activeAccount, setActiveAccount] = useState<ActiveAccount | null>(
-    null
-  );
+  const { selectedAccount } = useAccountStore();
   const [currentNumber, setCurrentNumber] = useState("");
   const [recipientNumbers, setRecipientNumbers] = useState<string[]>([]);
   const [message, setMessage] = useState("");
@@ -42,8 +39,8 @@ const EnhancedWhatsAppScheduler = () => {
   const [selectedGroups, setSelectedGroups] = useState<GroupFromAPI[]>([]);
   const [groupsLoading, setGroupsLoading] = useState(false);
   const [showGroupDropdown, setShowGroupDropdown] = useState(false);
-  const [showNumbers, setShowNumbers] = useState(true);
-  const [showGroups, setShowGroups] = useState(false);
+  // const [showNumbers, setShowNumbers] = useState(true);
+  // const [showGroups, setShowGroups] = useState(false);
 
   // Template related states
   const [templates, setTemplates] = useState<APITemplate[]>([]);
@@ -61,38 +58,16 @@ const EnhancedWhatsAppScheduler = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // --- تفعيل حالة التحميل ---
         setGroupsLoading(true);
         setTemplatesLoading(true);
 
-        // جلب جميع الحسابات وتحديد الحساب النشط
-        const [
-          allAccounts,
-          activeAccountData,
-          fetchedGroups,
-          fetchedTemplates,
-        ] = await Promise.all([
-          getWhatsappAccounts(),
-          getActiveAccount(),
-          fetchTemplatesFromAPI1(), // ← المجموعات
-          fetchTemplatesFromAPI(), // ← القوالب
-        ]);
-
-        // --- معالجة الحساب النشط ---
-        if (activeAccountData?.id && Array.isArray(allAccounts)) {
-          const fullAccount = allAccounts.find(
-            (account) => account.id === activeAccountData.id
-          );
-          if (fullAccount) {
-            setActiveAccount({ name: fullAccount.name });
-          } else {
-            setActiveAccount(null);
-            // showToast(t("no_active_account"), "info");
-          }
-        } else {
-          setActiveAccount(null);
-          // showToast(t("no_active_account"), "info");
-        }
+        // جلب البيانات الأخرى (المجموعات والقوالب)
+        const [allAccounts, fetchedGroups, fetchedTemplates] =
+          await Promise.all([
+            getWhatsappAccounts(),
+            fetchTemplatesFromAPI1(), // ← المجموعات
+            fetchTemplatesFromAPI(), // ← القوالب
+          ]);
 
         // --- معالجة المجموعات ---
         setGroups(fetchedGroups);
@@ -105,11 +80,8 @@ const EnhancedWhatsAppScheduler = () => {
         setTemplates(localTemplates);
       } catch (error: any) {
         console.error(t("error_occurred_during"), error);
-
-        // إظهار رسالة خطأ عامة أو محددة
         showToast(t("failed_to_load_data"), "error");
       } finally {
-        // --- إنهاء حالة التحميل ---
         setGroupsLoading(false);
         setTemplatesLoading(false);
       }
@@ -119,7 +91,7 @@ const EnhancedWhatsAppScheduler = () => {
   }, []);
 
   const handleSend = async () => {
-    if (!activeAccount) {
+    if (!selectedAccount) {
       showToast(t("toastno_account"), "error");
       return;
     }
@@ -228,7 +200,7 @@ const EnhancedWhatsAppScheduler = () => {
   };
 
   const handleAddNumber = () => {
-    if (!activeAccount) {
+    if (!selectedAccount) {
       showToast(t("select_whatsapp_account_first"), "error");
       return;
     }
@@ -335,7 +307,7 @@ const EnhancedWhatsAppScheduler = () => {
             </p>
           </div>
         </div>
-        {activeAccount && (
+        {selectedAccount && (
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -346,7 +318,7 @@ const EnhancedWhatsAppScheduler = () => {
               <span className="text-sm font-medium">
                 {t("active_account")} :
               </span>
-              <span className="font-bold">{activeAccount.name}</span>
+              <span className="font-bold">{selectedAccount.name}</span>
             </div>
           </motion.div>
         )}

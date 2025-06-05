@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useOnAccountUpdate } from "@/hooks/useAccountUpdate";
 import Cookies from "js-cookie";
+import { useAccountStore } from "@/hooks/useAccountStore";
 import {
   MessageSquareText,
   Users,
@@ -61,69 +62,65 @@ function Sidebar({
     try {
       const allAccounts = await getWhatsappAccounts();
       const activeAccount = await getActiveAccount();
-      console.log("activeAccount" ,activeAccount)
+
+        console.log("activeAccount" , activeAccount)
       if (Array.isArray(allAccounts)) {
         setAccounts(allAccounts);
-        const activeId =
-          activeAccount?.id || localStorage.getItem("activeAccountId") || null;
-        setSelectedAccountId(activeId);
-        setStatus(activeId ? "connected" : "disconnected");
+
+        let activeId = activeAccount?.id;
+
+        // إذا لم يوجد في API، ابحث في localStorage أو Zustand
+        if (!activeId && selectedAccount) {
+          activeId = selectedAccount.id;
+        }
+
+        if (!activeId) {
+          activeId = localStorage.getItem("activeAccountId");
+        }
+
+        if (activeId) {
+          const account = allAccounts.find((acc) => acc.id === activeId);
+          if (account) {
+            setSelectedAccount(account); // Zustand
+          }
+          setStatus("connected");
+        } else {
+          setStatus("disconnected");
+        }
       }
     } catch (error) {
       setStatus("disconnected");
     }
   };
-  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(
-    null
-  );
+  const { selectedAccount, setSelectedAccount } = useAccountStore();
   const [status, setStatus] = useState<
     "loading" | "connected" | "disconnected"
   >("loading");
   useOnAccountUpdate(loadAccounts);
+
   useEffect(() => {
-    const loadAccounts = async () => {
-      try {
-        const allAccounts = await getWhatsappAccounts();
-        const activeAccount = await getActiveAccount();
-
-        console.log("getActiveAccount",activeAccount?.id)
-
-        if (Array.isArray(allAccounts)) {
-          setAccounts(allAccounts);
-
-          // تحديد الحساب النشط
-          const activeId =
-            activeAccount?.id ||
-            localStorage.getItem("activeAccountId") ||
-            null;
-          if (activeId) {
-            setSelectedAccountId(activeId);
-            setStatus("connected");
-          } else {
-            setStatus("disconnected");
-          }
-        }
-      } catch (error) {
-        setStatus("disconnected");
-      }
-    };
-
     loadAccounts();
-  }, [selectedAccountId]);
+  }, []);
 
   const handleChangeAccount = async (accountId: string) => {
     if (!accountId) {
-      setSelectedAccountId(null);
+      setSelectedAccount(null); // <-- Zustand
       setStatus("disconnected");
-      localStorage.removeItem("activeAccountId");
+      localStorage.removeItem("activeAccountId"); // <-- optional
       setIsSelectOpen(false);
       return;
     }
 
     try {
       const success = await setActiveAccount(accountId);
-      setSelectedAccountId(accountId);
-      localStorage.setItem("activeAccountId", accountId);
+
+      // Find the account object to store in Zustand
+      const account = accounts.find((acc) => acc.id === accountId);
+      if (account) {
+        setSelectedAccount(account); // <-- Zustand
+      }
+
+      localStorage.setItem("activeAccountId", accountId); // <-- optional
       setStatus("connected");
       showToast(t("account_selected_success"), "success");
       setIsSelectOpen(false);
@@ -156,7 +153,7 @@ function Sidebar({
   };
 
   const getSelectedAccountName = () => {
-    const account = accounts.find((acc) => acc.id === selectedAccountId);
+    const account = accounts.find((acc) => acc.id === selectedAccount?.id);
     return account ? account.name : t("choose_account");
   };
 
@@ -414,7 +411,7 @@ function Sidebar({
                   `}
                   ></div>
                   <span className="font-medium truncate">
-                    {selectedAccountId
+                    {selectedAccount
                       ? getSelectedAccountName()
                       : t("choose_account")}
                   </span>
@@ -437,7 +434,7 @@ function Sidebar({
               {isSelectOpen && (
                 <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-xl z-50 overflow-hidden">
                   <div className="max-h-48 overflow-y-auto">
-                    {!selectedAccountId && (
+                    {!selectedAccount && (
                       <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-700">
                         {t("choose_account")}
                       </div>
@@ -450,17 +447,17 @@ function Sidebar({
                         className={`
                           w-full px-4 py-3 text-sm text-left
                           hover:bg-gray-50 dark:hover:bg-gray-700
-                          transition-colors duration-150
+                          transition-colors duration-150  
                           flex items-center justify-between
                           ${
-                            selectedAccountId === account.id
+                            selectedAccount?.id === account.id
                               ? "bg-[#00a884]/10 dark:bg-[#00d9ff]/10 text-[#00a884] dark:text-[#00d9ff] font-medium"
                               : "text-gray-700 dark:text-gray-200"
                           }
                         `}
                       >
                         <span className="truncate">{account.name}</span>
-                        {selectedAccountId === account.id && (
+                        {selectedAccount?.id === account.id && (
                           <Check
                             size={16}
                             className="text-[#00a884] dark:text-[#00d9ff] flex-shrink-0"
