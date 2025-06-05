@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import useTranslation from "@/hooks/useTranslation";
 import { useToast } from "@/hooks/useToast";
+import LoadingSpinner from "@/components/atoms/LoadingSpinner";
 
 type Person = {
   _id?: string; // ← اختياري
@@ -65,6 +66,8 @@ export default function EnhancedTemplateManagerPage() {
   } | null>(null);
   const [editingTemplate, setEditingTemplate] = useState<number | null>(null);
   const [editingPerson, setEditingPerson] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState<string | null>(null);
   const { showToast } = useToast();
 
   const selectedTemplate = templates.find((t) => t.id === selectedTemplateId);
@@ -133,10 +136,10 @@ export default function EnhancedTemplateManagerPage() {
       showToast(t("select_whatsapp_account_first"), "error");
       return;
     }
+    if (!templateName || newPeople.length === 0) return;
 
-    if (!templateName || newPeople.length === 0) {
-      return; // تحقق من الاسم والأشخاص
-    }
+    setIsLoading(true);
+    setLoadingMessage(t("saving_template"));
 
     try {
       const payload = {
@@ -158,9 +161,13 @@ export default function EnhancedTemplateManagerPage() {
       resetForm();
     } catch (error) {
       console.error("حدث خطأ أثناء حفظ القالب:", error);
-      showToast(`${t("failed_to_save_template")}`, "error");
+      showToast(t("failed_to_save_template"), "error");
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage(null);
     }
   };
+
   // Reset form
   const resetForm = () => {
     setTemplateName("");
@@ -185,7 +192,14 @@ export default function EnhancedTemplateManagerPage() {
   // Confirm deletion
   const confirmDelete = async () => {
     if (!itemToDelete) return;
-    console.log(itemToDelete.id);
+
+    setIsLoading(true);
+    setLoadingMessage(
+      itemToDelete.type === "template"
+        ? t("deleting_template")
+        : t("deleting_person")
+    );
+
     try {
       if (itemToDelete.type === "template") {
         const templateToDelete = templates.find(
@@ -224,12 +238,13 @@ export default function EnhancedTemplateManagerPage() {
     } catch (error) {
       console.error("حدث خطأ أثناء الحذف:", error);
       showToast(`${t("error_occurred_during_deletion")}`, "error");
+    } finally {
+      setShowConfirmation(false);
+      setItemToDelete(null);
+      setIsLoading(false);
+      setLoadingMessage(null);
     }
-
-    setShowConfirmation(false);
-    setItemToDelete(null);
   };
-
   // Cancel deletion
   const cancelDelete = () => {
     setShowConfirmation(false);
@@ -247,15 +262,16 @@ export default function EnhancedTemplateManagerPage() {
       return;
     }
 
+    setIsLoading(true);
+    setLoadingMessage(t("updating_template"));
+
     try {
-      // العثور على القالب المحلي الذي يحتوي على _id من السيرفر
       const templateToUpdate = templates.find((t) => t.id === id);
       if (!templateToUpdate || !templateToUpdate._id) {
         showToast(`${t("template_id_not_found")}`, "error");
         return;
       }
 
-      // بناء payload كما هو متوقع من الـ API
       const payload = {
         name: newName,
         phone_numbers: templateToUpdate.people.map((person) => ({
@@ -264,15 +280,12 @@ export default function EnhancedTemplateManagerPage() {
         })),
       };
 
-      // إرسال التعديل إلى السيرفر باستخدام PUT
-      const response = await updateTemplateToAPI(templateToUpdate._id, payload);
+      await updateTemplateToAPI(templateToUpdate._id, payload);
 
-      // تحديث حالة القوالب في الواجهة
       const updatedTemplates = templates.map((t) =>
         t.id === id ? { ...t, name: newName, description: newDescription } : t
       );
       setTemplates(updatedTemplates);
-
       setEditingTemplate(null);
       setTemplateName("");
       setTemplateDescription("");
@@ -280,7 +293,10 @@ export default function EnhancedTemplateManagerPage() {
       showToast(`${t("template_updated_successfully")}`, "success");
     } catch (error) {
       console.error("حدث خطأ أثناء تحديث القالب:", error);
-      showToast(`${t("failed_to_update_template")} :`, "error");
+      showToast(`${t("failed_to_update_template")}`, "error");
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage(null);
     }
   };
 
@@ -708,10 +724,7 @@ export default function EnhancedTemplateManagerPage() {
                 <Button
                   onClick={() => {
                     if (!activeAccount) {
-                      showToast(
-                        t("select_whatsapp_account_first"),
-                        "error"
-                      );
+                      showToast(t("select_whatsapp_account_first"), "error");
                       return;
                     }
                     setShowForm(true);
@@ -909,6 +922,15 @@ export default function EnhancedTemplateManagerPage() {
           </div>
         )}
       </div>
+      {isLoading && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <LoadingSpinner
+            message={loadingMessage || t("preparing_account")}
+            size="md"
+            color="green"
+          />
+        </div>
+      )}
     </div>
   );
 }

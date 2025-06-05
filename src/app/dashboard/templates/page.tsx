@@ -15,6 +15,7 @@ import {
   deleteTemplateFromAPI,
 } from "@/services/templateMassageService";
 import { useToast } from "@/hooks/useToast";
+import LoadingSpinner from "@/components/atoms/LoadingSpinner";
 
 // Template Type with new fields
 export type Template = {
@@ -41,6 +42,7 @@ export default function MessageTemplatesPage() {
   const [templateToDelete, setTemplateToDelete] = useState<number | null>(null);
   const { t } = useTranslation();
   const [activeAccount, setActiveAccount] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const { showToast } = useToast();
 
   // Load templates from API
@@ -80,8 +82,9 @@ export default function MessageTemplatesPage() {
       showToast(t("select_whatsapp_account_first"), "error");
       return;
     }
-
     if (!name || !content) return;
+
+    setIsLoading(true); // <-- بدء التحميل
 
     const templateData = {
       name,
@@ -109,7 +112,6 @@ export default function MessageTemplatesPage() {
           name,
           content,
         });
-
         const newTemplate = {
           id: Date.now(),
           name,
@@ -128,8 +130,13 @@ export default function MessageTemplatesPage() {
       setIsEditing(false);
       setEditingId(null);
       setShowForm(false);
+
+      showToast(t("messageTemplatessavedSuccessfully"), "success");
     } catch (error) {
       console.error("فشل في حفظ أو تحديث القالب");
+      showToast(t("messageTemplatesaveFailed"), "error");
+    } finally {
+      setIsLoading(false); // <-- انتهاء التحميل
     }
   };
 
@@ -148,18 +155,27 @@ export default function MessageTemplatesPage() {
 
   const handleDelete = async (id: number) => {
     const template = templates.find((t) => t.id === id);
+    if (!template) return;
+
+    setIsLoading(true); // <-- بدء التحميل
+
     if (template?._id) {
       try {
         const success = await deleteTemplateFromAPI(template._id);
         if (success) {
           setTemplates(templates.filter((t) => t.id !== id));
+          showToast(t("messageTemplatedeletedSuccessfully"), "success");
         }
       } catch (e) {
         console.error("فشل في حذف القالب");
+        showToast(t("messageTemplatedeleteFailed"), "error");
       }
     } else {
       setTemplates(templates.filter((t) => t.id !== id));
+      showToast(t("messageTemplatedeletedSuccessfully"), "success");
     }
+
+    setIsLoading(false); // <-- انتهاء التحميل
   };
 
   const resetForm = () => {
@@ -366,10 +382,7 @@ export default function MessageTemplatesPage() {
                 <Button
                   onClick={() => {
                     if (!activeAccount) {
-                      showToast(
-                        t("select_whatsapp_account_first"),
-                        "error"
-                      );
+                      showToast(t("select_whatsapp_account_first"), "error");
                       return;
                     }
                     setShowForm(true);
@@ -412,6 +425,16 @@ export default function MessageTemplatesPage() {
               </Button>
             </div>
           </div>
+        </div>
+      )}
+
+      {isLoading && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <LoadingSpinner
+            message={t("preparing")}
+            size="md"
+            color="green"
+          />
         </div>
       )}
     </div>

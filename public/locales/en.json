@@ -489,5 +489,23 @@
   "No_Setup_Fees": "No setup fees",
 
   "navbartheme": "Toggle theme",
-  "navbarlanguage": "Change language"
+  "navbarlanguage": "Change language",
+
+  "preparing": "Processing...",
+  "messageTemplatessavedSuccessfully": "Template saved successfully",
+  "messageTemplatesaveFailed": "Failed to save template",
+  "messageTemplatedeletedSuccessfully": "Template deleted successfully",
+  "messageTemplatedeleteFailed": "Failed to delete template",
+
+  "auto_reply_saving": "Saving reply...",
+  "auto_reply_updating": "Updating reply...",
+  "auto_reply_deleting": "Deleting reply...",
+  "auto_reply_operation_failed": "Operation failed",
+  "auto_reply_deleted_successfully": "Auto reply deleted successfully",
+  "auto_reply_delete_failed": "Failed to delete auto reply",
+
+  "saving_template": "Saving template...",
+  "updating_template": "Updating template...",
+  "deleting_template": "Deleting template...",
+  "deleting_person": "Deleting person..."
 }

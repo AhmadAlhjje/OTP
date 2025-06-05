@@ -26,8 +26,8 @@
   "linked_accounts": "الحسابات المرتبطة",
   "no_accounts": "لا توجد حسابات متاحة",
   "status": "الحساب",
-  "disconnect_account":"إلغاء تحديد الحساب",
-  "account_selected_success":"تم إختيار الحساب بنجاح",
+  "disconnect_account": "إلغاء تحديد الحساب",
+  "account_selected_success": "تم إختيار الحساب بنجاح",
   "Connected": "متصل",
   "home": "الرئيسية",
   "sendMessage": "إرسال رسائل واتساب",
@@ -259,7 +259,7 @@
   "failed_fetch_scheduled_messages": "فشل في جلب الرسائل المجدولة",
 
   "no_account_selected": "حساب غير محدد",
-  "choose_account":"اختر حساب",
+  "choose_account": "اختر حساب",
 
   "failed_to_load_data": "فشل في تحميل بعض البيانات من الخادم",
   "select_whatsapp_account_first": "يرجى اختيار حساب واتساب أولاً",
@@ -490,5 +490,23 @@
   "No_Setup_Fees": "بدون رسوم إعداد",
 
   "navbartheme": "تبديل المظهر",
-  "navbarlanguage": "تغيير اللغة"
+  "navbarlanguage": "تغيير اللغة",
+
+  "preparing": "جاري المعالجة...",
+  "messageTemplatessavedSuccessfully": "تم حفظ القالب بنجاح",
+  "messageTemplatesaveFailed": "فشل حفظ القالب",
+  "messageTemplatedeletedSuccessfully": "تم حذف القالب بنجاح",
+  "messageTemplatedeleteFailed": "فشل حذف القالب",
+
+  "auto_reply_saving": "جاري الحفظ...",
+  "auto_reply_updating": "جاري التحديث...",
+  "auto_reply_deleting": "جاري الحذف...",
+  "auto_reply_operation_failed": "فشل في تنفيذ العملية",
+  "auto_reply_deleted_successfully": "تم حذف الرد بنجاح",
+  "auto_reply_delete_failed": "فشل في حذف الرد",
+
+  "saving_template": "جاري الحفظ...",
+  "updating_template": "جاري التحديث...",
+  "deleting_template": "جاري الحذف...",
+  "deleting_person": "جاري حذف الشخص..."
 }

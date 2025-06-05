@@ -25,6 +25,7 @@ import {
 } from "@/services/autoReplyAPI.ts";
 import useTranslation from "@/hooks/useTranslation";
 import { useToast } from "@/hooks/useToast";
+import LoadingSpinner from "@/components/atoms/LoadingSpinner";
 
 const AutoReplyManager = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -35,6 +36,7 @@ const AutoReplyManager = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [activeAccount, setActiveAccount] = useState<any>(null);
+  const [loadingMessage, setLoadingMessage] = useState<string | null>(null);
   const { showToast } = useToast();
   const { t } = useTranslation();
 
@@ -91,38 +93,64 @@ const AutoReplyManager = () => {
     if (!formData.keyword.trim() || !formData.response.trim()) return;
 
     setIsLoading(true);
+    const isEdit = !!editingReply;
 
-    if (editingReply) {
-      //  تعديل
-      const updatedReply = await updateAutoReplyOnAPI(
-        editingReply._id,
-        formData
-      );
-      if (updatedReply) {
-        setAutoReplies((prev) =>
-          prev.map((r) => (r._id === editingReply._id ? updatedReply : r))
+    setLoadingMessage(
+      isEdit ? t("auto_reply_updating") : t("auto_reply_saving")
+    );
+
+    try {
+      if (isEdit) {
+        // تعديل
+        const updatedReply = await updateAutoReplyOnAPI(
+          editingReply._id,
+          formData
         );
+        if (updatedReply) {
+          setAutoReplies((prev) =>
+            prev.map((r) => (r._id === editingReply._id ? updatedReply : r))
+          );
+        }
+      } else {
+        // إضافة
+        const newReply = await addAutoReplyToAPI(formData);
+        if (newReply) {
+          setAutoReplies((prev) => [newReply, ...prev]);
+        }
       }
-    } else {
-      //  إضافة
-      const newReply = await addAutoReplyToAPI(formData);
-      if (newReply) {
-        setAutoReplies((prev) => [newReply, ...prev]);
-      }
-    }
 
-    setIsLoading(false);
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 2000);
-    setIsModalOpen(false);
-    setFormData({ keyword: "", response: "" });
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 2000);
+      setIsModalOpen(false);
+      setFormData({ keyword: "", response: "" });
+    } catch (error) {
+      console.error("فشل في تنفيذ العملية");
+      showToast(t("auto_reply_operation_failed"), "error");
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage(null);
+    }
   };
 
   //  حذف الرد
   const handleDeleteReply = async (id: string) => {
-    const success = await deleteAutoReplyFromAPI(id);
-    if (success) {
-      setAutoReplies((prev) => prev.filter((reply) => reply._id !== id));
+    setIsLoading(true);
+    setLoadingMessage(t("auto_reply_deleting"));
+
+    try {
+      const success = await deleteAutoReplyFromAPI(id);
+      if (success) {
+        setAutoReplies((prev) => prev.filter((reply) => reply._id !== id));
+        showToast(t("auto_reply_deleted_successfully"), "success");
+      } else {
+        throw new Error("فشل في حذف الرد");
+      }
+    } catch (error) {
+      console.error("فشل في الحذف");
+      showToast(t("auto_reply_delete_failed"), "error");
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage(null);
     }
   };
 
@@ -197,6 +225,15 @@ const AutoReplyManager = () => {
           />
         )}
       </AnimatePresence>
+      {isLoading && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <LoadingSpinner
+            message={loadingMessage || t("preparing_account")}
+            size="md"
+            color="green"
+          />
+        </div>
+      )}
     </div>
   );
 };
