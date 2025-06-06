@@ -14,10 +14,9 @@ import { getActiveAccount, getWhatsappAccounts } from "@/services/my_accounts";
 import { APITemplate } from "@/types/whatsappTemplate";
 import useTranslation from "@/hooks/useTranslation";
 import { GroupFromAPI } from "@/types/send_whatsapp";
-import { useAccountStore } from "@/hooks/useAccountStore";
 
 const EnhancedWhatsAppScheduler = () => {
-  const { activeAccount, setActiveAccount } = useAccountStore();
+  const [activeAccount, setActiveAccount] = useState<any>(null);
   const [currentNumber, setCurrentNumber] = useState("");
   const [recipientNumbers, setRecipientNumbers] = useState<string[]>([]);
   const [message, setMessage] = useState("");
@@ -42,11 +41,10 @@ const EnhancedWhatsAppScheduler = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // --- تفعيل حالة التحميل ---
         setGroupsLoading(true);
         setTemplatesLoading(true);
 
-        // جلب جميع الحسابات وتحديد الحساب النشط
+        // --- جلب البيانات ---
         const [
           allAccounts,
           activeAccountData,
@@ -54,9 +52,9 @@ const EnhancedWhatsAppScheduler = () => {
           fetchedTemplates,
         ] = await Promise.all([
           getWhatsappAccounts(),
-          getActiveAccount(),
-          fetchTemplatesFromAPI1(), // ← المجموعات
-          fetchTemplatesFromAPI(), // ← القوالب
+          getActiveAccount(), // ← هنا نستخدم getActiveAccount مباشرة
+          fetchTemplatesFromAPI1(),
+          fetchTemplatesFromAPI(),
         ]);
 
         // --- معالجة الحساب النشط ---
@@ -65,14 +63,16 @@ const EnhancedWhatsAppScheduler = () => {
             (account) => account.id === activeAccountData.id
           );
           if (fullAccount) {
-            setActiveAccount({ name: fullAccount.name });
+            setActiveAccount({
+              id: fullAccount.id,
+              name: fullAccount.name,
+              phone: fullAccount.phone || null,
+            });
           } else {
             setActiveAccount(null);
-            // showToast(t("no_active_account"), "info");
           }
         } else {
           setActiveAccount(null);
-          // showToast(t("no_active_account"), "info");
         }
 
         // --- معالجة المجموعات ---
@@ -86,11 +86,8 @@ const EnhancedWhatsAppScheduler = () => {
         setTemplates(localTemplates);
       } catch (error: any) {
         console.error(t("error_occurred_during"), error);
-
-        // إظهار رسالة خطأ عامة أو محددة
         showToast(t("failed_to_load_data"), "error");
       } finally {
-        // --- إنهاء حالة التحميل ---
         setGroupsLoading(false);
         setTemplatesLoading(false);
       }
