@@ -512,5 +512,10 @@
 
   "adding_auto_reply": "جاري إضافة الرد التلقائي...",
   "editing_auto_reply": "جاري تعديل الرد التلقائي...",
-  "deleting_auto_reply": "جاري حذف الرد التلقائي..."
+  "deleting_auto_reply": "جاري حذف الرد التلقائي...",
+
+  "keyword": "الكلمة المفتاحية",
+  "response": "الرد",
+  "edit": "تعديل",
+  "delete": "حذف"
 }

@@ -4,18 +4,14 @@ import React, { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { AutoReply } from "@/types/auto-reply";
 import { getActiveAccount } from "@/services/my_accounts";
-
 // Organisms
 import { HeaderSection } from "@/components/organisms/HeaderSection";
 import { ControlsSection } from "@/components/organisms/ControlsSection";
-import { RepliesList } from "@/components/organisms/RepliesList";
-
+// import { RepliesList } from "@/components/organisms/RepliesList";
 // Molecules
 import { ModalForm } from "@/components/molecules/ModalForm";
-
 // Atoms
 import Toast from "@/components/atoms/Toast";
-
 // API Actions
 import {
   fetchAutoRepliesFromAPI,
@@ -26,6 +22,11 @@ import {
 import useTranslation from "@/hooks/useTranslation";
 import { useToast } from "@/hooks/useToast";
 import LoadingSpinner from "@/components/atoms/LoadingSpinner";
+import Table from "@/components/molecules/Table";
+import { MessagePreviewModal } from "@/components/molecules/MessagePreviewModal";
+import { MessageContent } from "@/components/molecules/MessageContent";
+import EditButton from "@/components/common/EditButton";
+import DeleteButton from "@/components/common/DeleteButton";
 
 const AutoReplyManager = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -35,6 +36,8 @@ const AutoReplyManager = () => {
   const [formData, setFormData] = useState({ keyword: "", response: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isMessagePreviewOpen, setIsMessagePreviewOpen] = useState(false);
+  const [previewMessage, setPreviewMessage] = useState("");
   const [activeAccount, setActiveAccount] = useState<any>(null);
   const [loadingMessage, setLoadingMessage] = useState<string | null>(null);
   const { showToast } = useToast();
@@ -156,6 +159,12 @@ const AutoReplyManager = () => {
     }
   };
 
+  // لفتح معاينة الرسالة
+  const handleShowFullMessage = (message: string) => {
+    setPreviewMessage(message);
+    setIsMessagePreviewOpen(true);
+  };
+
   return (
     <div className="p-6 w-full min-h-screen bg-gradient-to-br from-white via-green-50/30 to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-emerald-900/20">
       {/* Header Section */}
@@ -174,16 +183,53 @@ const AutoReplyManager = () => {
       />
 
       {/* Replies List */}
-      <RepliesList
-        replies={autoReplies}
-        searchTerm={searchTerm}
-        onEdit={handleEditReply}
-        onDelete={handleDeleteReply}
-        title={t("list_of_auto_replies")}
-        emptySearchText={t("no_search_results")}
-        emptyDefaultText={t("no_auto_replies")}
-        emptySearchSuggestion={t("try_different_keywords")}
-        emptyDefaultActionText={t("add_auto_replies_to_start")}
+      {/* استخدام الجدول لعرض البيانات */}
+      <Table
+        columns={[
+          {
+            key: "keyword",
+            label: t("keyword"),
+            sortable: true,
+            align: "right",
+          },
+          {
+            key: "response",
+            label: t("response"),
+            sortable: true,
+            align: "right",
+          },
+          {
+            key: "actions",
+            label: t("actions"),
+            align: "center",
+          },
+        ]}
+        data={autoReplies.map((reply) => ({
+          keyword: reply.keyword,
+          response: (
+            <MessageContent
+              message={reply.response}
+              onShowFullMessage={() => handleShowFullMessage(reply.response)}
+            />
+          ),
+          actions: (
+            <div className="flex justify-center gap-3">
+              <EditButton
+                onClick={() => {
+                  handleEditReply(reply);
+                }}
+              />
+              <DeleteButton
+                onClick={() => {
+                  handleDeleteReply(reply._id);
+                }}
+              />
+            </div>
+          ),
+        }))}
+        searchable={true}
+        emptyMessage={t("no_auto_replies")}
+        loading={isLoading}
       />
 
       {/* Modal Form */}
@@ -236,6 +282,13 @@ const AutoReplyManager = () => {
           />
         </div>
       )}
+
+      {/* Modal معاينة الرسالة */}
+      <MessagePreviewModal
+        isOpen={isMessagePreviewOpen}
+        message={previewMessage}
+        onClose={() => setIsMessagePreviewOpen(false)}
+      />
     </div>
   );
 };

@@ -511,5 +511,10 @@
 
   "adding_auto_reply": "Adding auto reply...",
   "editing_auto_reply": "Editing auto reply...",
-  "deleting_auto_reply": "Deleting auto reply..."
+  "deleting_auto_reply": "Deleting auto reply...",
+
+  "keyword": "Keyword",
+  "response": "Response",
+  "edit": "Edit",
+  "delete": "Delete"
 }
