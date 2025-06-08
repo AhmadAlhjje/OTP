@@ -508,5 +508,9 @@
   "saving_template": "جاري الحفظ...",
   "updating_template": "جاري التحديث...",
   "deleting_template": "جاري الحذف...",
-  "deleting_person": "جاري حذف الشخص..."
+  "deleting_person": "جاري حذف الشخص...",
+
+  "adding_auto_reply": "جاري إضافة الرد التلقائي...",
+  "editing_auto_reply": "جاري تعديل الرد التلقائي...",
+  "deleting_auto_reply": "جاري حذف الرد التلقائي..."
 }
