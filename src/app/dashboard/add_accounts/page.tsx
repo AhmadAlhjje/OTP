@@ -53,7 +53,7 @@ export default function AccountsPage() {
       refreshAccounts();
       showToast(t("added_successfully"), "success");
       setTimeout(() => {
-        router.push("/dashboard");
+        router.push("/dashboard/send_whatsapp");
       }, 1000);
     });
   };

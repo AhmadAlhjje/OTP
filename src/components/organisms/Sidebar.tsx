@@ -59,11 +59,11 @@ function Sidebar({
   };
 
   const mainItems: SidebarItemProps[] = [
-    {
-      label: t("dashboard"),
-      icon: <LayoutDashboard className="w-5 h-5" />,
-      href: "/dashboard",
-    },
+    // {
+    //   label: t("dashboard"),
+    //   icon: <LayoutDashboard className="w-5 h-5" />,
+    //   href: "/dashboard",
+    // },
     {
       label: t("whatsapp_send"),
       icon: <MessageSquareText className="w-5 h-5" />,

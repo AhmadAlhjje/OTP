@@ -35,7 +35,7 @@ export default function LoginPage() {
       showToast(t("loginSuccess"), "success");
 
       setTimeout(() => {
-        router.push("/dashboard");
+        router.push("/dashboard/send_whatsapp");
       }, 1000);
     } catch (error: any) {
       console.error("Login Failed:", error);
