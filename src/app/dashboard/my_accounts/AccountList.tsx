@@ -8,21 +8,38 @@ import {
   deleteWhatsappAccount,
 } from "@/services/my_accounts";
 
-const AccountList = () => {
+interface AccountListProps {
+  onLoadingChange?: (isLoading: boolean) => void;
+}
+
+const AccountList = ({ onLoadingChange }: AccountListProps) => {
   const { t } = useTranslation();
   const [accounts, setAccounts] = useState<
     { id: string; name: string; phone: string }[]
   >([]);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
-    getWhatsappAccounts().then(setAccounts);
-  }, []);
+    onLoadingChange?.(true);
+    getWhatsappAccounts().then((data) => {
+      setAccounts(data);
+      onLoadingChange?.(false);
+    });
+  }, [onLoadingChange]);
 
   const handleDelete = async (id: string) => {
-    console.log("KASMDKASMD");
+    setDeletingId(id);
+    onLoadingChange?.(true);
 
-    await deleteWhatsappAccount(id);
-    setAccounts((prev) => prev.filter((acc) => acc.id !== id));
+    try {
+      await deleteWhatsappAccount(id);
+      setAccounts((prev) => prev.filter((acc) => acc.id !== id));
+    } catch (error) {
+      console.error("فشل في حذف الحساب:", error);
+    } finally {
+      setDeletingId(null);
+      onLoadingChange?.(false);
+    }
   };
 
   return (
