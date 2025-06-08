@@ -93,10 +93,12 @@ const AutoReplyManager = () => {
     if (!formData.keyword.trim() || !formData.response.trim()) return;
 
     setIsLoading(true);
+
     const isEdit = !!editingReply;
 
+    // ← تحديد النص المناسب للتحميل
     setLoadingMessage(
-      isEdit ? t("auto_reply_updating") : t("auto_reply_saving")
+      isEdit ? t("editing_auto_reply") : t("adding_auto_reply")
     );
 
     try {
@@ -135,7 +137,7 @@ const AutoReplyManager = () => {
   //  حذف الرد
   const handleDeleteReply = async (id: string) => {
     setIsLoading(true);
-    setLoadingMessage(t("auto_reply_deleting"));
+    setLoadingMessage(t("deleting_auto_reply")); // ← رسالة التحميل عند الحذف
 
     try {
       const success = await deleteAutoReplyFromAPI(id);
@@ -228,7 +230,7 @@ const AutoReplyManager = () => {
       {isLoading && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <LoadingSpinner
-            message={loadingMessage || t("preparing_account")}
+            message={t("adding_auto_reply")}
             size="md"
             color="green"
           />
