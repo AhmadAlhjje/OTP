@@ -38,62 +38,71 @@ const EnhancedWhatsAppScheduler = () => {
   const { t } = useTranslation();
   const { showToast } = useToast();
 
+  const fetchData = async (accountId: string) => {
+    try {
+      setGroupsLoading(true);
+      setTemplatesLoading(true);
+
+      // --- جلب البيانات ---
+      const [allAccounts, fetchedGroups, fetchedTemplates] = await Promise.all([
+        getWhatsappAccounts(),
+        fetchTemplatesFromAPI1(),
+        fetchTemplatesFromAPI(),
+      ]);
+
+      // --- معالجة الحساب النشط ---
+      const fullAccount = allAccounts.find(
+        (account: { id: string }) => account.id === accountId
+      );
+
+      if (fullAccount) {
+        setActiveAccount({
+          id: fullAccount.id,
+          name: fullAccount.name,
+          phone: fullAccount.phone || null,
+        });
+      } else {
+        setActiveAccount(null);
+      }
+
+      // --- معالجة المجموعات ---
+      setGroups(fetchedGroups);
+
+      // --- معالجة القوالب ---
+      const localTemplates = fetchedTemplates.map((t) => ({
+        ...t,
+        id: t._id,
+      }));
+      setTemplates(localTemplates);
+    } catch (error: any) {
+      console.error(t("error_occurred_during"), error);
+      showToast(t("failed_to_load_data"), "error");
+    } finally {
+      setGroupsLoading(false);
+      setTemplatesLoading(false);
+    }
+  };
+
+  // ----- New function to handle account change -----
+  const handleAccountChange = async (accountId: string) => {
+    setIsLoading(true); // Optional: show loading spinner
+    try {
+      await fetchData(accountId);
+    } catch (err) {
+      showToast(t("failed_to_refresh_account_data"), "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setGroupsLoading(true);
-        setTemplatesLoading(true);
-
-        // --- جلب البيانات ---
-        const [
-          allAccounts,
-          activeAccountData,
-          fetchedGroups,
-          fetchedTemplates,
-        ] = await Promise.all([
-          getWhatsappAccounts(),
-          getActiveAccount(), // ← هنا نستخدم getActiveAccount مباشرة
-          fetchTemplatesFromAPI1(),
-          fetchTemplatesFromAPI(),
-        ]);
-
-        // --- معالجة الحساب النشط ---
-        if (activeAccountData?.id && Array.isArray(allAccounts)) {
-          const fullAccount = allAccounts.find(
-            (account) => account.id === activeAccountData.id
-          );
-          if (fullAccount) {
-            setActiveAccount({
-              id: fullAccount.id,
-              name: fullAccount.name,
-              phone: fullAccount.phone || null,
-            });
-          } else {
-            setActiveAccount(null);
-          }
-        } else {
-          setActiveAccount(null);
-        }
-
-        // --- معالجة المجموعات ---
-        setGroups(fetchedGroups);
-
-        // --- معالجة القوالب ---
-        const localTemplates = fetchedTemplates.map((t) => ({
-          ...t,
-          id: t._id,
-        }));
-        setTemplates(localTemplates);
-      } catch (error: any) {
-        console.error(t("error_occurred_during"), error);
-        showToast(t("failed_to_load_data"), "error");
-      } finally {
-        setGroupsLoading(false);
-        setTemplatesLoading(false);
+    const initialize = async () => {
+      const activeAccountData = await getActiveAccount();
+      if (activeAccountData?.id) {
+        await handleAccountChange(activeAccountData.id);
       }
     };
-
-    fetchData();
+    initialize();
   }, []);
 
   const handleSend = async () => {
@@ -401,6 +410,7 @@ const EnhancedWhatsAppScheduler = () => {
         <div className="bg-white/90 backdrop-blur-md dark:bg-gray-800/90 p-2 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50">
           <AccountSwitcher
             accountName={activeAccount?.name || t("no_account_selected")}
+            onAccountChange={handleAccountChange} 
           />
         </div>
       </motion.div>

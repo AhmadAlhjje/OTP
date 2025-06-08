@@ -12,7 +12,7 @@ import { PhoneCall, ChevronDown, Check, Smartphone } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import useTranslation from "@/hooks/useTranslation";
 
-// --- ✅ تعريف الـ interface ---
+// --- تعريف الواجهة ---
 interface Account {
   id: string;
   name: string;
@@ -20,11 +20,14 @@ interface Account {
 }
 
 interface AccountSwitcherProps {
-  accountName?: string; // ← تم إضافتها هنا
+  accountName?: string; // اسم الحساب الحالي
+  onAccountChange?: (accountId: string) => void; // ← سيتم استدعاؤها عند تغيير الحساب
 }
 
-// --- ✅ تحديث المكون ليستخدم الـ props ---
-const AccountSwitcher: React.FC<AccountSwitcherProps> = ({ accountName }) => {
+const AccountSwitcher: React.FC<AccountSwitcherProps> = ({
+  accountName,
+  onAccountChange,
+}) => {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [active, setActive] = useState<Account | null>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -36,7 +39,6 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({ accountName }) => {
     const fetchData = async () => {
       const allAccounts = await getWhatsappAccounts();
       const activeAccountData = await getActiveAccount();
-      console.log(allAccounts)
 
       setAccounts(allAccounts);
 
@@ -57,16 +59,17 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({ accountName }) => {
     const selected = accounts.find((a: any) => a.id === selectedId);
     if (selected) {
       setActive(selected);
-      await setActiveAccount(selectedId);
+      await setActiveAccount(selectedId); // حفظ الحساب الجديد في الكوكيز أو التخزين
+      onAccountChange?.(selectedId); // ← تنفيذ الدالة الخارجية
     }
     setIsOpen(false);
   };
 
-  // تأثيرات الحركة للقائمة المنسدلة
+  // --- تأثيرات الحركة للقائمة المنسدلة ---
   const dropdownVariants = {
     hidden: { opacity: 0, scale: 0.95, y: 10 },
     visible: { opacity: 1, scale: 1, y: 0 },
-    exit: { opacity: 0, scale: 0.95, y: 10 }
+    exit: { opacity: 0, scale: 0.95, y: 10 },
   };
 
   return (
@@ -86,11 +89,10 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({ accountName }) => {
             <div className="bg-green-100 dark:bg-green-900/30 p-2 rounded-full">
               <PhoneCall size={20} className="text-green-600 dark:text-green-400" />
             </div>
-            
+
             <div>
               <p className="text-xs text-gray-500 dark:text-gray-400">{t("Current_account")}</p>
               <div className="font-medium">
-                {/* ✅ أولوية لاسم الحساب النشط، ثم للـ accountName من props */}
                 {active ? (
                   <span className="flex items-center gap-1">
                     {active.name}
@@ -99,22 +101,20 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({ accountName }) => {
                     </span>
                   </span>
                 ) : accountName ? (
-                  <span className="flex items-center gap-1">
-                    {accountName}
-                  </span>
+                  <span className="flex items-center gap-1">{accountName}</span>
                 ) : (
                   <span className="text-gray-400 dark:text-gray-500">{t("no_account_selected")}</span>
                 )}
               </div>
             </div>
           </div>
-          
-          <ChevronDown 
-            size={18} 
-            className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : 'rotate-0'}`} 
+
+          <ChevronDown
+            size={18}
+            className={`transition-transform duration-300 ${isOpen ? "rotate-180" : "rotate-0"}`}
           />
         </button>
-        
+
         {/* القائمة المنسدلة */}
         <AnimatePresence>
           {isOpen && (
@@ -135,26 +135,32 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({ accountName }) => {
                   accounts.map((acc) => (
                     <motion.button
                       key={acc.id}
-                      whileHover={{ backgroundColor: 'rgba(0, 0, 0, 0.05)' }}
+                      whileHover={{ backgroundColor: "rgba(0, 0, 0, 0.05)" }}
                       onClick={() => handleAccountSelect(acc.id)}
                       className={`w-full flex items-center justify-between p-3 rounded-lg ${
-                        active?.id === acc.id ? 'bg-green-50 dark:bg-green-900/20' : ''
+                        active?.id === acc.id
+                          ? "bg-green-50 dark:bg-green-900/20"
+                          : ""
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-full ${
-                          active?.id === acc.id 
-                            ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' 
-                            : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
-                        }`}>
+                        <div
+                          className={`p-2 rounded-full ${
+                            active?.id === acc.id
+                              ? "bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400"
+                              : "bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
+                          }`}
+                        >
                           <Smartphone size={16} />
                         </div>
                         <div className="text-left">
                           <p className="font-medium">{acc.name}</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">{acc.phone}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {acc.phone}
+                          </p>
                         </div>
                       </div>
-                      
+
                       {active?.id === acc.id && (
                         <Check size={16} className="text-green-600 dark:text-green-400" />
                       )}
