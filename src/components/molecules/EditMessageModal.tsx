@@ -1,100 +1,252 @@
-// // @/components/molecules/EditMessageModal.tsx
-// "use client";
-// import React from "react";
+import { useState } from "react";
+import {
+  X,
+  Phone,
+  MessageSquare,
+  Clock,
+  Save,
+  AlertCircle,
+} from "lucide-react";
+import useTranslation from "@/hooks/useTranslation";
+import { TableRow } from "./Table";
 
-// interface EditMessageModalProps {
-//   isOpen: boolean;
-//   onClose: () => void;
-//   messageData: {
-//     id: string;
-//     number: string;
-//     message: string;
-//     scheduledAt: string;
-//   };
-//   onSave: (updatedData: { number: string; message: string; scheduledAt: string }) => void;
-// }
+interface EditMessageModalProps {
+  isOpen: boolean;
+  message: TableRow; // استخدم نفس نوع TableRow هنا
+  onClose: () => void;
+  onSave: (data: {
+    number: string;
+    message: string;
+    scheduledAt: string;
+  }) => Promise<void>;
+}
 
-// const EditMessageModal: React.FC<EditMessageModalProps> = ({
-//   isOpen,
-//   onClose,
-//   messageData,
-//   onSave,
-// }) => {
-//   const [number, setNumber] = React.useState(messageData.number || "");
-//   const [message, setMessage] = React.useState(messageData.message || "");
-//   const [scheduledAt, setScheduledAt] = React.useState(
-//     messageData.scheduledAt
-//       ? new Date(messageData.scheduledAt).toISOString().slice(0, 16)
-//       : ""
-//   );
+export const EditMessageModal = ({
+  isOpen,
+  message,
+  onClose,
+  onSave,
+}: EditMessageModalProps) => {
+  const { t } = useTranslation();
+  const [formData, setFormData] = useState({
+    number: message.number,
+    message: message.message,
+    scheduledAt: message.scheduledAt,
+  });
+  const [errors, setErrors] = useState({
+    number: "",
+    message: "",
+    scheduledAt: "",
+  });
+  const [isLoading, setIsLoading] = useState(false);
 
-//   if (!isOpen) return null;
+  const validateForm = () => {
+    const newErrors = {
+      number: "",
+      message: "",
+      scheduledAt: "",
+    };
+    if (!formData.number.trim()) {
+      newErrors.number = t("phone_number_required");
+    } else if (!/^\+?[0-9]{10,15}$/.test(formData.number.replace(/\s/g, ""))) {
+      newErrors.number = t("invalid_phone_number");
+    }
+    if (!formData.message.trim()) {
+      newErrors.message = t("message_content_required");
+    } else if (formData.message.trim().length < 5) {
+      newErrors.message = t("message_too_short");
+    }
+    if (!formData.scheduledAt) {
+      newErrors.scheduledAt = t("scheduled_time_required");
+    } else if (new Date(formData.scheduledAt) <= new Date()) {
+      newErrors.scheduledAt = t("send_time_future");
+    }
+    setErrors(newErrors);
+    return !Object.values(newErrors).some((error) => error !== "");
+  };
 
-//   const handleSave = () => {
-//     onSave({ number, message, scheduledAt });
-//     onClose();
-//   };
+  const handleSave = async () => {
+    if (!validateForm()) return;
+    setIsLoading(true);
+    try {
+      await onSave(formData);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-//   return (
-//     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-//       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 w-full max-w-md transform transition-all duration-300 animate-in zoom-in">
-//         <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">تعديل الرسالة</h2>
+  if (!isOpen) return null;
 
-//         <div className="space-y-4">
-//           <div>
-//             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-//               رقم المستقبل
-//             </label>
-//             <input
-//               type="text"
-//               value={number}
-//               onChange={(e) => setNumber(e.target.value)}
-//               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
-//             />
-//           </div>
+  return (
+    <div
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-300"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 w-full max-w-2xl transform animate-in zoom-in-95 duration-300"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Modal Header */}
+        <div className="relative p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-gray-800 dark:to-gray-700 rounded-t-3xl">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-xl">
+                <MessageSquare className="w-6 h-6 text-green-600 dark:text-green-400" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200">
+                  {t("edit_scheduled_message")}
+                </h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  {t("edit_message_details")}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              disabled={isLoading}
+              className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all duration-200 disabled:opacity-50"
+            >
+              <X size={20} />
+            </button>
+          </div>
+        </div>
 
-//           <div>
-//             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-//               محتوى الرسالة
-//             </label>
-//             <textarea
-//               rows={3}
-//               value={message}
-//               onChange={(e) => setMessage(e.target.value)}
-//               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
-//             ></textarea>
-//           </div>
+        {/* Modal Body */}
+        <div className="p-6 space-y-6">
+          {/* رقم الهاتف */}
+          <div className="space-y-2">
+            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+              <Phone className="w-4 h-4 text-green-600" />
+              {t("recipient_number")}
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                value={formData.number}
+                onChange={(e) => {
+                  setFormData({ ...formData, number: e.target.value });
+                  if (errors.number) {
+                    setErrors({ ...errors, number: "" });
+                  }
+                }}
+                className={`w-full px-4 py-3 border-2 rounded-xl bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500/20 ${
+                  errors.number
+                    ? "border-red-300 dark:border-red-600 focus:border-red-500"
+                    : "border-gray-200 dark:border-gray-600 focus:border-green-500"
+                }`}
+                placeholder="+963987654321"
+                dir="ltr"
+              />
+              {errors.number && (
+                <div className="flex items-center gap-1 mt-2 text-red-500 text-sm">
+                  <AlertCircle className="w-4 h-4" />
+                  {errors.number}
+                </div>
+              )}
+            </div>
+          </div>
 
-//           <div>
-//             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-//               وقت الإرسال
-//             </label>
-//             <input
-//               type="datetime-local"
-//               value={scheduledAt}
-//               onChange={(e) => setScheduledAt(e.target.value)}
-//               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
-//             />
-//           </div>
-//         </div>
+          {/* محتوى الرسالة */}
+          <div className="space-y-2">
+            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+              <MessageSquare className="w-4 h-4 text-green-600" />
+              {t("message_content")}
+              <span className="text-xs text-gray-400">
+                ({formData.message.length}/500)
+              </span>
+            </label>
+            <div className="relative">
+              <textarea
+                value={formData.message}
+                onChange={(e) => {
+                  if (e.target.value.length <= 500) {
+                    setFormData({ ...formData, message: e.target.value });
+                    if (errors.message) {
+                      setErrors({ ...errors, message: "" });
+                    }
+                  }
+                }}
+                rows={4}
+                className={`w-full px-4 py-3 border-2 rounded-xl bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 resize-none transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500/20 ${
+                  errors.message
+                    ? "border-red-300 dark:border-red-600 focus:border-red-500"
+                    : "border-gray-200 dark:border-gray-600 focus:border-green-500"
+                }`}
+                placeholder={t("write_message_content")}
+              />
+              {errors.message && (
+                <div className="flex items-center gap-1 mt-2 text-red-500 text-sm">
+                  <AlertCircle className="w-4 h-4" />
+                  {errors.message}
+                </div>
+              )}
+            </div>
+          </div>
 
-//         <div className="flex justify-end gap-3 mt-6">
-//           <button
-//             onClick={onClose}
-//             className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg transition"
-//           >
-//             إلغاء
-//           </button>
-//           <button
-//             onClick={handleSave}
-//             className="px-4 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition"
-//           >
-//             حفظ التغييرات
-//           </button>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
+          {/* وقت الإرسال */}
+          <div className="space-y-2">
+            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+              <Clock className="w-4 h-4 text-green-600" />
+              {t("scheduled_send_time")}
+            </label>
+            <div className="relative">
+              <input
+                type="datetime-local"
+                value={formData.scheduledAt}
+                onChange={(e) => {
+                  setFormData({ ...formData, scheduledAt: e.target.value });
+                  if (errors.scheduledAt) {
+                    setErrors({ ...errors, scheduledAt: "" });
+                  }
+                }}
+                min={new Date(Date.now() + 60000).toISOString().slice(0, 16)}
+                className={`w-full px-4 py-3 border-2 rounded-xl bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500/20 ${
+                  errors.scheduledAt
+                    ? "border-red-300 dark:border-red-600 focus:border-red-500"
+                    : "border-gray-200 dark:border-gray-600 focus:border-green-500"
+                }`}
+              />
+              {errors.scheduledAt && (
+                <div className="flex items-center gap-1 mt-2 text-red-500 text-sm">
+                  <AlertCircle className="w-4 h-4" />
+                  {errors.scheduledAt}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
 
-// export default EditMessageModal;
+        {/* Modal Footer */}
+        <div className="p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 rounded-b-3xl">
+          <div className="flex justify-end gap-3">
+            <button
+              onClick={onClose}
+              disabled={isLoading}
+              className="px-6 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {t("cancel")}
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={isLoading}
+              className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg hover:shadow-xl"
+            >
+              {isLoading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  {t("saving_changes")}
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4" />
+                  {t("save_changes")}
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
