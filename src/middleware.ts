@@ -15,7 +15,7 @@ export function middleware(request: NextRequest) {
   // إعادة توجيه المسجلين تلقائيًا
   if (token) {
     if (pathname === "/login" || pathname === "/register") {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
+      return NextResponse.redirect(new URL("/dashboard/send_whatsapp", request.url));
     }
   }
 
