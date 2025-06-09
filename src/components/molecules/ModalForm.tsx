@@ -6,6 +6,7 @@ import { Plus, Edit3, X, Save, Sparkles } from "lucide-react";
 import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
 import { Textarea } from "../atoms/textarea";
+import useTranslation from "@/hooks/useTranslation";
 
 interface ModalFormProps {
   isEditing: boolean;
@@ -29,6 +30,7 @@ export const ModalForm = ({
   onClose,
   isLoading,
 }: ModalFormProps) => {
+  const { t } = useTranslation();
   return (
     <>
       {/* Modal Header */}
@@ -40,12 +42,12 @@ export const ModalForm = ({
             </div>
             <div>
               <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200">
-                {isEditing ? "تعديل الرد التلقائي" : "إضافة رد تلقائي جديد"}
+                {isEditing ? `${t("modal_title_edit")}` : `${t("modal_title_add")}`}
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 {isEditing
-                  ? "قم بتحديث بيانات الرد"
-                  : "أنشئ رد تلقائي للكلمات المفتاحية"}
+                  ? `${t("modal_subtitle_edit")}`
+                  : `${t("modal_subtitle_add")}`}
               </p>
             </div>
           </div>
@@ -62,7 +64,7 @@ export const ModalForm = ({
       <div className="p-6 space-y-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-            الكلمة المفتاحية *
+            {t("label_keyword")} *
           </label>
           <Input
             type="text"
@@ -72,13 +74,13 @@ export const ModalForm = ({
             }
           />
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-            الكلمة التي سيبحث عنها النظام في الرسائل الواردة
+            {t("helper_text_keyword")}
           </p>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-            الرد التلقائي *
+            {t("label_response")} *
           </label>
           <Textarea
             // type="textarea"
@@ -89,10 +91,10 @@ export const ModalForm = ({
           />
           <div className="flex justify-between items-center mt-2">
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              يمكنك استخدام الإيموجي والنصوص الطويلة
+              {t("helper_text_response")}
             </p>
             <span className="text-xs text-gray-500 dark:text-gray-400">
-              {formData.response.length} حرف
+              {formData.response.length} {t("character_count")}
             </span>
           </div>
         </div>
@@ -102,15 +104,15 @@ export const ModalForm = ({
             <div className="flex items-center gap-2 mb-3">
               <Sparkles />
               <span className="text-sm font-medium text-green-700 dark:text-green-300">
-                معاينة الرد التلقائي
+                {t("preview_title")}
               </span>
             </div>
             <div className="bg-white/60 dark:bg-gray-800/60 p-3 rounded-lg">
               <p className="text-sm text-gray-700 dark:text-gray-300">
-                <strong>عند استلام:</strong> "{formData.keyword}"
+                <strong>{t("preview_received")} :</strong> "{formData.keyword}"
               </p>
               <p className="text-sm text-gray-700 dark:text-gray-300 mt-2">
-                <strong>سيتم الرد بـ:</strong> {formData.response}
+                <strong>{t("preview_reply")} :</strong> {formData.response}
               </p>
             </div>
           </div>
@@ -120,7 +122,7 @@ export const ModalForm = ({
       {/* Modal Footer */}
       <div className="p-6 border-t border-gray-200 dark:border-gray-700 flex gap-3">
         <Button variant="secondary" onClick={onClose}>
-          إلغاء
+          {t("cancel")}
         </Button>
         <Button
           variant="primary"
@@ -132,12 +134,12 @@ export const ModalForm = ({
           {isLoading ? (
             <>
               <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
-              <span>جاري الحفظ...</span>
+              <span>{t("saving_changes")}...</span>
             </>
           ) : (
             <>
               <Save />
-              <span>{isEditing ? "تحديث الرد" : "حفظ الرد"}</span>
+              <span>{isEditing ? `${t("button_update")}` : `${t("button_save")}`}</span>
             </>
           )}
         </Button>

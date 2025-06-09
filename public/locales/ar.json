@@ -519,5 +519,22 @@
   "edit": "تعديل",
   "delete": "حذف",
 
-  "deleting_account": "جارٍ حذف الحساب، يرجى الانتظار..."
+  "deleting_account": "جارٍ حذف الحساب، يرجى الانتظار...",
+
+  "modal_title_add": "إضافة رد تلقائي جديد",
+  "modal_subtitle_add": "أنشئ رد تلقائي للكلمات المفتاحية",
+  "modal_title_edit": "تعديل الرد التلقائي",
+  "modal_subtitle_edit": "قم بتحديث بيانات الرد",
+  "label_keyword": "الكلمة المفتاحية",
+  "input_placeholder_keyword": "أدخل الكلمة التي سيبحث عنها النظام في الرسائل الواردة",
+  "helper_text_keyword": "الكلمة التي سيبحث عنها النظام في الرسائل الواردة",
+  "label_response": "الرد التلقائي *",
+  "textarea_placeholder_response": "أدخل الرد الذي سيتم إرساله عند اكتشاف الكلمة المفتاحية",
+  "helper_text_response": "يمكنك استخدام الإيموجي والنصوص الطويلة",
+  "character_count": "حرف",
+  "preview_title": "معاينة الرد التلقائي",
+  "preview_received": "عند استلام:",
+  "preview_reply": "سيتم الرد بـ:",
+  "button_save": "حفظ الرد",
+  "button_update": "تحديث الرد"
 }

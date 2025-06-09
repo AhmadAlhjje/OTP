@@ -518,5 +518,22 @@
   "edit": "Edit",
   "delete": "Delete",
 
-  "deleting_account": "Deleting account, please wait..."
+  "deleting_account": "Deleting account, please wait...",
+
+  "modal_title_add": "Add New Auto Reply",
+  "modal_subtitle_add": "Create an automatic reply for keywords",
+  "modal_title_edit": "Edit Auto Reply",
+  "modal_subtitle_edit": "Update your auto reply data",
+  "label_keyword": "Keyword *",
+  "input_placeholder_keyword": "Enter the keyword the system will look for in incoming messages",
+  "helper_text_keyword": "The word that the system will search for in incoming messages",
+  "label_response": "Auto Reply *",
+  "textarea_placeholder_response": "Enter the reply to be sent when the keyword is detected",
+  "helper_text_response": "You can use emojis and long texts",
+  "character_count": "characters",
+  "preview_title": "Auto Reply Preview",
+  "preview_received": "When receiving:",
+  "preview_reply": "The system will reply with:",
+  "button_save": "Save Reply",
+  "button_update": "Update Reply"
 }
