@@ -19,7 +19,7 @@ type ButtonVariant =
   | "outline";
 
 interface ButtonProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   disabled?: boolean;
   fullWidth?: boolean;

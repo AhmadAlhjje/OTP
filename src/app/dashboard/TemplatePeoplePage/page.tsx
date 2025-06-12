@@ -1,30 +1,22 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Input from "@/components/atoms/Input";
 import { getActiveAccount } from "@/services/my_accounts";
-import Button from "@/components/atoms/Button";
 import {
   deleteTemplateFromAPI,
   saveTemplateToAPI,
   updateTemplateToAPI,
 } from "@/services/templateService";
 import { fetchTemplatesFromAPI1 } from "@/services/templateService";
-import {
-  Users,
-  Plus,
-  Search,
-  Edit,
-  Trash2,
-  Save,
-  X,
-  Copy,
-  Phone,
-  User,
-} from "lucide-react";
 import useTranslation from "@/hooks/useTranslation";
 import { useToast } from "@/hooks/useToast";
 import LoadingSpinner from "@/components/atoms/LoadingSpinner";
+import TemplateManagerHeader from "@/components/molecules/TemplateManagerHeader";
+import TemplateForm from "@/components/molecules/TemplateForm";
+import TemplateSearchAndStats from "@/components/molecules/TemplateSearchAndStats";
+import TemplateGrid from "@/components/molecules/TemplateGrid";
+import TemplateDetailsModal from "@/components/molecules/TemplateDetailsModal";
+import ConfirmationModal from "@/components/molecules/ConfirmationModal";
 
 type Person = {
   _id?: string; // ← اختياري
@@ -70,7 +62,8 @@ export default function EnhancedTemplateManagerPage() {
   const [loadingMessage, setLoadingMessage] = useState<string | null>(null);
   const { showToast } = useToast();
 
-  const selectedTemplate = templates.find((t) => t.id === selectedTemplateId);
+  const selectedTemplate =
+    templates.find((t) => t.id === selectedTemplateId) || null;
 
   // Load demo data
   useEffect(() => {
@@ -370,557 +363,83 @@ export default function EnhancedTemplateManagerPage() {
   return (
     <div className="bg-gray-50 dark:bg-dark-blue-gray min-h-screen pb-10">
       {/* Header Section */}
-      <div className="bg-white dark:bg-gray-800 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-3 rtl:space-x-reverse">
-              <Users className="h-8 w-8 text-blue-600" />
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {t("templatePeoplePagetitle")}
-                </h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {t("manage_people_and_groups_lists")}
-                </p>
-              </div>
-            </div>
-            <Button
-              onClick={() => {
-                if (!activeAccount) {
-                  showToast(t("select_whatsapp_account_first"), "error");
-                  return;
-                }
-                setShowForm(!showForm);
-              }}
-              className={`flex items-center gap-2 ${
-                showForm
-                  ? "bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-white"
-                  : "bg-blue-600 hover:bg-blue-700 text-white"
-              } rounded-full px-4 py-2 transition-all`}
-            >
-              {showForm ? (
-                <>{t("cancel")}</>
-              ) : (
-                <>
-                  {/* <Plus size={18} /> */}
-                  {t("add_new_template")}
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
-      </div>
+      <TemplateManagerHeader
+        activeAccount={activeAccount}
+        showForm={showForm}
+        setShowForm={setShowForm}
+        showToast={showToast}
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Create New Template Form */}
-        {showForm && (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8 transition-all ease-in-out duration-300">
-            <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
-              {/* <Plus className="w-5 h-5" /> */}
-              {t("templatePeoplePagecreateNewTemplate")}
-            </h2>
-
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    {t("templatePeoplePagetemplateName")}
-                  </label>
-                  <Input
-                    placeholder={t("templatePeoplePagetemplateNamePlaceholder")}
-                    value={templateName}
-                    onChange={(e) => setTemplateName(e.target.value)}
-                    className="w-full"
-                  />
-                </div>
-                {/* <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    الوصف (اختياري)
-                  </label>
-                  <Input
-                    placeholder="وصف مختصر للقالب"
-                    value={templateDescription}
-                    onChange={(e) => setTemplateDescription(e.target.value)}
-                    className="w-full"
-                  />
-                </div> */}
-              </div>
-
-              <div className="border-t pt-4">
-                <h3 className="text-md font-medium text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                  {/* <UserPlus className="w-4 h-4" /> */}
-                  {t("templatePeoplePageaddPeople")}
-                </h3>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                  <Input
-                    placeholder={t("templatePeoplePagepersonNamePlaceholder")}
-                    value={personName}
-                    onChange={(e) => setPersonName(e.target.value)}
-                    icon={<User className="w-4 h-4" />}
-                  />
-                  <Input
-                    placeholder={t("templatePeoplePagepersonPhonePlaceholder")}
-                    value={personPhone}
-                    onChange={(e) => setPersonPhone(e.target.value)}
-                    icon={<Phone className="w-4 h-4" />}
-                  />
-                </div>
-
-                <Button
-                  onClick={handleAddPersonToNewTemplate}
-                  disabled={!personName || !personPhone}
-                  className="bg-green-600 hover:bg-green-700 text-white mb-4"
-                >
-                  {/* <Plus className="w-4 h-4 mr-2" /> */}
-                  {t("templatePeoplePageaddPerson")}
-                </Button>
-
-                {/* Preview of added people */}
-                {newPeople.length > 0 && (
-                  <div className="space-y-2">
-                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {t("templatePeoplePageaddedPeople")} ({newPeople.length})
-                    </h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 max-h-40 overflow-y-auto">
-                      {newPeople.map((person) => (
-                        <div
-                          key={person.id}
-                          className="bg-gray-50 dark:bg-gray-700 p-3 rounded-md border flex justify-between items-center"
-                        >
-                          <div className="flex-1">
-                            <p className="text-sm font-medium text-gray-900 dark:text-white">
-                              {person.name}
-                            </p>
-                            <p className="text-xs text-gray-600 dark:text-gray-400">
-                              {person.phone}
-                            </p>
-                          </div>
-                          <Button
-                            onClick={() =>
-                              setNewPeople(
-                                newPeople.filter((p) => p.id !== person.id)
-                              )
-                            }
-                            variant="ghost"
-                            size="sm"
-                            className="text-red-600 hover:text-red-800 p-1"
-                          >
-                            <X className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex justify-end space-x-3 rtl:space-x-reverse pt-4 border-t">
-                <Button
-                  onClick={resetForm}
-                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white"
-                >
-                  {t("cancel")}
-                </Button>
-                <Button
-                  onClick={handleSaveTemplate}
-                  disabled={!templateName || newPeople.length === 0}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  {/* <Save className="w-4 h-4 mr-2" /> */}
-                  {t("templatePeoplePagesaveTemplate")}
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
+        <TemplateForm
+          showForm={showForm}
+          templateName={templateName}
+          templateDescription={templateDescription}
+          personName={personName}
+          personPhone={personPhone}
+          newPeople={newPeople}
+          activeAccount={activeAccount}
+          showToast={showToast}
+          setTemplateName={setTemplateName}
+          setTemplateDescription={setTemplateDescription}
+          setPersonName={setPersonName}
+          setPersonPhone={setPersonPhone}
+          setNewPeople={setNewPeople}
+          handleAddPersonToNewTemplate={handleAddPersonToNewTemplate}
+          handleSaveTemplate={handleSaveTemplate}
+          resetForm={resetForm}
+        />
 
         {/* Search and Stats */}
-        <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-          <div className="flex-1 max-w-md">
-            <Input
-              type="search"
-              placeholder={t("search_in_templates_and_people")}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              icon={<Search className="w-5 h-5" />}
-              className="w-full"
-            />
-          </div>
-          <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-4">
-            <span>
-              {t("total_templates")} :{" "}
-              <span className="font-semibold text-blue-600">
-                {templates.length}
-              </span>
-            </span>
-            <span>
-              {t("total_people")}:{" "}
-              <span className="font-semibold text-green-600">
-                {templates.reduce((sum, t) => sum + t.people.length, 0)}
-              </span>
-            </span>
-          </div>
-        </div>
+        <TemplateSearchAndStats
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          templates={templates}
+        />
 
         {/* Templates Grid */}
-        {filteredTemplates.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredTemplates.map((template) => (
-              <div
-                key={template.id}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200 overflow-hidden"
-              >
-                <div className="p-5">
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="flex-1">
-                      {editingTemplate === template.id ? (
-                        <div className="space-y-2">
-                          <Input
-                            value={templateName || template.name}
-                            onChange={(e) => setTemplateName(e.target.value)}
-                            className="text-lg font-semibold"
-                          />
-                          {/* <Input
-                            value={
-                              templateDescription || template.description || ""
-                            }
-                            onChange={(e) =>
-                              setTemplateDescription(e.target.value)
-                            }
-                            placeholder="وصف القالب"
-                            className="text-sm"
-                          /> */}
-                        </div>
-                      ) : (
-                        <div>
-                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                            {template.name}
-                          </h3>
-                          {template.description && (
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                              {template.description}
-                            </p>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                    <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap mr-2">
-                      {template.createdAt}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                      <Users className="w-4 h-4" />
-                      <span>
-                        {template.people.length}{" "}
-                        {t("templatePeoplePagepeopleCount")}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between items-center pt-3 border-t border-gray-100 dark:border-gray-700">
-                    <div className="flex space-x-2 rtl:space-x-reverse">
-                      {editingTemplate === template.id ? (
-                        <>
-                          <Button
-                            onClick={() => {
-                              handleEditTemplateName(
-                                template.id,
-                                templateName || template.name,
-                                templateDescription || template.description
-                              );
-                              setTemplateName("");
-                              setTemplateDescription("");
-                            }}
-                            variant="ghost"
-                            size="sm"
-                            className="text-green-600 hover:text-green-800 p-1"
-                          >
-                            <Save size={16} />
-                          </Button>
-                          <Button
-                            onClick={() => {
-                              setEditingTemplate(null);
-                              setTemplateName("");
-                              setTemplateDescription("");
-                            }}
-                            variant="ghost"
-                            size="sm"
-                            className="text-gray-600 hover:text-gray-800 p-1"
-                          >
-                            <X size={16} />
-                          </Button>
-                        </>
-                      ) : (
-                        <>
-                          <Button
-                            onClick={() => {
-                              setEditingTemplate(template.id);
-                              setTemplateName(template.name);
-                              setTemplateDescription(
-                                template.description || ""
-                              );
-                            }}
-                            variant="ghost"
-                            size="sm"
-                            className="text-blue-600 hover:text-blue-800 p-1"
-                            title={t("messageTemplateseditTemplate")}
-                          >
-                            <Edit size={16} />
-                          </Button>
-                          <Button
-                            onClick={() => handleDeleteTemplate(template.id)}
-                            variant="ghost"
-                            size="sm"
-                            className="text-red-600 hover:text-red-800 p-1"
-                            title={t("templatePeoplePagedeleteTemplate")}
-                          >
-                            <Trash2 size={16} />
-                          </Button>
-                        </>
-                      )}
-                    </div>
-
-                    <div className="flex space-x-2 rtl:space-x-reverse">
-                      <Button
-                        onClick={() => copyTemplateData(template)}
-                        variant="ghost"
-                        size="sm"
-                        className="text-green-600 hover:text-green-800 text-xs"
-                        title={t("copy_data")}
-                      >
-                        <Copy size={14} className="mr-1" />
-                        {t("messageTemplatescopy")}
-                      </Button>
-                      <Button
-                        onClick={() => setSelectedTemplateId(template.id)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1"
-                      >
-                        عرض التفاصيل
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <Users className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-lg font-medium text-gray-900 dark:text-white">
-              {searchTerm
-                ? `${t("no_search_results")}`
-                : `${t("templatePeoplePagenoTemplates")}`}
-            </h3>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              {searchTerm
-                ? `${t("try_different_keywords")}`
-                : `${t("start_by_creating_new_template")}`}
-            </p>
-            {!showForm && !searchTerm && (
-              <div className="mt-6">
-                <Button
-                  onClick={() => {
-                    if (!activeAccount) {
-                      showToast(t("select_whatsapp_account_first"), "error");
-                      return;
-                    }
-                    setShowForm(true);
-                  }}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  {/* <Plus className="mr-2 h-4 w-4" /> */}
-                  {t("templatePeoplePagecreateYourFirst")}
-                </Button>
-              </div>
-            )}
-          </div>
-        )}
+        <TemplateGrid
+          filteredTemplates={filteredTemplates}
+          editingTemplate={editingTemplate}
+          templateName={templateName}
+          templateDescription={templateDescription}
+          setTemplateName={setTemplateName}
+          setTemplateDescription={setTemplateDescription}
+          setEditingTemplate={setEditingTemplate}
+          handleEditTemplateName={handleEditTemplateName}
+          handleDeleteTemplate={handleDeleteTemplate}
+          copyTemplateData={copyTemplateData}
+          setSelectedTemplateId={setSelectedTemplateId}
+          showForm={showForm}
+          setShowForm={setShowForm}
+          activeAccount={activeAccount}
+          showToast={showToast}
+          searchTerm={searchTerm}
+        />
 
         {/* Template Details Modal */}
-        {selectedTemplate && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
-              <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                      {selectedTemplate.name}
-                    </h2>
-                    {selectedTemplate.description && (
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                        {selectedTemplate.description}
-                      </p>
-                    )}
-                  </div>
-                  <Button
-                    onClick={() => setSelectedTemplateId(null)}
-                    variant="ghost"
-                    size="sm"
-                    className="text-gray-500 hover:text-gray-700"
-                  >
-                    <X size={20} />
-                  </Button>
-                </div>
-              </div>
-
-              <div className="p-6 overflow-y-auto max-h-[60vh]">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                    {t("templatePeoplePagepeople")} (
-                    {selectedTemplate.people.length})
-                  </h3>
-                  <Button
-                    onClick={() => copyTemplateData(selectedTemplate)}
-                    className="bg-green-600 hover:bg-green-700 text-white text-sm"
-                  >
-                    {/* <Copy size={16} className="mr-2" /> */}
-                    {t("copy_all_data")}
-                  </Button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {selectedTemplate.people.map((person) => (
-                    <div
-                      key={person.id}
-                      className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border"
-                    >
-                      {editingPerson === person.id ? (
-                        <div className="space-y-2">
-                          <Input
-                            value={personName || person.name}
-                            onChange={(e) => setPersonName(e.target.value)}
-                            placeholder={t(
-                              "templatePeoplePagepersonNamePlaceholder"
-                            )}
-                          />
-                          <Input
-                            value={personPhone || person.phone}
-                            onChange={(e) => setPersonPhone(e.target.value)}
-                            placeholder={t(
-                              "templatePeoplePagepersonPhonePlaceholder"
-                            )}
-                          />
-                          <div className="flex gap-2">
-                            <Button
-                              onClick={() => {
-                                handleEditPerson(
-                                  person.id,
-                                  personName || person.name,
-                                  personPhone || person.phone
-                                );
-                                setPersonName("");
-                                setPersonPhone("");
-                              }}
-                              size="sm"
-                              className="bg-green-600 hover:bg-green-700 text-white"
-                            >
-                              <Save size={14} />
-                            </Button>
-                            <Button
-                              onClick={() => {
-                                setEditingPerson(null);
-                                setPersonName("");
-                                setPersonPhone("");
-                              }}
-                              size="sm"
-                              variant="ghost"
-                              className="text-gray-600"
-                            >
-                              <X size={14} />
-                            </Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div>
-                          <div className="flex justify-between items-start mb-2">
-                            <h4 className="font-medium text-gray-900 dark:text-white">
-                              {person.name}
-                            </h4>
-                            <div className="flex gap-1">
-                              <Button
-                                onClick={() => {
-                                  setEditingPerson(person.id);
-                                  setPersonName(person.name);
-                                  setPersonPhone(person.phone);
-                                }}
-                                variant="ghost"
-                                size="sm"
-                                className="text-blue-600 hover:text-blue-800 p-1"
-                              >
-                                <Edit size={12} />
-                              </Button>
-                              <Button
-                                onClick={() =>
-                                  handleDeletePerson(
-                                    person.id,
-                                    selectedTemplate.id
-                                  )
-                                }
-                                variant="ghost"
-                                size="sm"
-                                className="text-red-600 hover:text-red-800 p-1"
-                              >
-                                <Trash2 size={12} />
-                              </Button>
-                            </div>
-                          </div>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-1">
-                            <Phone size={12} />
-                            {person.phone}
-                          </p>
-                          <Button
-                            onClick={() =>
-                              navigator.clipboard.writeText(person.phone)
-                            }
-                            variant="ghost"
-                            size="sm"
-                            className="text-green-600 hover:text-green-800 text-xs mt-2"
-                          >
-                            <Copy size={12} className="mr-1" />
-                            {t("copy_number")}
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        <TemplateDetailsModal
+          selectedTemplate={selectedTemplate}
+          editingPerson={editingPerson}
+          personName={personName}
+          personPhone={personPhone}
+          setPersonName={setPersonName}
+          setPersonPhone={setPersonPhone}
+          setEditingPerson={setEditingPerson}
+          handleEditPerson={handleEditPerson}
+          handleDeletePerson={handleDeletePerson}
+          copyTemplateData={copyTemplateData}
+          setSelectedTemplateId={setSelectedTemplateId}
+        />
 
         {/* Confirmation Modal */}
-        {showConfirmation && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-3">
-                {t("confirm_deletion")}
-              </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-                {itemToDelete?.type === "template"
-                  ? `${t("delete_template_confirmation")}`
-                  : `${t("delete_person_confirmation")}`}
-              </p>
-              <div className="flex justify-end space-x-3 rtl:space-x-reverse">
-                <Button
-                  onClick={cancelDelete}
-                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white"
-                >
-                  {t("cancel")}
-                </Button>
-                <Button
-                  onClick={confirmDelete}
-                  className="bg-red-600 hover:bg-red-700 text-white"
-                >
-                  {t("messageTemplatesdelete")}
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
+        <ConfirmationModal
+          showConfirmation={showConfirmation}
+          itemToDelete={itemToDelete}
+          confirmDelete={confirmDelete}
+          cancelDelete={cancelDelete}
+        />
       </div>
       {isLoading && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
