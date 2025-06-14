@@ -9,7 +9,6 @@ import {
   Users,
   ChevronDown,
   LogOut,
-  LayoutDashboard,
   MessageCircle,
   ClipboardList,
   Bot,
@@ -19,8 +18,8 @@ import useTranslation from "@/hooks/useTranslation";
 import useLanguage from "@/hooks/useLanguage";
 import Button from "../atoms/Button";
 import { SidebarItemProps, SidebarProps } from "@/types/sidbar";
-
-
+import AccountSwitcher from "../atoms/AccountSwitcher";
+import { getWhatsappAccounts, getActiveAccount, setActiveAccount } from "@/services/my_accounts";
 
 function Sidebar({
   isOpen,
@@ -29,11 +28,37 @@ function Sidebar({
   isLargeScreen = false,
 }: SidebarProps) {
   const [openSubMenus, setOpenSubMenus] = useState<Record<number, boolean>>({});
+  const [accounts, setAccounts] = useState<any[]>([]);
+  const [activeAccountId, setActiveAccountId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const { t } = useTranslation();
   const { language } = useLanguage();
   const router = useRouter();
   const pathname = usePathname();
   const isRTL = language === "ar";
+
+  useEffect(() => {
+    const loadAccounts = async () => {
+      try {
+        const accountsList = await getWhatsappAccounts();
+        setAccounts(accountsList);
+
+        // إذا كان هناك حساب نشط، اضبطه
+        const storedAccountId = Cookies.get("active_account_id"); // أو استخدم مكان آخر للتخزين
+        if (storedAccountId) {
+          setActiveAccountId(storedAccountId);
+        } else if (accountsList.length > 0) {
+          setActiveAccountId(accountsList[0].id); // أول حساب كافتراضي
+        }
+      } catch (error) {
+        console.error("فشل في جلب الحسابات");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadAccounts();
+  }, []);
 
   const handleLogout = () => {
     Cookies.remove("access_token");
@@ -51,6 +76,19 @@ function Sidebar({
   // تحديد إذا كان المسار نشط
   const isActiveRoute = (href: string) => {
     return pathname === href;
+  };
+
+  const handleAccountChange = async (accountId: string) => {
+    try {
+      await setActiveAccount(accountId); // ← استدعاء الـ API لتغيير الحساب
+      setActiveAccountId(accountId);
+      Cookies.set("active_account_id", accountId); // حفظ ID الحساب النشط
+
+      // إعادة تحميل الصفحة أو تحديث البيانات
+      window.location.reload(); // ← يمكنك استبدال هذا بالمنطق المناسب
+    } catch (error) {
+      console.error("فشل في تبديل الحساب:", error);
+    }
   };
 
   // تحديد إذا كان القسم يحتوي على مسار نشط
@@ -86,9 +124,10 @@ function Sidebar({
     {
       label: t("message_templates"),
       icon: <ClipboardList className="w-5 h-5" />,
-      subItems: [
-        { label: t("private_message_templates"), href: "/dashboard/templates" },
-      ],
+      href: "/dashboard/templates",
+      // subItems: [
+      //   { label: t("private_message_templates"), href: "/dashboard/templates" },
+      // ],
     },
     {
       label: t("auto_replies"),
@@ -275,17 +314,37 @@ function Sidebar({
           ))}
         </nav>
 
+        {/* Account Switcher */}
+        <div className="mr-2 mb-3 p-2.5 bg-white dark:bg-[#202c33] rounded-lg border border-gray-100 dark:border-[#2a3942]">
+          <div className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">
+            {t("active_account")}
+          </div>
+          {loading ? (
+            <div className="text-xs text-gray-500">{t("loading")}</div>
+          ) : (
+            <AccountSwitcher
+              accountName={
+                accounts.find((acc) => acc.id === activeAccountId)?.name ||
+                t("no_account_selected")
+              }
+              onAccountChange={handleAccountChange}
+            />
+          )}
+        </div>
+
         {/* Footer - Fixed at bottom */}
         <div className="p-3 bg-gray-50 dark:bg-[#182229] border-t border-gray-200 dark:border-[#2a3942] mt-auto">
-          <div className="mb-3 p-2.5 bg-white dark:bg-[#202c33] rounded-lg border border-gray-100 dark:border-[#2a3942]">
+          {/* <div className="mb-3 p-2.5 bg-white dark:bg-[#202c33] rounded-lg border border-gray-100 dark:border-[#2a3942]">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-600 dark:text-gray-400">{t("status")}</span>
+              <span className="text-gray-600 dark:text-gray-400">
+                {t("status")}
+              </span>
               <span className="flex items-center gap-2 text-[#00a884] dark:text-[#00d9ff] font-medium">
                 <div className="w-2 h-2 bg-[#00a884] dark:bg-[#00d9ff] rounded-full animate-pulse"></div>
                 {t("Connected")}
               </span>
             </div>
-          </div>
+          </div> */}
 
           <Button
             variant="ghost"

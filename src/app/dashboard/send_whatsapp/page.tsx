@@ -399,7 +399,7 @@ const EnhancedWhatsAppScheduler = () => {
       </div>
 
       {/* مبدل الحسابات */}
-      <motion.div
+      {/* <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, delay: 0.8 }}
@@ -413,7 +413,7 @@ const EnhancedWhatsAppScheduler = () => {
             onAccountChange={handleAccountChange} 
           />
         </div>
-      </motion.div>
+      </motion.div> */}
     </div>
   );
 };
