@@ -78,7 +78,7 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="bg-white dark:bg-gray-800 shadow-lg rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden"
+        className="bg-white mr-2 dark:bg-gray-800 shadow-lg rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden"
       >
         {/* زر القائمة الرئيسي */}
         <button
