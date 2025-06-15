@@ -536,5 +536,14 @@
   "preview_received": "عند استلام:",
   "preview_reply": "سيتم الرد بـ:",
   "button_save": "حفظ الرد",
-  "button_update": "تحديث الرد"
+  "button_update": "تحديث الرد",
+
+  "upload_excel_file": "رفع ملف إكسل",
+  "processing_file": "جاري معالجة الملف",
+  "excel_empty_file": "الملف فارغ أو غير مدعوم",
+  "excel_invalid_format": "صيغة الملف غير صالحة",
+  "no_valid_numbers_found": "لم يتم العثور على أرقام هاتف صحيحة",
+  "failed_to_send_messages": "تعذر إرسال الرسائل",
+  "send_via_excel": "إرسال عبر إكسل",
+  "choose_file": "اختر ملف"
 }

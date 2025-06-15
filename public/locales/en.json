@@ -535,5 +535,16 @@
   "preview_received": "When receiving:",
   "preview_reply": "The system will reply with:",
   "button_save": "Save Reply",
-  "button_update": "Update Reply"
+  "button_update": "Update Reply",
+
+
+  "upload_excel_file": "Upload Excel File",
+  "processing_file": "Processing file...",
+  "excel_empty_file": "The file is empty or has no data.",
+  "excel_invalid_format": "Invalid file format.",
+  "no_valid_numbers_found": "No valid phone numbers found.",
+  "failed_to_send_messages": "Failed to send messages.",
+  "select_all": "Select All",
+  "send_via_excel": "Send via Excel",
+  "choose_file": "Choose File"
 }

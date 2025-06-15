@@ -25,6 +25,7 @@
     "react-qr-code": "^2.0.15",
     "socket.io-client": "^4.8.1",
     "usehooks-ts": "^3.1.1",
+    "xlsx": "^0.18.5",
     "zustand": "^5.0.5"
   },
   "devDependencies": {
