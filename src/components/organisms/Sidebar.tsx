@@ -139,6 +139,11 @@ function Sidebar({
       icon: <Users className="w-5 h-5" />,
       href: "/dashboard/TemplatePeoplePage",
     },
+    {
+      label: t("send_via_excel"),
+      icon: <Users className="w-5 h-5" />,
+      href: "/dashboard/excel-sender",
+    },
   ];
 
   return (
