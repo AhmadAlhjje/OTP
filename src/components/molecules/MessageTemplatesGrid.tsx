@@ -6,6 +6,8 @@ import Button from "@/components/atoms/Button";
 import useTranslation from "@/hooks/useTranslation";
 import { MessageSquare } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
+import EditButton from "../common/EditButton";
+import DeleteButton from "../common/DeleteButton";
 
 type Template = {
   id: number;
@@ -63,7 +65,7 @@ export default function MessageTemplatesGrid({
                 </div>
                 <div className="flex justify-between items-center pt-2 border-t border-gray-100 dark:border-gray-700">
                   <div className="flex space-x-2 rtl:space-x-reverse">
-                    <Button
+                    {/* <Button
                       onClick={() => handleEdit(template.id)}
                       variant="ghost"
                       size="sm"
@@ -71,8 +73,9 @@ export default function MessageTemplatesGrid({
                       className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
                       aria-label={t("messageTemplatesedit")}
                       title={t("messageTemplatesedit")}
-                    />
-                    <Button
+                    /> */}
+                    <EditButton onClick={() => handleEdit(template.id)} />
+                    {/* <Button
                       onClick={() => handleDelete(template.id)}
                       variant="ghost"
                       size="sm"
@@ -80,7 +83,8 @@ export default function MessageTemplatesGrid({
                       className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 rounded-full hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
                       aria-label={t("messageTemplatesdelete")}
                       title={t("messageTemplatesdelete")}
-                    />
+                    /> */}
+                    <DeleteButton onClick={() => handleDelete(template.id)} />
                   </div>
                   <Button
                     onClick={() => copyToClipboard(template.content)}

@@ -16,8 +16,12 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   // --- التحقق من صحة الحقول ---
-  const validateForm = (data: { name: string; email: string; phone: string; password: string }) => {
-    const { name, email, phone, password } = data;
+  const validateForm = (data: {
+    name: string;
+    email: string;
+    password: string;
+  }) => {
+    const { name, email, password } = data;
 
     if (!name.trim()) {
       showToast(t("enterName"), "error");
@@ -26,11 +30,6 @@ export default function RegisterPage() {
 
     if (!email.trim()) {
       showToast(t("enterEmail"), "error");
-      return false;
-    }
-
-    if (!phone.trim()) {
-      showToast(t("enterPhone"), "error");
       return false;
     }
 
@@ -51,15 +50,13 @@ export default function RegisterPage() {
   const handleRegister = async (data: {
     name: string;
     email: string;
-    phone: string;
     password: string;
   }) => {
-    // --- التحقق من الحقول ---
     if (!validateForm(data)) return;
 
     setIsLoading(true);
     try {
-      const res = await register(data.name, data.email, data.phone, data.password);
+      const res = await register(data.name, data.email, data.password);
       console.log("Register Response:", res);
       showToast(t("registrationSuccess"), "success");
       setTimeout(() => {
@@ -75,7 +72,6 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex">
-      
       {/* Left Side - Enhanced Welcome Section */}
       <div className="hidden lg:flex w-1/2 relative overflow-hidden">
         {/* Background Pattern */}
@@ -85,7 +81,7 @@ export default function RegisterPage() {
           <div className="absolute -top-20 -left-20 w-80 h-80 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
         </div>
-        
+
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-center px-12 xl:px-16 text-white">
           {/* Logo Section */}
@@ -95,8 +91,12 @@ export default function RegisterPage() {
                 <span className="text-2xl">💬</span>
               </div>
               <div>
-                <h1 className="text-2xl font-bold">{t("WhatsApp_Dashboard")}</h1>
-                <p className="text-green-200 text-sm">{t("Join_Our_Community")}</p>
+                <h1 className="text-2xl font-bold">
+                  {t("WhatsApp_Dashboard")}
+                </h1>
+                <p className="text-green-200 text-sm">
+                  {t("Join_Our_Community")}
+                </p>
               </div>
             </div>
           </div>
@@ -112,32 +112,66 @@ export default function RegisterPage() {
           <div className="mt-12 space-y-4">
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
-                <svg className="w-4 h-4 text-green-300" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                <svg
+                  className="w-4 h-4 text-green-300"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </div>
               <span className="text-green-100">{t("Free_30_day_trial")}</span>
             </div>
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
-                <svg className="w-4 h-4 text-green-300" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                <svg
+                  className="w-4 h-4 text-green-300"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </div>
               <span className="text-green-100">{t("_Customer_Support")}</span>
             </div>
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
-                <svg className="w-4 h-4 text-green-300" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                <svg
+                  className="w-4 h-4 text-green-300"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </div>
-              <span className="text-green-100">{t("Advanced_Analytics_Dashboard")}</span>
+              <span className="text-green-100">
+                {t("Advanced_Analytics_Dashboard")}
+              </span>
             </div>
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
-                <svg className="w-4 h-4 text-green-300" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                <svg
+                  className="w-4 h-4 text-green-300"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </div>
               <span className="text-green-100">{t("No_Setup_Fees")}</span>
