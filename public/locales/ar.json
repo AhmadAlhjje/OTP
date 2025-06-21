@@ -545,5 +545,8 @@
   "no_valid_numbers_found": "لم يتم العثور على أرقام هاتف صحيحة",
   "failed_to_send_messages": "تعذر إرسال الرسائل",
   "send_via_excel": "إرسال عبر إكسل",
-  "choose_file": "اختر ملف"
+  "choose_file": "اختر ملف",
+
+  "label_keywords": "الكلمات المفتاحية",
+  "helper_text_keywords": "أدخل الكلمات المفتاحية مفصولة بفواصل (مثال: مرحبا، صباح الخير)"
 }

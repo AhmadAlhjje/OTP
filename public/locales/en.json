@@ -537,7 +537,6 @@
   "button_save": "Save Reply",
   "button_update": "Update Reply",
 
-
   "upload_excel_file": "Upload Excel File",
   "processing_file": "Processing file...",
   "excel_empty_file": "The file is empty or has no data.",
@@ -546,5 +545,8 @@
   "failed_to_send_messages": "Failed to send messages.",
   "select_all": "Select All",
   "send_via_excel": "Send via Excel",
-  "choose_file": "Choose File"
+  "choose_file": "Choose File",
+
+  "label_keywords": "Keywords",
+  "helper_text_keywords": "Enter keywords separated by commas (e.g., hello, hi)"
 }
