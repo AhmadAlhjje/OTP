@@ -177,7 +177,7 @@ export default {
   choose_date_and_time: "اختر تاريخ ووقت الإرسال",
   message_will_be_sent_at: "سيتم الإرسال في:",
 
-  example_phone_number: "مثال: +963912345678",
+  example_phone_number: "مثال: +963912345678 , +963912345678",
   add: "إضافة",
 
   select_group_to_send: "اختر مجموعة للإرسال",

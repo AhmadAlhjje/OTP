@@ -1,6 +1,4 @@
 // molecules/RecipientInput.tsx
-// يُظهر حقل إدخال رقم الهاتف مع زر الإضافة وعرض الأرقام المختارة
-
 import React from "react";
 import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
@@ -27,6 +25,26 @@ const RecipientInput: React.FC<RecipientInputProps> = ({
 }) => {
   const { t } = useTranslation();
 
+  // تعديل الدالة لتتعامل مع الفواصل
+  const addMultipleNumbers = () => {
+    if (!currentNumber.trim()) return;
+
+    const newNumbers = currentNumber
+      .split(",") // تقسيم النص حسب الفاصلة
+      .map((num) => num.trim()) // تنظيف كل رقم من المسافات
+      .filter((num) => num); // حذف أي نصوص فارغة
+
+    const uniqueNewNumbers = newNumbers.filter(
+      (num) => !recipientNumbers.includes(num)
+    );
+
+    if (uniqueNewNumbers.length > 0) {
+      setRecipientNumbers([...recipientNumbers, ...uniqueNewNumbers]);
+    }
+
+    setCurrentNumber(""); // مسح الحقل بعد الإضافة
+  };
+
   return (
     <>
       <div className="flex gap-3">
@@ -37,11 +55,17 @@ const RecipientInput: React.FC<RecipientInputProps> = ({
             value={currentNumber}
             onChange={(e) => setCurrentNumber(e.target.value)}
             placeholder={t("example_phone_number")}
-            onKeyPress={handleKeyPress}
+            onKeyPress={(e) => {
+              if (e.key === "Enter") {
+                addMultipleNumbers();
+              } else if (handleKeyPress) {
+                handleKeyPress(e);
+              }
+            }}
             className="flex-1 h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 rounded-xl pl-10"
           />
         </div>
-        <Button onClick={handleAddNumber} variant="success" className="h-12 px-6">
+        <Button onClick={addMultipleNumbers} variant="success" className="h-12 px-6">
           {t("add")}
         </Button>
       </div>

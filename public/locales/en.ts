@@ -177,7 +177,7 @@ export default {
   choose_date_and_time: "Choose date and time for sending",
   message_will_be_sent_at: "Message will be sent at:",
 
-  example_phone_number: "Example: +963912345678",
+  example_phone_number: "Example: +963912345678 , +963912345678",
   add: "Add",
 
   select_group_to_send: "Select a group to send to",
