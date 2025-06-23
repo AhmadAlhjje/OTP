@@ -73,19 +73,6 @@ const TemplateForm: React.FC<TemplateFormProps> = ({
                   className="w-full"
                 />
               </div>
-              {/* وصف القالب (متخفي حالياً)
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  {t("description_optional")}
-                </label>
-                <Input
-                  placeholder={t("templatePeoplePagedescriptionPlaceholder")}
-                  value={templateDescription}
-                  onChange={(e) => setTemplateDescription(e.target.value)}
-                  className="w-full"
-                />
-              </div>
-              */}
             </div>
 
             <div className="border-t pt-4">
