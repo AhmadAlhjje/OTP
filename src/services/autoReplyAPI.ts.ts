@@ -16,6 +16,7 @@ export const addAutoReplyToAPI = async (
   reply: Omit<AutoReply, "_id">
 ): Promise<AutoReply | null> => {
   try {
+    console.log("reply" ,reply);
     const response = await apiClient.post("/rules", reply);
     return response.data;
   } catch (error) {

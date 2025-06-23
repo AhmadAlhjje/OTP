@@ -1,8 +1,7 @@
 export interface AutoReply {
   _id: string;
-  keyword: string;
+  keywords: string[];
   response: string;
 }
 
 export type NewAutoReply = Omit<AutoReply, "_id">;
-

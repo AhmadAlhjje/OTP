@@ -4,22 +4,34 @@ import React, { useState } from "react";
 import useTranslation from "@/hooks/useTranslation";
 import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
+import Link from "next/link"; // استيراد Link
 
 interface RegisterFormProps {
-  onSubmit: (data: { name: string; email: string; password: string }) => void;
+  onSubmit: (data: {
+    name: string;
+    email: string;
+    password: string;
+    acceptPrivacyPolicy: boolean;
+  }) => void;
 }
 
 export default function RegisterForm({ onSubmit }: RegisterFormProps) {
   const { t } = useTranslation();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  // const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [acceptPrivacyPolicy, setAcceptPrivacyPolicy] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ name, email, password });
+
+    if (!acceptPrivacyPolicy) {
+      alert(t("youMustAcceptPrivacyPolicy")); // يمكنك استبدالها بـ Toast
+      return;
+    }
+
+    onSubmit({ name, email, password, acceptPrivacyPolicy });
   };
 
   return (
@@ -30,27 +42,11 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
           {t("name")}
         </label>
         <div className="relative group">
-          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <svg
-              className="h-5 w-5 text-gray-400 group-focus-within:text-green-500 transition-colors"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-              />
-            </svg>
-          </div>
           <Input
             placeholder="John Doe"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-4 focus:ring-green-500/20 focus:border-green-500 dark:bg-gray-700/50 dark:text-white transition-all duration-200 placeholder:text-gray-400 text-sm font-medium backdrop-blur-sm"
           />
         </div>
       </div>
@@ -61,51 +57,14 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
           {t("email")}
         </label>
         <div className="relative group">
-          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <svg
-              className="h-5 w-5 text-gray-400 group-focus-within:text-green-500 transition-colors"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"
-              />
-            </svg>
-          </div>
           <Input
             placeholder="example@example.com"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-4 focus:ring-green-500/20 focus:border-green-500 dark:bg-gray-700/50 dark:text-white transition-all duration-200 placeholder:text-gray-400 text-sm font-medium backdrop-blur-sm"
           />
         </div>
       </div>
-
-      {/* Phone Input */}
-      {/* <div className="space-y-2">
-        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-          {t("phone")}
-        </label>
-        <div className="relative group">
-          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <svg className="h-5 w-5 text-gray-400 group-focus-within:text-green-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-            </svg>
-          </div>
-          <Input
-            placeholder="+963 987654321"
-            type="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-4 focus:ring-green-500/20 focus:border-green-500 dark:bg-gray-700/50 dark:text-white transition-all duration-200 placeholder:text-gray-400 text-sm font-medium backdrop-blur-sm"
-          />
-        </div>
-      </div> */}
 
       {/* Password Input */}
       <div className="space-y-2">
@@ -113,27 +72,11 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
           {t("password")}
         </label>
         <div className="relative group">
-          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <svg
-              className="h-5 w-5 text-gray-400 group-focus-within:text-green-500 transition-colors"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-              />
-            </svg>
-          </div>
           <Input
             placeholder="••••••••••••"
             type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-4 focus:ring-green-500/20 focus:border-green-500 dark:bg-gray-700/50 dark:text-white transition-all duration-200 placeholder:text-gray-400 text-sm font-medium backdrop-blur-sm"
           />
           <button
             type="button"
@@ -154,11 +97,33 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
                   d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
                 />
               </svg>
-            ) : (
-              <></>
-            )}
+            ) : null}
           </button>
         </div>
+      </div>
+
+      {/* Checkbox for Privacy Policy */}
+      <div className="flex items-start">
+        <input
+          id="privacy-policy"
+          type="checkbox"
+          checked={acceptPrivacyPolicy}
+          onChange={(e) => setAcceptPrivacyPolicy(e.target.checked)}
+          className="mt-1 h-4 w-4 text-green-600 rounded"
+        />
+        <label
+          htmlFor="privacy-policy"
+          className="ml-4 mr-3 text-sm text-gray-600 dark:text-gray-400"
+        >
+          {t("iAgreeTo")}{" "}
+          <Link
+            href="/privacy-policy"
+            className="text-green-600 underline"
+            target="_blank"
+          >
+            {t("privacyPolicy")}
+          </Link>
+        </label>
       </div>
 
       {/* Submit Button */}
@@ -166,7 +131,17 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
         <Button
           type="submit"
           fullWidth
-          className="w-full px-6 py-4 rounded-xl font-bold text-white bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring-4 focus:ring-green-500/30 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
+          disabled={!acceptPrivacyPolicy}
+          className={`
+            w-full px-6 py-4 rounded-xl font-bold text-white 
+            bg-gradient-to-r from-green-600 to-green-700 
+            hover:from-green-700 hover:to-green-800 
+            focus:outline-none focus:ring-4 focus:ring-green-500/30 
+            focus:ring-offset-2 dark:focus:ring-offset-gray-800 
+            transition-all duration-200 transform hover:scale-[1.02] 
+            active:scale-[0.98] shadow-lg hover:shadow-xl
+            ${!acceptPrivacyPolicy ? "opacity-60 cursor-not-allowed" : ""}
+          `}
         >
           <span className="flex items-center justify-center space-x-2">
             <span>{t("register")}</span>

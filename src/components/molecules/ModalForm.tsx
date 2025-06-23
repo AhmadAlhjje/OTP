@@ -1,7 +1,4 @@
-/**
- * نافذة منبثقة لإضافة أو تعديل رد تلقائي
- */
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Plus, Edit3, X, Save, Sparkles } from "lucide-react";
 import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
@@ -10,13 +7,13 @@ import useTranslation from "@/hooks/useTranslation";
 
 interface ModalFormProps {
   isEditing: boolean;
-  formData: { keyword: string; response: string };
-  setFormData: (data: { keyword: string; response: string }) => void;
+  formData: { keywords: string[]; response: string };
+  setFormData: (data: { keywords: string[]; response: string }) => void;
   onSave: () => void;
   onClose: () => void;
   isLoading: boolean;
   errors?: {
-    keyword?: string;
+    keywords?: string;
     response?: string;
     scheduledAt?: string;
   };
@@ -31,6 +28,26 @@ export const ModalForm = ({
   isLoading,
 }: ModalFormProps) => {
   const { t } = useTranslation();
+  const [keywordInput, setKeywordInput] = useState<string>(
+    formData.keywords.join(", ")
+  );
+
+  const handleKeywordsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value;
+
+    useEffect(() => {
+      setKeywordInput(formData.keywords.join(", "));
+    }, [formData.keywords]);
+
+    // تقسيم الكلمات عبر الفواصل أو المسافات (إذا لزم)
+    const keywords = rawValue
+      .split(",") // تقسيم بالفواصل أولاً
+      .map((k) => k.trim()) // تنظيف كل كلمة
+      .filter(Boolean); // إزالة الحقول الفارغة
+
+    setFormData({ ...formData, keywords });
+  };
+
   return (
     <>
       {/* Modal Header */}
@@ -42,7 +59,9 @@ export const ModalForm = ({
             </div>
             <div>
               <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200">
-                {isEditing ? `${t("modal_title_edit")}` : `${t("modal_title_add")}`}
+                {isEditing
+                  ? `${t("modal_title_edit")}`
+                  : `${t("modal_title_add")}`}
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 {isEditing
@@ -64,17 +83,25 @@ export const ModalForm = ({
       <div className="p-6 space-y-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-            {t("label_keyword")} *
+            {t("label_keywords")} *
           </label>
           <Input
             type="text"
-            value={formData.keyword}
-            onChange={(e) =>
-              setFormData({ ...formData, keyword: e.target.value })
-            }
+            placeholder={t("hello_hi_hey")}
+            value={keywordInput}
+            onChange={(e) => {
+              setKeywordInput(e.target.value);
+
+              const keywords = e.target.value
+                .split(",")
+                .map((k) => k.trim())
+                .filter(Boolean);
+
+              setFormData({ ...formData, keywords });
+            }}
           />
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-            {t("helper_text_keyword")}
+            {t("helper_text_keywords")}
           </p>
         </div>
 
@@ -83,7 +110,6 @@ export const ModalForm = ({
             {t("label_response")} *
           </label>
           <Textarea
-            // type="textarea"
             value={formData.response}
             onChange={(e) =>
               setFormData({ ...formData, response: e.target.value })
@@ -99,7 +125,7 @@ export const ModalForm = ({
           </div>
         </div>
 
-        {formData.keyword && formData.response && (
+        {formData.keywords.length > 0 && formData.response && (
           <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-4 rounded-xl border border-green-200 dark:border-green-700">
             <div className="flex items-center gap-2 mb-3">
               <Sparkles />
@@ -109,7 +135,8 @@ export const ModalForm = ({
             </div>
             <div className="bg-white/60 dark:bg-gray-800/60 p-3 rounded-lg">
               <p className="text-sm text-gray-700 dark:text-gray-300">
-                <strong>{t("preview_received")} :</strong> "{formData.keyword}"
+                <strong>{t("preview_received")} :</strong>{" "}
+                {formData.keywords.map((k) => `"${k}"`).join(", ") || "---"}
               </p>
               <p className="text-sm text-gray-700 dark:text-gray-300 mt-2">
                 <strong>{t("preview_reply")} :</strong> {formData.response}
@@ -128,7 +155,9 @@ export const ModalForm = ({
           variant="primary"
           onClick={onSave}
           disabled={
-            !formData.keyword.trim() || !formData.response.trim() || isLoading
+            formData.keywords.length === 0 ||
+            !formData.response.trim() ||
+            isLoading
           }
         >
           {isLoading ? (
@@ -139,7 +168,9 @@ export const ModalForm = ({
           ) : (
             <>
               <Save />
-              <span>{isEditing ? `${t("button_update")}` : `${t("button_save")}`}</span>
+              <span>
+                {isEditing ? `${t("button_update")}` : `${t("button_save")}`}
+              </span>
             </>
           )}
         </Button>

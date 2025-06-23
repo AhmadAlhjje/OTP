@@ -1,12 +1,7 @@
 "use client";
 import React, { useCallback, useState } from "react";
 import LoadingSpinner from "@/components/atoms/LoadingSpinner";
-import {
-  ChevronDown,
-  Search,
-  Check,
-  Eye,
-} from "lucide-react";
+import { ChevronDown, Search, Check, Eye } from "lucide-react";
 import useTranslation from "@/hooks/useTranslation";
 
 // --- أنواع البيانات ---
@@ -115,8 +110,6 @@ const Table: React.FC<TableProps> = ({
     return result;
   }, [data, searchQuery, sortColumn, sortDirection]);
 
-
-
   // --- حالة عدم وجود بيانات ---
   const EmptyRow = () => (
     <tr>
@@ -130,7 +123,9 @@ const Table: React.FC<TableProps> = ({
           </h3>
           <p className="text-sm text-center max-w-sm leading-relaxed">
             {searchQuery
-              ? `${t("no_results_match")}"${searchQuery}". ${t("try_different_search")}`
+              ? `${t("no_results_match")}"${searchQuery}". ${t(
+                  "try_different_search"
+                )}`
               : t("no_data_available")}
           </p>
           {searchQuery && (
@@ -210,7 +205,11 @@ const Table: React.FC<TableProps> = ({
             {/* جسم الجدول */}
             <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
               {loading ? (
-                <LoadingSpinner />
+                <tr>
+                  <td colSpan={columns.length} className="text-center py-8">
+                    <LoadingSpinner />
+                  </td>
+                </tr>
               ) : filteredData.length === 0 ? (
                 <EmptyRow />
               ) : (
@@ -219,17 +218,22 @@ const Table: React.FC<TableProps> = ({
                     key={rowIndex}
                     className={`
                       transition-all duration-300 group cursor-pointer animate-in slide-in-from-bottom
-                      ${selectedRows.includes(rowIndex)
-                        ? "bg-emerald-50 dark:bg-emerald-900/20 border-r-4 border-emerald-500 shadow-sm"
-                        : ""
+                      ${
+                        selectedRows.includes(rowIndex)
+                          ? "bg-emerald-50 dark:bg-emerald-900/20 border-r-4 border-emerald-500 shadow-sm"
+                          : ""
                       }
-                      ${striped && rowIndex % 2 === 0 && !selectedRows.includes(rowIndex)
-                        ? "bg-gray-50/30 dark:bg-gray-800/30"
-                        : ""
+                      ${
+                        striped &&
+                        rowIndex % 2 === 0 &&
+                        !selectedRows.includes(rowIndex)
+                          ? "bg-gray-50/30 dark:bg-gray-800/30"
+                          : ""
                       }
-                      ${hoverable
-                        ? "hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10 hover:shadow-lg hover:scale-[1.01] hover:border-l-4 hover:border-emerald-400"
-                        : ""
+                      ${
+                        hoverable
+                          ? "hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10 hover:shadow-lg hover:scale-[1.01] hover:border-l-4 hover:border-emerald-400"
+                          : ""
                       }
                     `}
                     style={{ animationDelay: `${rowIndex * 50}ms` }}

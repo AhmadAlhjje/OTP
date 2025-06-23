@@ -20,8 +20,9 @@ export default function RegisterPage() {
     name: string;
     email: string;
     password: string;
+    acceptPrivacyPolicy: boolean;
   }) => {
-    const { name, email, password } = data;
+    const { name, email, password, acceptPrivacyPolicy } = data;
 
     if (!name.trim()) {
       showToast(t("enterName"), "error");
@@ -43,6 +44,11 @@ export default function RegisterPage() {
       return false;
     }
 
+    if (!acceptPrivacyPolicy) {
+      showToast(t("youMustAcceptPrivacyPolicy"), "error");
+      return false;
+    }
+
     return true;
   };
 
@@ -51,6 +57,7 @@ export default function RegisterPage() {
     name: string;
     email: string;
     password: string;
+    acceptPrivacyPolicy: boolean;
   }) => {
     if (!validateForm(data)) return;
 

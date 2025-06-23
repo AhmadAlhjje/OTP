@@ -12,9 +12,8 @@ import { useToast } from "@/hooks/useToast";
 
 export default function AccountsPage() {
   const [qrImageUrl, setQrImageUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [showFinalLoading, setShowFinalLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false); // طلب QR فقط
+  const [finalLoading, setFinalLoading] = useState(false); // التحضير النهائي
   const { t } = useTranslation();
   const { showToast } = useToast();
   const router = useRouter();
@@ -28,8 +27,8 @@ export default function AccountsPage() {
     }
 
     setLoading(true);
-    setSuccessMessage(null);
-    setShowFinalLoading(false);
+    setFinalLoading(false);
+    setQrImageUrl(null);
 
     wsService.connect(() => {
       console.log("Socket.IO Connected");
@@ -38,23 +37,33 @@ export default function AccountsPage() {
     wsService.on("qr", (data) => {
       if (data.qr) {
         setQrImageUrl(data.qr);
-        setLoading(false); // 👈 انتهاء أول تحميل
+        setLoading(false); // انتهاء مرحلة طلب QR
       }
     });
 
     wsService.on("authenticated", () => {
       console.log("✅ Authenticated event received");
-      setShowFinalLoading(true); // 👈 عرض التحميل النهائي
+    });
+
+    wsService.on("loading_status", (data) => {
+      if (data.loading) {
+        setFinalLoading(true); // بدء التحميل النهائي
+        // setQrImageUrl(null);  
+      }
     });
 
     wsService.on("ready", (data) => {
       console.log("🔔 WhatsApp client is ready:", data);
-      setQrImageUrl(null);
+      setFinalLoading(false);
       refreshAccounts();
       showToast(t("added_successfully"), "success");
       setTimeout(() => {
         router.push("/dashboard/send_whatsapp");
       }, 1000);
+    });
+
+    wsService.on("disconnect", () => {
+      console.log("Socket.IO Disconnected");
     });
   };
 
@@ -81,21 +90,13 @@ export default function AccountsPage() {
       )}
 
       {/* تحميل نهائي - جاري التحضير... */}
-      {showFinalLoading && (
+      {finalLoading && (
         <LoadingSpinner
           message={t("preparing_account")}
           size="md"
           color="green"
-          // pulse={true}
         />
       )}
-
-      {/* رسالة النجاح */}
-      {/* {successMessage && !showFinalLoading && (
-        <div className="mt-6 text-center text-green-600 font-semibold">
-          {successMessage}
-        </div>
-      )} */}
     </Card>
   );
 }

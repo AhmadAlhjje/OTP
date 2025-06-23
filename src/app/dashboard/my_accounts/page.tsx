@@ -14,7 +14,7 @@ export default function AccountsPage() {
       {pageLoading && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
           <LoadingSpinner
-            message={t("deleting_account")}
+            message={t("linked_accounts")}
             size="md"
             color="green"
           />

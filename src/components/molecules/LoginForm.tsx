@@ -4,13 +4,9 @@ import React, { useState } from "react";
 import useTranslation from "@/hooks/useTranslation";
 import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
-import { Link } from "lucide-react";
+import Link from "next/link"; // استيراد Link
 
-interface LoginFormProps {
-  onSubmit: (data: { emailOrName: string; password: string }) => void;
-}
-
-export default function LoginForm({ onSubmit }: LoginFormProps) {
+export default function LoginForm({ onSubmit }: { onSubmit: (data: { emailOrName: string; password: string }) => void }) {
   const { t } = useTranslation();
   const [emailOrName, setEmailOrName] = useState("");
   const [password, setPassword] = useState("");
@@ -39,7 +35,6 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
             type="text"
             value={emailOrName}
             onChange={(e) => setEmailOrName(e.target.value)}
-            className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-4 focus:ring-green-500/20 focus:border-green-500 dark:bg-gray-700/50 dark:text-white transition-all duration-200 placeholder:text-gray-400 text-sm font-medium backdrop-blur-sm"
           />
         </div>
       </div>
@@ -60,7 +55,6 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
             type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-4 focus:ring-green-500/20 focus:border-green-500 dark:bg-gray-700/50 dark:text-white transition-all duration-200 placeholder:text-gray-400 text-sm font-medium backdrop-blur-sm"
           />
           <button
             type="button"
@@ -71,31 +65,10 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
               <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
               </svg>
-            ) : (
-              <></>
-            )}
+            ) : null}
           </button>
         </div>
       </div>
-
-      {/* Remember Me & Forgot Password */}
-      {/* <div className="flex items-center justify-between text-sm">
-        <label className="flex items-center space-x-2 cursor-pointer">
-          <input
-            type="checkbox"
-            className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
-          />
-          <span className="text-gray-600 dark:text-gray-400 font-medium">
-            {t("rememberMe")}
-          </span>
-        </label>
-        <Link
-          href="/forgot-password"
-          className="text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 font-semibold hover:underline transition-colors"
-        >
-          {t("forgotPassword")}
-        </Link>
-      </div> */}
 
       {/* Submit Button */}
       <div className="pt-2">
@@ -111,6 +84,19 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
             </svg>
           </span>
         </Button>
+      </div>
+
+      {/* Privacy Policy Link */}
+      <div className="text-center">
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          <Link
+            href="/privacy-policy"
+            className="text-green-600 underline hover:text-green-800 dark:hover:text-green-400"
+            target="_blank"
+          >
+            {t("privacyPolicy")}
+          </Link>
+        </p>
       </div>
     </form>
   );

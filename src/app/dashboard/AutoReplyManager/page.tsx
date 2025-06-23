@@ -33,13 +33,16 @@ const AutoReplyManager = () => {
   const [autoReplies, setAutoReplies] = useState<AutoReply[]>([]);
   const [editingReply, setEditingReply] = useState<AutoReply | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [formData, setFormData] = useState({ keyword: "", response: "" });
   const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    keywords: [] as string[],
+    response: "",
+  });
   const [showSuccess, setShowSuccess] = useState(false);
   const [isMessagePreviewOpen, setIsMessagePreviewOpen] = useState(false);
   const [previewMessage, setPreviewMessage] = useState("");
   const [activeAccount, setActiveAccount] = useState<any>(null);
-  const [loadingMessage, setLoadingMessage] = useState<string | null>(null);
+
   const { showToast } = useToast();
   const { t } = useTranslation();
 
@@ -75,7 +78,7 @@ const AutoReplyManager = () => {
     }
 
     setEditingReply(null);
-    setFormData({ keyword: "", response: "" });
+    setFormData({ keywords: [], response: "" }); // ✅ تصحيح
     setIsModalOpen(true);
   };
 
@@ -87,22 +90,17 @@ const AutoReplyManager = () => {
     }
 
     setEditingReply(reply);
-    setFormData({ keyword: reply.keyword, response: reply.response });
+    setFormData({ keywords: reply.keywords, response: reply.response }); // ✅ تصحيح هنا
     setIsModalOpen(true);
   };
 
   //  حفظ الرد (إضافة أو تعديل)
   const handleSaveReply = async () => {
-    if (!formData.keyword.trim() || !formData.response.trim()) return;
+    if (formData.keywords.length === 0 || !formData.response.trim()) return;
 
     setIsLoading(true);
 
     const isEdit = !!editingReply;
-
-    // ← تحديد النص المناسب للتحميل
-    setLoadingMessage(
-      isEdit ? t("editing_auto_reply") : t("adding_auto_reply")
-    );
 
     try {
       if (isEdit) {
@@ -127,20 +125,26 @@ const AutoReplyManager = () => {
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 2000);
       setIsModalOpen(false);
-      setFormData({ keyword: "", response: "" });
-    } catch (error) {
-      console.error("فشل في تنفيذ العملية");
-      showToast(t("auto_reply_operation_failed"), "error");
+      setFormData({ keywords: [], response: "" });
+    } catch (error: any) {
+      console.error("فشل في تنفيذ العملية:", error);
+
+      // استخراج رسالة الخطأ من الـ API إن وُجدت
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        t("auto_reply_operation_failed");
+
+      showToast(errorMessage, "error");
     } finally {
       setIsLoading(false);
-      setLoadingMessage(null);
     }
   };
 
   //  حذف الرد
   const handleDeleteReply = async (id: string) => {
     setIsLoading(true);
-    setLoadingMessage(t("deleting_auto_reply")); // ← رسالة التحميل عند الحذف
 
     try {
       const success = await deleteAutoReplyFromAPI(id);
@@ -155,7 +159,6 @@ const AutoReplyManager = () => {
       showToast(t("auto_reply_delete_failed"), "error");
     } finally {
       setIsLoading(false);
-      setLoadingMessage(null);
     }
   };
 
@@ -187,7 +190,7 @@ const AutoReplyManager = () => {
       <Table
         columns={[
           {
-            key: "keyword",
+            key: "keywords",
             label: t("keyword"),
             sortable: true,
             align: "right",
@@ -205,7 +208,7 @@ const AutoReplyManager = () => {
           },
         ]}
         data={autoReplies.map((reply) => ({
-          keyword: reply.keyword,
+          keywords: reply.keywords.join(", "),
           response: (
             <MessageContent
               message={reply.response}
@@ -221,7 +224,7 @@ const AutoReplyManager = () => {
               />
               <DeleteButton
                 onClick={() => {
-                  handleDeleteReply(reply._id);
+                  handleDeleteReply(reply._id!);
                 }}
               />
             </div>
