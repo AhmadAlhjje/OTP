@@ -207,29 +207,27 @@ const AutoReplyManager = () => {
             align: "center",
           },
         ]}
-        data={autoReplies.map((reply) => ({
-          keywords: reply.keywords.join(", "),
-          response: (
-            <MessageContent
-              message={reply.response}
-              onShowFullMessage={() => handleShowFullMessage(reply.response)}
-            />
+        data={[
+          ...autoReplies.flatMap((reply) =>
+            reply.keywords.map((keyword) => ({
+              keyword: keyword,
+              response: (
+                <MessageContent
+                  message={reply.response}
+                  onShowFullMessage={() =>
+                    handleShowFullMessage(reply.response)
+                  }
+                />
+              ),
+              actions: (
+                <div className="flex justify-center gap-3">
+                  <EditButton onClick={() => handleEditReply(reply)} />
+                  <DeleteButton onClick={() => handleDeleteReply(reply._id!)} />
+                </div>
+              ),
+            }))
           ),
-          actions: (
-            <div className="flex justify-center gap-3">
-              <EditButton
-                onClick={() => {
-                  handleEditReply(reply);
-                }}
-              />
-              <DeleteButton
-                onClick={() => {
-                  handleDeleteReply(reply._id!);
-                }}
-              />
-            </div>
-          ),
-        }))}
+        ]}
         searchable={true}
         emptyMessage={t("no_auto_replies")}
         loading={isLoading}
