@@ -69,9 +69,14 @@ export default function RegisterPage() {
       setTimeout(() => {
         router.push("/login");
       }, 1000);
-    } catch (error) {
+    } catch (error:any) {
       console.error("Register Failed:", error);
-      showToast(t("registrationFailed"), "error");
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        t("registrationFailed");
+
+      showToast(errorMessage, "error");
     } finally {
       setIsLoading(false);
     }
