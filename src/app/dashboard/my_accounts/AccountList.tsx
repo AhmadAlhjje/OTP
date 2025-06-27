@@ -7,6 +7,7 @@ import {
   getWhatsappAccounts,
   deleteWhatsappAccount,
 } from "@/services/my_accounts";
+import { useToast } from "@/hooks/useToast";
 
 interface AccountListProps {
   onLoadingChange?: (isLoading: boolean) => void;
@@ -17,7 +18,7 @@ const AccountList = ({ onLoadingChange }: AccountListProps) => {
   const [accounts, setAccounts] = useState<
     { id: string; name: string; phone: string }[]
   >([]);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   useEffect(() => {
     onLoadingChange?.(true);
@@ -28,16 +29,20 @@ const AccountList = ({ onLoadingChange }: AccountListProps) => {
   }, [onLoadingChange]);
 
   const handleDelete = async (id: string) => {
-    setDeletingId(id);
     onLoadingChange?.(true);
 
     try {
       await deleteWhatsappAccount(id);
       setAccounts((prev) => prev.filter((acc) => acc.id !== id));
-    } catch (error) {
+    } catch (error:any) {
       console.error("فشل في حذف الحساب:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        t("registrationFailed");
+
+      showToast(errorMessage, "error");
     } finally {
-      setDeletingId(null);
       onLoadingChange?.(false);
     }
   };
