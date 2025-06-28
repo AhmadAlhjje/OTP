@@ -10,9 +10,9 @@ export const sendWhatsappMessage1 = async ({
   message: string;
   photo?: File | null;
 }) => {
-  console.log("to", to);
-  console.log("message", message);
-  console.log("photo", photo);
+  // console.log("to", to);
+  // console.log("message", message);
+  // console.log("photo", photo);
   
   try {
     const formData = new FormData();
@@ -76,7 +76,7 @@ export const sendWhatsappMessagesBatch = async (
 export const fetchContacts = async () => {
   try {
     const response = await apiClient.get("/contacts");
-    console.log("جهات اتصالي", response.data.contacts);
+    // console.log("جهات اتصالي", response.data.contacts);
     return response.data.contacts;
   } catch (error) {
     console.error("فشل في جلب جهات الاتصال:", error);
@@ -97,7 +97,7 @@ export const sendWhatsappMessage = async ({
   scheduledAt: string;
   photo?: File | null;
 }) => {
-  console.log("Scheduled message data:", { to, message, scheduledAt, photo });
+  // console.log("Scheduled message data:", { to, message, scheduledAt, photo });
 
   try {
     const formData = new FormData();

@@ -29,7 +29,7 @@ export type TemplateFromAPI = {
 // انشاء دفتر عناوين
 export const saveTemplateToAPI = async (template: TemplatePayload) => {
   try {
-    console.log(template)
+    // console.log(template)
     const response = await apiClient.post("/groups", template);
     return response.data;
   } catch (error) {
@@ -66,7 +66,7 @@ export const updateTemplateToAPI = async (
   id: string,
   template: TemplatePayload
 ) => {
-    console.log(template)
+    // console.log(template)
   try {
     const response = await apiClient.patch(`/groups/${id}`, template);
     return response.data;

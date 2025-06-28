@@ -19,7 +19,7 @@ export const sendWhatsappMessage = async ({
       scheduledTime: scheduledAt, 
       messageDelayMs: 5000, // ← قيمة ثابتة لا يدخلها المستخدم
     };
-    console.log(payload)
+    // console.log(payload)
     const res = await apiClient.post("/schedules", payload);
     return res;
   } catch (error) {
@@ -48,7 +48,7 @@ export const updateScheduledMessageOnAPI = async (
 export const getScheduledMessages = async () => {
   try {
     const response = await apiClient.get("/schedules");
-    console.log(response.data)
+    // console.log(response.data)
     return response.data;
   } catch (error) {
     throw error;

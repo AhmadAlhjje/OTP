@@ -64,7 +64,7 @@ export default function RegisterPage() {
     setIsLoading(true);
     try {
       const res = await register(data.name, data.email, data.password);
-      console.log("Register Response:", res);
+      // console.log("Register Response:", res);
       showToast(t("registrationSuccess"), "success");
       setTimeout(() => {
         router.push("/login");

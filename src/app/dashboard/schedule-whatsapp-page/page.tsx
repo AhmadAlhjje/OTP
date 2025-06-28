@@ -33,7 +33,7 @@ const ScheduledMessagesPage = () => {
       setLoading(true);
       try {
         const data = await getScheduledMessages();
-        console.log("data", data);
+        // console.log("data", data);
         const formattedData = data.map((msg: any) => ({
           id: msg._id,
           number: msg.whatsappAccount.phone_number,

@@ -25,13 +25,13 @@ export const deleteWhatsappAccount = async (id: string) => {
   try {
     const response = await apiClient.delete(`/whatsapp/account/${id}`);
     if (response.status === 200) {
-      console.log(`Account with id ${id} deleted successfully`);
+      // console.log(`Account with id ${id} deleted successfully`);
     } else {
       throw new Error("Failed to delete account");
     }
   } catch (error) {
     console.error("Error deleting account:", error);
-    console.log(`Pretend deleting account with id ${id}`);
+    // console.log(`Pretend deleting account with id ${id}`);
   }
 };
 

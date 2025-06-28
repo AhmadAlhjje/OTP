@@ -4,7 +4,7 @@ import { apiClient } from "./apiClient";
 export const fetchAutoRepliesFromAPI = async (): Promise<AutoReply[]> => {
   try {
     const response = await apiClient.get("/rules");
-    console.log(response.data)
+    // console.log(response.data)
     return response.data || [];
   } catch (error) {
     console.error("فشل في جلب الردود التلقائية:", error);

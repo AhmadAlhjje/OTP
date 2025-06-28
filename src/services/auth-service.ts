@@ -16,9 +16,9 @@ export const register = async (
   email: string,
   password: string
 ) => {
-  console.log(username);
-  console.log(email);
-  console.log(password);
+  // console.log(username);
+  // console.log(email);
+  // console.log(password);
   const response = await apiClient.post('/auth/register', {
     username,
     email,
