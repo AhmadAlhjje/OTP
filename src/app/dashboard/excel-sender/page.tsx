@@ -1,16 +1,14 @@
-// app/(dashboard)/excel-sender/page.tsx
 "use client";
 
 import React, { useState } from "react";
 import useTranslation from "@/hooks/useTranslation";
-import { sendWhatsappMessage1 } from "@/services/message-service";
 import * as XLSX from "xlsx";
 import { useToast } from "@/hooks/useToast";
 import Table from "@/components/molecules/Table";
 import FileUploader from "@/components/atoms/FileUploader";
 import Button from "@/components/atoms/Button";
-import { Eye } from "lucide-react";
 import LoadingSpinner from "@/components/atoms/LoadingSpinner";
+import { sendWhatsappMessagesBatch } from "@/services/message-service";
 
 interface ExcelRow {
   [key: string]: string | number;
@@ -80,39 +78,42 @@ const ExcelMessageSenderPage = () => {
     setError(null);
 
     try {
-      const phoneNumbers = data
-        .map((row) => row["الرقم"]?.toString().trim())
-        .filter((num) => num && num.length >= 10);
+      // تصفية أرقام صحيحة
+      const validData = data.filter(
+        (row) => row["الرقم"] && row["الرقم"].toString().trim().length >= 10
+      );
 
-      if (!phoneNumbers.length) {
+      if (!validData.length) {
         setError(t("no_valid_numbers_found"));
         setLoading(false);
         return;
       }
 
-      // صياغة الرسالة لكل سطر
-      const messageLines = data.map((row) => {
-        const lines = Object.entries(row)
+      // إنشاء مصفوفة الرسائل حسب كل رقم مع بياناته
+      const messages = validData.map((row) => {
+        // بناء الرسالة الخاصة بكل رقم (كل الحقول عدا الرقم)
+        const messageLines = Object.entries(row)
           .filter(([key]) => key !== "الرقم")
-          .map(([key, value]) => `${key} : ${value}`);
+          .map(([key, value]) => `${key} : ${value}`)
+          .join("\n");
 
-        return lines.join("\n");
+        return {
+          number: row["الرقم"].toString().trim(),
+          message: messageLines,
+        };
       });
 
-      const fullMessage = messageLines.join("\n\n"); // رسالة واحدة تحتوي على جميع البيانات
-      const res = await sendWhatsappMessage1({
-        to: phoneNumbers,
-        message: fullMessage,
-      });
+      // استدعاء الـ API الجديد مع الرسائل
+      const res = await sendWhatsappMessagesBatch(messages);
 
-      if (res.status === 201) {
+      if (res.status === 201 || res.status === 200) {
         showToast(t("toastmessage_sent"), "success");
         setData([]);
       } else {
         setError(t("send_failed_with_reason"));
       }
     } catch (err) {
-      showToast(t("failed_to_send_messages"),"error");
+      showToast(t("failed_to_send_messages"), "error");
     } finally {
       setLoading(false);
     }
@@ -166,7 +167,11 @@ const ExcelMessageSenderPage = () => {
       </h1>
 
       {/* رفع الملف */}
-      <FileUploader onChange={handleFileUpload} disabled={loading} label={t("choose_file")} />
+      <FileUploader
+        onChange={handleFileUpload}
+        disabled={loading}
+        label={t("choose_file")}
+      />
 
       {loading && (
         <LoadingSpinner
