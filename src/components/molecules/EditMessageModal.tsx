@@ -8,7 +8,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import useTranslation from "@/hooks/useTranslation";
-import { TableRow } from "./Table";
+import { TableRow } from "@/types/auto-reply";
 
 interface EditMessageModalProps {
   isOpen: boolean;

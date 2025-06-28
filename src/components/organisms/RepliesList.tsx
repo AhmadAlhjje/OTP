@@ -36,8 +36,9 @@ export const RepliesList = ({
 
   const filteredReplies = replies.filter(
     (reply) =>
-      reply.keyword.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      reply.response.toLowerCase().includes(searchTerm.toLowerCase())
+      reply.keywords.some((kw) =>
+        kw.toLowerCase().includes(searchTerm.toLowerCase())
+      ) || reply.response.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -65,7 +66,8 @@ export const RepliesList = ({
               {t(title)}
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              {filteredReplies.length} {t("of")} {replies.length} {t("auto_reply")}
+              {filteredReplies.length} {t("of")} {replies.length}{" "}
+              {t("auto_reply")}
             </p>
           </div>
         </div>
@@ -80,7 +82,7 @@ export const RepliesList = ({
                 key={reply._id}
                 reply={reply}
                 onEdit={() => onEdit(reply)}
-                onDelete={() => onDelete(reply._id)}
+                onDelete={() => onDelete(reply._id as string)}
               />
             ))}
           </div>
@@ -91,7 +93,9 @@ export const RepliesList = ({
               {searchTerm ? t(emptySearchText) : t(emptyDefaultText)}
             </p>
             <p className="text-sm text-center leading-relaxed mt-2">
-              {searchTerm ? t(emptySearchSuggestion) : t(emptyDefaultActionText)}
+              {searchTerm
+                ? t(emptySearchSuggestion)
+                : t(emptyDefaultActionText)}
             </p>
           </div>
         )}
