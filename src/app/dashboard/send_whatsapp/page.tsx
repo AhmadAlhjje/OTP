@@ -2,12 +2,11 @@
 import React, { useEffect, useState } from "react";
 import MessageForm from "@/components/organisms/MessageForm";
 import SidebarPreview from "@/components/organisms/SidebarPreview";
-import AccountSwitcher from "@/components/atoms/AccountSwitcher";
 import useLanguage from "@/hooks/useLanguage";
 import { motion } from "framer-motion";
 import { sendWhatsappMessage1 as sendImmediateMessage } from "@/services/message-service";
 import { sendWhatsappMessage } from "@/services/schedule-massage";
-import { fetchTemplatesFromAPI } from "@/services/templateMassageService"; // ← جلب القوالب من /templates
+import { fetchTemplatesFromAPI } from "@/services/templateMassageService";
 import { fetchTemplatesFromAPI1 } from "@/services/templateService";
 import { useToast } from "@/hooks/useToast";
 import { getActiveAccount, getWhatsappAccounts } from "@/services/my_accounts";
@@ -20,6 +19,7 @@ const EnhancedWhatsAppScheduler = () => {
   const [currentNumber, setCurrentNumber] = useState("");
   const [recipientNumbers, setRecipientNumbers] = useState<string[]>([]);
   const [message, setMessage] = useState("");
+  const [selectedMedia, setSelectedMedia] = useState<File | null>(null); // ✅ دعم رفع ملفات عامة (صورة أو فيديو)
   const [isLoading, setIsLoading] = useState(false);
   const [isScheduled, setIsScheduled] = useState(false);
   const [scheduledTime, setScheduledTime] = useState<Date | null>(null);
@@ -85,7 +85,7 @@ const EnhancedWhatsAppScheduler = () => {
 
   // ----- New function to handle account change -----
   const handleAccountChange = async (accountId: string) => {
-    setIsLoading(true); // Optional: show loading spinner
+    setIsLoading(true);
     try {
       await fetchData(accountId);
     } catch (err) {
@@ -110,10 +110,6 @@ const EnhancedWhatsAppScheduler = () => {
       showToast(t("toastno_account"), "error");
       return;
     }
-    if (!activeAccount) {
-      showToast(t("toastno_account"), "error");
-      return;
-    }
 
     if (recipientNumbers.length === 0 && selectedGroups.length === 0) {
       showToast(t("toastno_recipients"), "error");
@@ -125,7 +121,7 @@ const EnhancedWhatsAppScheduler = () => {
       return;
     }
 
-    if (!isTemplateMode && !message.trim()) {
+    if (!isTemplateMode && !message.trim() && !selectedMedia) {
       showToast(t("toastno_message"), "error");
       return;
     }
@@ -144,7 +140,7 @@ const EnhancedWhatsAppScheduler = () => {
 
     try {
       const messageContent = isTemplateMode
-        ? selectedTemplate!.id // ← استخدم ! لتأكيد أن القيمة موجودة
+        ? selectedTemplate!.id
         : message.trim();
 
       const allRecipients = [
@@ -153,6 +149,7 @@ const EnhancedWhatsAppScheduler = () => {
       ];
 
       if (isScheduled) {
+        // ✅ للرسائل المجدولة - قد نحتاج تعديل هذا أيضاً حسب API
         const res = await sendWhatsappMessage({
           to: allRecipients,
           message: messageContent,
@@ -166,9 +163,11 @@ const EnhancedWhatsAppScheduler = () => {
           showToast(t("message_scheduled_failed"), "error");
         }
       } else {
+        // ✅ إرسال فوري مع الوسائط (صورة/فيديو)
         const res = await sendImmediateMessage({
           to: allRecipients,
           message: messageContent,
+          photo: selectedMedia, // ✅ تحديث اسم البروب
         });
 
         if (res.status === 201) {
@@ -266,11 +265,17 @@ const EnhancedWhatsAppScheduler = () => {
     }
   };
 
+  // ✅ دالة لاختيار الوسائط (صورة/فيديو)
+  const handleMediaSelect = (file: File | null) => {
+    setSelectedMedia(file);
+  };
+
   // --- إعادة تعيين النموذج ---
   const resetForm = () => {
     setRecipientNumbers([]);
     setSelectedGroups([]);
     setMessage("");
+    setSelectedMedia(null); // ✅ إعادة تعيين الوسائط
     setScheduledTime(null);
     setIsScheduled(false);
     setSelectedTemplate(null);
@@ -384,6 +389,11 @@ const EnhancedWhatsAppScheduler = () => {
           showTemplateDropdown={showTemplateDropdown}
           setShowTemplateDropdown={setShowTemplateDropdown}
           handleTemplateSelect={handleTemplateSelect}
+          // **هنا تضيف الخاصية الناقصة:**
+          setTemplates={setTemplates}
+          // تحديث props الوسائط
+          selectedMedia={selectedMedia}
+          handleMediaSelect={handleMediaSelect}
           // Send Button
           isLoading={isLoading}
           handleSend={handleSend}
@@ -395,25 +405,9 @@ const EnhancedWhatsAppScheduler = () => {
           isScheduled={isScheduled}
           isTemplateMode={isTemplateMode}
           selectedTemplate={selectedTemplate}
+          selectedMedia={selectedMedia} // ✅ تحديث اسم البروب للمعاينة
         />
       </div>
-
-      {/* مبدل الحسابات */}
-      {/* <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, delay: 0.8 }}
-        className={`fixed bottom-6 ${
-          language === "ar" ? "left-6" : "right-6"
-        } z-50`}
-      >
-        <div className="bg-white/90 backdrop-blur-md dark:bg-gray-800/90 p-2 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50">
-          <AccountSwitcher
-            accountName={activeAccount?.name || t("no_account_selected")}
-            onAccountChange={handleAccountChange} 
-          />
-        </div>
-      </motion.div> */}
     </div>
   );
 };

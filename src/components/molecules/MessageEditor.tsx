@@ -1,12 +1,12 @@
 // molecules/MessageEditor.tsx
-import React from "react";
+import React, { useRef } from "react";
 import { Textarea } from "@/components/atoms/textarea";
 import TemplateSelector from "./TemplateSelector";
 import LoadingSpinner from "@/components/atoms/LoadingSpinner";
 
 // Icons from lucide-react
 import IconWrapper from "@/components/atoms/IconWrapper";
-import { MessageSquare, FileText, Loader2 } from "lucide-react";
+import { MessageSquare, FileText, Loader2, ImagePlus, X, Image } from "lucide-react";
 import useTranslation from "@/hooks/useTranslation";
 
 interface MessageEditorProps {
@@ -21,6 +21,10 @@ interface MessageEditorProps {
   templatesLoading: boolean;
   setShowTemplateDropdown: (val: boolean) => void;
   handleTemplateSelect: (template: any) => void;
+
+  // ✅ تعديل props ليشمل صورة أو فيديو
+  selectedMedia?: File | null;
+  onMediaSelect?: (file: File | null) => void;
 }
 
 const MessageEditor: React.FC<MessageEditorProps> = ({
@@ -34,32 +38,74 @@ const MessageEditor: React.FC<MessageEditorProps> = ({
   setSelectedTemplate,
   setShowTemplateDropdown,
   handleTemplateSelect,
+
+  // ✅ Media props
+  selectedMedia,
+  onMediaSelect,
 }) => {
   const { t } = useTranslation();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const toggleTemplateMode = () => {
     setIsTemplateMode(!isTemplateMode);
     if (!isTemplateMode) {
       setMessage("");
       setSelectedTemplate(null);
+      onMediaSelect?.(null);
     } else {
       setSelectedTemplate(null);
+      onMediaSelect?.(null);
     }
+  };
+
+  // ✅ دالة اختيار الملف (صورة أو فيديو)
+  const handleMediaInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // تحقق من نوع الملف: صورة أو فيديو فقط
+      if (file.type.startsWith("image/") || file.type.startsWith("video/")) {
+        // تحقق من الحجم (مثلاً أقل من 10MB)
+        if (file.size <= 10 * 1024 * 1024) {
+          onMediaSelect?.(file);
+        } else {
+          alert("حجم الملف كبير جداً. الحد الأقصى 10MB");
+        }
+      } else {
+        alert("يرجى اختيار ملف صورة أو فيديو صالح");
+      }
+    }
+
+    // إعادة تعيين قيمة input لاختيار نفس الملف مرة أخرى
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  // ✅ حذف الملف
+  const handleRemoveMedia = () => {
+    onMediaSelect?.(null);
+  };
+
+  // فتح منتقي الملفات
+  const openFileSelector = () => {
+    fileInputRef.current?.click();
   };
 
   return (
     <div className="space-y-4 relative">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className={`p-2 rounded-xl transition-all duration-300 ${
-            isTemplateMode 
-              ? "bg-purple-100 dark:bg-purple-900/30" 
-              : "bg-blue-100 dark:bg-blue-900/30"
-          }`}>
-            <IconWrapper 
-              icon={MessageSquare} 
-              size={20} 
-              color={isTemplateMode ? "#8B5CF6" : "#3B82F6"} 
+          <div
+            className={`p-2 rounded-xl transition-all duration-300 ${
+              isTemplateMode
+                ? "bg-purple-100 dark:bg-purple-900/30"
+                : "bg-blue-100 dark:bg-blue-900/30"
+            }`}
+          >
+            <IconWrapper
+              icon={MessageSquare}
+              size={20}
+              color={isTemplateMode ? "#8B5CF6" : "#3B82F6"}
             />
           </div>
           <div>
@@ -70,10 +116,11 @@ const MessageEditor: React.FC<MessageEditorProps> = ({
               )}
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              {isTemplateMode ? 
-                (templatesLoading ? t("loading_templates") : t("select_template")) : 
-                t("write_your_message")
-              }
+              {isTemplateMode
+                ? templatesLoading
+                  ? t("loading_templates")
+                  : t("select_template")
+                : t("write_your_message")}
             </p>
           </div>
         </div>
@@ -90,9 +137,9 @@ const MessageEditor: React.FC<MessageEditorProps> = ({
             className={`relative w-14 h-7 transition-all duration-300 rounded-full ${
               templatesLoading ? "opacity-50 cursor-not-allowed" : ""
             } ${
-              isTemplateMode ? 
-                "bg-gradient-to-r from-purple-400 to-purple-600 shadow-lg" : 
-                "bg-gray-300 dark:bg-gray-600"
+              isTemplateMode
+                ? "bg-gradient-to-r from-purple-400 to-purple-600 shadow-lg"
+                : "bg-gray-300 dark:bg-gray-600"
             }`}
           >
             <div
@@ -104,16 +151,99 @@ const MessageEditor: React.FC<MessageEditorProps> = ({
               {templatesLoading && isTemplateMode ? (
                 <Loader2 size={10} className="animate-spin text-purple-600" />
               ) : (
-                <IconWrapper 
-                  icon={FileText} 
-                  size={12} 
-                  color={isTemplateMode ? "#8B5CF6" : "#6B7280"} 
+                <IconWrapper
+                  icon={FileText}
+                  size={12}
+                  color={isTemplateMode ? "#8B5CF6" : "#6B7280"}
                 />
               )}
             </div>
           </div>
         </label>
       </div>
+
+      {/* ✅ قسم اختيار ملف (صورة أو فيديو) */}
+      {!isTemplateMode && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <IconWrapper icon={Image} size={18} color="#10B981" />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                إرفاق صورة أو فيديو (اختياري)
+              </span>
+            </div>
+
+            {!selectedMedia && (
+              <button
+                onClick={openFileSelector}
+                className="flex items-center gap-2 px-3 py-2 bg-green-50 hover:bg-green-100 dark:bg-green-900/20 dark:hover:bg-green-900/30 text-green-600 dark:text-green-400 rounded-lg border border-green-200 dark:border-green-700 transition-all duration-200"
+              >
+                <IconWrapper icon={ImagePlus} size={16} color="#10B981" />
+                <span className="text-sm font-medium">اختيار ملف</span>
+              </button>
+            )}
+          </div>
+
+          {/* عرض الملف المختار */}
+          {selectedMedia && (
+            <div className="relative bg-gray-50 dark:bg-gray-800 rounded-xl p-4 border-2 border-dashed border-green-200 dark:border-green-700">
+              <div className="flex items-center gap-3">
+                <div className="flex-shrink-0">
+                  <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center overflow-hidden">
+                    {selectedMedia.type.startsWith("image/") ? (
+                      <img
+                        src={URL.createObjectURL(selectedMedia)}
+                        alt="معاينة الملف"
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                    ) : selectedMedia.type.startsWith("video/") ? (
+                      <video
+                        src={URL.createObjectURL(selectedMedia)}
+                        controls
+                        className="w-full h-full rounded-lg"
+                      />
+                    ) : null}
+                  </div>
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                    {selectedMedia.name}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {(selectedMedia.size / 1024 / 1024).toFixed(2)} MB
+                  </p>
+                </div>
+
+                <button
+                  onClick={handleRemoveMedia}
+                  className="flex-shrink-0 p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                  title="حذف الملف"
+                >
+                  <IconWrapper icon={X} size={16} color="#EF4444" />
+                </button>
+              </div>
+
+              {/* زر تغيير الملف */}
+              <button
+                onClick={openFileSelector}
+                className="mt-3 w-full py-2 px-3 text-sm text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg border border-green-200 dark:border-green-700 transition-all duration-200"
+              >
+                تغيير الملف
+              </button>
+            </div>
+          )}
+
+          {/* Input مخفي لاختيار الملفات */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*,video/*"
+            onChange={handleMediaInputChange}
+            className="hidden"
+          />
+        </div>
+      )}
 
       {/* محتوى الرسالة */}
       <div className="relative">
@@ -122,14 +252,14 @@ const MessageEditor: React.FC<MessageEditorProps> = ({
             {templatesLoading ? (
               // شاشة التحميل للقوالب
               <div className="border-2 border-dashed border-purple-200 dark:border-purple-700 rounded-xl p-8 text-center bg-purple-50/50 dark:bg-purple-900/10">
-                <LoadingSpinner 
+                <LoadingSpinner
                   size="md"
                   color="green"
                   message="جاري تحميل القوالب المتاحة..."
                   overlay={false}
                   pulse={true}
                 />
-                
+
                 {/* skeleton للقوالب */}
                 <div className="mt-6 space-y-3">
                   {[1, 2, 3].map((i) => (
@@ -156,30 +286,45 @@ const MessageEditor: React.FC<MessageEditorProps> = ({
             <Textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder={t("write_your_message_placeholder")}
+              placeholder={
+                selectedMedia
+                  ? "اكتب رسالتك هنا (أو اتركها فارغة لإرسال الملف فقط)"
+                  : t("write_your_message_placeholder")
+              }
               className="min-h-[180px] resize-none border-2 border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-xl text-base leading-relaxed transition-all duration-200 hover:border-gray-300 dark:hover:border-gray-500"
               disabled={templatesLoading}
             />
-            
+
             {/* معلومات إضافية عن الرسالة */}
             <div className="flex justify-between items-center text-sm">
               <div className="flex items-center gap-4 text-gray-500 dark:text-gray-400">
-                <span className={`transition-colors ${
-                  message.length > 1000 ? 'text-orange-500' : 
-                  message.length > 500 ? 'text-yellow-500' : 
-                  'text-gray-500 dark:text-gray-400'
-                }`}>
+                <span
+                  className={`transition-colors ${
+                    message.length > 1000
+                      ? "text-orange-500"
+                      : message.length > 500
+                      ? "text-yellow-500"
+                      : "text-gray-500 dark:text-gray-400"
+                  }`}
+                >
                   {message.length} {t("characters")}
                 </span>
-                
+
                 {message.length > 0 && (
                   <span className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
                     ~{Math.ceil(message.length / 160)} رسالة
                   </span>
                 )}
+
+                {selectedMedia && (
+                  <span className="text-xs bg-green-100 dark:bg-green-700 text-green-600 dark:text-green-300 px-2 py-1 rounded-full flex items-center gap-1">
+                    <IconWrapper icon={Image} size={12} color="#10B981" />
+                    ملف مرفق
+                  </span>
+                )}
               </div>
-              
-              {message.length > 0 && (
+
+              {(message.length > 0 || selectedMedia) && (
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                   <span className="text-green-600 dark:text-green-400 text-sm font-medium">
@@ -199,21 +344,6 @@ const MessageEditor: React.FC<MessageEditorProps> = ({
           </div>
         )}
       </div>
-
-      {/* Loading Overlay عام */}
-      {/* {templatesLoading && (
-        <div className="absolute inset-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
-          <div className="text-center">
-            <LoadingSpinner 
-              size="lg"
-              color="green"
-              overlay={false}
-              message="معالجة البيانات..."
-              pulse={true}
-            />
-          </div>
-        </div>
-      )} */}
     </div>
   );
 };

@@ -1,8 +1,4 @@
-// organisms/MessageForm.tsx
-// النموذج الكامل لإدخال بيانات الرسالة (الأرقام، الوقت، الرسالة، الإرسال)
-
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import ToggleSchedule from "@/components/molecules/ToggleSchedule";
 import ScheduleDateTime from "@/components/molecules/ScheduleDateTime";
 import RecipientInput from "@/components/molecules/RecipientInput";
@@ -54,10 +50,18 @@ interface MessageFormProps {
   setShowTemplateDropdown: (val: boolean) => void;
   handleTemplateSelect: (template: any) => void;
 
+  // ✅ تعديل props لتدعم صورة أو فيديو (media)
+  selectedMedia: File | null;
+  handleMediaSelect: (file: File | null) => void;
+
+  // ✅ إضافة setTemplates لأن MessageEditor يطلبها
+  setTemplates: (templates: any[]) => void;
+
   // Send Button
   isLoading: boolean;
   handleSend: () => void;
 }
+
 interface Contact {
   name: string;
   phone_number: string;
@@ -106,6 +110,13 @@ const MessageForm: React.FC<MessageFormProps> = ({
   setShowTemplateDropdown,
   handleTemplateSelect,
 
+  // ✅ Media props
+  selectedMedia,
+  handleMediaSelect,
+
+  // ✅ setTemplates
+  setTemplates,
+
   // Send Button
   isLoading,
   handleSend,
@@ -118,8 +129,8 @@ const MessageForm: React.FC<MessageFormProps> = ({
   const handleSelectContact = async () => {
     try {
       const data = await fetchContacts();
-      setContacts(data); // حفظ جهات الاتصال
-      setShowContactsModal(true); // عرض النافذة
+      setContacts(data);
+      setShowContactsModal(true);
     } catch (error) {
       console.error("فشل في تحميل جهات الاتصال:", error);
     }
@@ -130,9 +141,7 @@ const MessageForm: React.FC<MessageFormProps> = ({
       {showContactsModal && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-xl w-[90%] max-w-md space-y-4">
-            <h2 className="text-lg font-bold mb-2 text-center">
-              اختر جهات اتصال
-            </h2>
+            <h2 className="text-lg font-bold mb-2 text-center">اختر جهات اتصال</h2>
 
             {/* حقل البحث */}
             <input
@@ -160,12 +169,11 @@ const MessageForm: React.FC<MessageFormProps> = ({
                   return (
                     <button
                       key={contact.phone_number}
-                      className={`w-full text-right p-3 rounded cursor-pointer
-                ${
-                  isSelected
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
-                }`}
+                      className={`w-full text-right p-3 rounded cursor-pointer ${
+                        isSelected
+                          ? "bg-blue-500 text-white"
+                          : "bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
+                      }`}
                       onClick={() => {
                         if (isSelected) {
                           setSelectedContacts(
@@ -189,7 +197,6 @@ const MessageForm: React.FC<MessageFormProps> = ({
               <button
                 disabled={selectedContacts.length === 0}
                 onClick={() => {
-                  // أضف كل المختارين إلى قائمة الأرقام مع تجنب التكرار
                   const newNumbers = selectedContacts
                     .map((c) => c.phone_number)
                     .filter((num) => !recipientNumbers.includes(num));
@@ -227,10 +234,7 @@ const MessageForm: React.FC<MessageFormProps> = ({
       )}
 
       {/* Toggle Schedule */}
-      <ToggleSchedule
-        isScheduled={isScheduled}
-        setIsScheduled={setIsScheduled}
-      />
+      <ToggleSchedule isScheduled={isScheduled} setIsScheduled={setIsScheduled} />
 
       {/* Schedule DateTime */}
       {isScheduled && (
@@ -273,14 +277,17 @@ const MessageForm: React.FC<MessageFormProps> = ({
         setIsTemplateMode={setIsTemplateMode}
         selectedTemplate={selectedTemplate}
         templates={templates}
-        // setTemplates={setTemplates}
         setSelectedTemplate={setSelectedTemplate}
         templatesLoading={templatesLoading}
         setShowTemplateDropdown={setShowTemplateDropdown}
         handleTemplateSelect={handleTemplateSelect}
-        setTemplates={function (t: any[]): void {
-          throw new Error("Function not implemented.");
-        }}
+
+        // ✅ تمرير setTemplates
+        setTemplates={setTemplates}
+
+        // تعديل props الصورة -> ملف وسائط
+        selectedMedia={selectedMedia}
+        onMediaSelect={handleMediaSelect}
       />
 
       {/* Send Button */}

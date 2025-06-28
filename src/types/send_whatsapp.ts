@@ -9,3 +9,23 @@ export interface GroupFromAPI {
   description?: string;
   membersCount?: number;
 }
+
+export interface MediaFile {
+  file: File;
+  type: 'image' | 'video';
+  preview: string;
+  id: string;
+}
+
+export interface MessageData {
+  to: string[];
+  message: string;
+  media?: MediaFile[];
+}
+
+export interface SendMessageParams {
+  to: string[];
+  message: string;
+  photos?: File[];
+  videos?: File[];
+} 

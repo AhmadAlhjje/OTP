@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import useTranslation from "@/hooks/useTranslation";
 import * as XLSX from "xlsx";
 import { useToast } from "@/hooks/useToast";
-import Table from "@/components/molecules/Table";
+import {Table} from "@/components/molecules/Table";
 import FileUploader from "@/components/atoms/FileUploader";
 import Button from "@/components/atoms/Button";
 import LoadingSpinner from "@/components/atoms/LoadingSpinner";

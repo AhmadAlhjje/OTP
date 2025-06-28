@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from "react";
 import { useToast } from "@/hooks/useToast";
 import useLanguage from "@/hooks/useLanguage";
-import Table, { TableColumn, TableRow } from "@/components/molecules/Table";
+import { Table} from "@/components/molecules/Table";
+import { TableColumn, TableRow } from "@/types/auto-reply";
 import EditButton from "@/components/common/EditButton";
 import DeleteButton from "@/components/common/DeleteButton";
 import { MessagePreviewModal } from "@/components/molecules/MessagePreviewModal";
@@ -100,7 +101,7 @@ const ScheduledMessagesPage = () => {
     scheduledAt: string;
   }) => {
     if (!editingMessage) return;
-    
+
     try {
       const scheduledAtISO = new Date(formData.scheduledAt).toISOString();
 
@@ -134,7 +135,12 @@ const ScheduledMessagesPage = () => {
   };
 
   const columns: TableColumn[] = [
-    { key: "number", label: t("recipient_number"), sortable: true, align: "center" },
+    {
+      key: "number",
+      label: t("recipient_number"),
+      sortable: true,
+      align: "center",
+    },
     { key: "message", label: t("message_content"), sortable: true },
     {
       key: "scheduledAt",
