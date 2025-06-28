@@ -13,11 +13,10 @@ export const fetchAutoRepliesFromAPI = async (): Promise<AutoReply[]> => {
 };
 
 export const addAutoReplyToAPI = async (
-  reply: Omit<AutoReply, "_id">
-): Promise<AutoReply | null> => {
+  replies: Omit<AutoReply, "_id">[] // مصفوفة من الردود
+): Promise<AutoReply[] | null> => {
   try {
-    console.log("reply" ,reply);
-    const response = await apiClient.post("/rules", reply);
+    const response = await apiClient.post("/rules", replies);
     return response.data;
   } catch (error) {
     console.error("فشل في إضافة الرد عبر API:", error);
@@ -27,10 +26,10 @@ export const addAutoReplyToAPI = async (
 
 export const updateAutoReplyOnAPI = async (
   id: string,
-  reply: Partial<AutoReply>
+  replies: Partial<AutoReply>[] // مصفوفة من الردود
 ): Promise<AutoReply | null> => {
   try {
-    const response = await apiClient.patch(`/rules/${id}`, reply);
+    const response = await apiClient.patch(`/rules/${id}`, replies);
     return response.data;
   } catch (error) {
     console.error(`فشل في تحديث الرد #${id} عبر API:`, error);

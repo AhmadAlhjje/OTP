@@ -28,16 +28,20 @@ import { MessageContent } from "@/components/molecules/MessageContent";
 import EditButton from "@/components/common/EditButton";
 import DeleteButton from "@/components/common/DeleteButton";
 
+type ReplyGroup = {
+  keywords: string[];
+  response: string;
+};
+
 const AutoReplyManager = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [autoReplies, setAutoReplies] = useState<AutoReply[]>([]);
   const [editingReply, setEditingReply] = useState<AutoReply | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    keywords: [] as string[],
-    response: "",
-  });
+  const [formData, setFormData] = useState<ReplyGroup[]>([
+    { keywords: [], response: "" },
+  ]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [isMessagePreviewOpen, setIsMessagePreviewOpen] = useState(false);
   const [previewMessage, setPreviewMessage] = useState("");
@@ -78,7 +82,7 @@ const AutoReplyManager = () => {
     }
 
     setEditingReply(null);
-    setFormData({ keywords: [], response: "" }); // ✅ تصحيح
+    setFormData([{ keywords: [], response: "" }]);
     setIsModalOpen(true);
   };
 
@@ -90,46 +94,48 @@ const AutoReplyManager = () => {
     }
 
     setEditingReply(reply);
-    setFormData({ keywords: reply.keywords, response: reply.response }); // ✅ تصحيح هنا
+    setFormData([{ keywords: reply.keywords, response: reply.response }]);
     setIsModalOpen(true);
   };
 
   //  حفظ الرد (إضافة أو تعديل)
   const handleSaveReply = async () => {
-    if (formData.keywords.length === 0 || !formData.response.trim()) return;
+    // تصفية الردود الصحيحة فقط (الكلمات ليست فارغة والنص كذلك)
+    const validReplies = formData.filter(
+      (r) => r.keywords.length > 0 && r.response.trim() !== ""
+    );
+    if (validReplies.length === 0) return;
 
     setIsLoading(true);
 
-    const isEdit = !!editingReply;
-
     try {
-      if (isEdit) {
-        // تعديل
-        const updatedReply = await updateAutoReplyOnAPI(
+      if (editingReply) {
+        // عند التعديل: قد تحتاج إرسال مصفوفة كاملة حسب API أو تعديل حسب API الخاص بك
+        const updatedReplies = await updateAutoReplyOnAPI(
           editingReply._id,
-          formData
+          validReplies
         );
-        if (updatedReply) {
+        if (updatedReplies) {
           setAutoReplies((prev) =>
-            prev.map((r) => (r._id === editingReply._id ? updatedReply : r))
+            prev.map((r) => (r._id === editingReply._id ? updatedReplies : r))
           );
         }
       } else {
-        // إضافة
-        const newReply = await addAutoReplyToAPI(formData);
-        if (newReply) {
-          setAutoReplies((prev) => [newReply, ...prev]);
+        // عند الإضافة: نرسل مصفوفة كاملة للـ API
+        const newReplies = await addAutoReplyToAPI(validReplies);
+        if (newReplies) {
+          // نضيف كل رد جديد إلى القائمة
+          setAutoReplies((prev) => [...newReplies, ...prev]);
         }
       }
 
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 2000);
       setIsModalOpen(false);
-      setFormData({ keywords: [], response: "" });
+      setFormData([{ keywords: [], response: "" }]);
     } catch (error: any) {
       console.error("فشل في تنفيذ العملية:", error);
 
-      // استخراج رسالة الخطأ من الـ API إن وُجدت
       const errorMessage =
         error.response?.data?.message ||
         error.response?.data?.error ||
@@ -207,27 +213,21 @@ const AutoReplyManager = () => {
             align: "center",
           },
         ]}
-        data={[
-          ...autoReplies.flatMap((reply) =>
-            reply.keywords.map((keyword) => ({
-              keyword: keyword,
-              response: (
-                <MessageContent
-                  message={reply.response}
-                  onShowFullMessage={() =>
-                    handleShowFullMessage(reply.response)
-                  }
-                />
-              ),
-              actions: (
-                <div className="flex justify-center gap-3">
-                  <EditButton onClick={() => handleEditReply(reply)} />
-                  <DeleteButton onClick={() => handleDeleteReply(reply._id!)} />
-                </div>
-              ),
-            }))
+        data={autoReplies.map((reply) => ({
+          keyword: reply.keywords.join(", "), // عرض الكلمات مفصولة بفواصل
+          response: (
+            <MessageContent
+              message={reply.response}
+              onShowFullMessage={() => handleShowFullMessage(reply.response)}
+            />
           ),
-        ]}
+          actions: (
+            <div className="flex justify-center gap-3">
+              <EditButton onClick={() => handleEditReply(reply)} />
+              <DeleteButton onClick={() => handleDeleteReply(reply._id!)} />
+            </div>
+          ),
+        }))}
         searchable={true}
         emptyMessage={t("no_auto_replies")}
         loading={isLoading}

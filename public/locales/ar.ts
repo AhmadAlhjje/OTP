@@ -588,4 +588,5 @@ export default {
   privacyPolicyupdates: "قد يتم تحديث سياسة الخصوصية من حين لآخر.",
   privacyPolicycontactUs:
     "لأي استفسارات، يرجى التواصل معنا عبر support@example.com",
+    add_new_reply_group:"إضافة مجموعة ردود جديدة"
 };

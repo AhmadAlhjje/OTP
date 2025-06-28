@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { Plus, Edit3, X, Save, Sparkles } from "lucide-react";
+import { Plus, Edit3, X, Save, Sparkles, Minus } from "lucide-react";
 import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
 import { Textarea } from "../atoms/textarea";
 import useTranslation from "@/hooks/useTranslation";
 
+interface ReplyGroup {
+  keywords: string[];
+  response: string;
+}
+
 interface ModalFormProps {
   isEditing: boolean;
-  formData: { keywords: string[]; response: string };
-  setFormData: (data: { keywords: string[]; response: string }) => void;
+  formData: ReplyGroup[];  // أصبح مصفوفة
+  setFormData: (data: ReplyGroup[]) => void;
   onSave: () => void;
   onClose: () => void;
   isLoading: boolean;
@@ -28,24 +33,28 @@ export const ModalForm = ({
   isLoading,
 }: ModalFormProps) => {
   const { t } = useTranslation();
-  const [keywordInput, setKeywordInput] = useState<string>(
-    formData.keywords.join(", ")
-  );
 
-  const handleKeywordsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawValue = e.target.value;
+  // لإضافة مجموعة جديدة فارغة
+  const addReplyGroup = () => {
+    setFormData([...formData, { keywords: [], response: "" }]);
+  };
 
-    useEffect(() => {
-      setKeywordInput(formData.keywords.join(", "));
-    }, [formData.keywords]);
+  // لحذف مجموعة حسب الفهرس
+  const removeReplyGroup = (index: number) => {
+    const updated = formData.filter((_, i) => i !== index);
+    setFormData(updated);
+  };
 
-    // تقسيم الكلمات عبر الفواصل أو المسافات (إذا لزم)
-    const keywords = rawValue
-      .split(",") // تقسيم بالفواصل أولاً
-      .map((k) => k.trim()) // تنظيف كل كلمة
-      .filter(Boolean); // إزالة الحقول الفارغة
-
-    setFormData({ ...formData, keywords });
+  // لتحديث كلمات أو رد في مجموعة معينة
+  const updateReplyGroup = (
+    index: number,
+    field: "keywords" | "response",
+    value: string | string[]
+  ) => {
+    const updated = formData.map((group, i) =>
+      i === index ? { ...group, [field]: value } : group
+    );
+    setFormData(updated);
   };
 
   return (
@@ -80,70 +89,101 @@ export const ModalForm = ({
       </div>
 
       {/* Modal Body */}
-      <div className="p-6 space-y-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-            {t("label_keywords")} *
-          </label>
-          <Input
-            type="text"
-            placeholder={t("hello_hi_hey")}
-            value={keywordInput}
-            onChange={(e) => {
-              setKeywordInput(e.target.value);
+      <div className="p-6 space-y-6 max-h-[60vh] overflow-y-auto">
+        {formData.map((group, index) => {
+          const keywordInput = group.keywords.join(", ");
+          return (
+            <div
+              key={index}
+              className="border border-gray-300 dark:border-gray-700 rounded-lg p-4 relative"
+            >
+              {/* زر حذف يظهر فقط إذا أكثر من مجموعة */}
+              {formData.length > 1 && (
+                <button
+                  onClick={() => removeReplyGroup(index)}
+                  className="absolute top-2 left-2 text-red-500 hover:text-red-700"
+                  title={t("remove_reply_group")}
+                >
+                  <Minus size={20} />
+                </button>
+              )}
 
-              const keywords = e.target.value
-                .split(",")
-                .map((k) => k.trim())
-                .filter(Boolean);
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  {t("label_keywords")} *
+                </label>
+                <Input
+                  type="text"
+                  placeholder={t("hello_hi_hey")}
+                  value={keywordInput}
+                  onChange={(e) => {
+                    const rawValue = e.target.value;
+                    const keywords = rawValue
+                      .split(",")
+                      .map((k) => k.trim())
+                      .filter(Boolean);
+                    updateReplyGroup(index, "keywords", keywords);
+                  }}
+                />
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {t("helper_text_keywords")}
+                </p>
+              </div>
 
-              setFormData({ ...formData, keywords });
-            }}
-          />
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-            {t("helper_text_keywords")}
-          </p>
-        </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  {t("label_response")} *
+                </label>
+                <Textarea
+                  value={group.response}
+                  onChange={(e) =>
+                    updateReplyGroup(index, "response", e.target.value)
+                  }
+                />
+                <div className="flex justify-between items-center mt-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {t("helper_text_response")}
+                  </p>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {group.response.length} {t("character_count")}
+                  </span>
+                </div>
+              </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-            {t("label_response")} *
-          </label>
-          <Textarea
-            value={formData.response}
-            onChange={(e) =>
-              setFormData({ ...formData, response: e.target.value })
-            }
-          />
-          <div className="flex justify-between items-center mt-2">
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              {t("helper_text_response")}
-            </p>
-            <span className="text-xs text-gray-500 dark:text-gray-400">
-              {formData.response.length} {t("character_count")}
-            </span>
-          </div>
-        </div>
-
-        {formData.keywords.length > 0 && formData.response && (
-          <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-4 rounded-xl border border-green-200 dark:border-green-700">
-            <div className="flex items-center gap-2 mb-3">
-              <Sparkles />
-              <span className="text-sm font-medium text-green-700 dark:text-green-300">
-                {t("preview_title")}
-              </span>
+              {group.keywords.length > 0 && group.response && (
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-3 rounded-xl border border-green-200 dark:border-green-700 mt-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Sparkles />
+                    <span className="text-sm font-medium text-green-700 dark:text-green-300">
+                      {t("preview_title")}
+                    </span>
+                  </div>
+                  <div className="bg-white/60 dark:bg-gray-800/60 p-2 rounded-lg">
+                    <p className="text-sm text-gray-700 dark:text-gray-300">
+                      <strong>{t("preview_received")} :</strong>{" "}
+                      {group.keywords.map((k) => `"${k}"`).join(", ") || "---"}
+                    </p>
+                    <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">
+                      <strong>{t("preview_reply")} :</strong> {group.response}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
-            <div className="bg-white/60 dark:bg-gray-800/60 p-3 rounded-lg">
-              <p className="text-sm text-gray-700 dark:text-gray-300">
-                <strong>{t("preview_received")} :</strong>{" "}
-                {formData.keywords.map((k) => `"${k}"`).join(", ") || "---"}
-              </p>
-              <p className="text-sm text-gray-700 dark:text-gray-300 mt-2">
-                <strong>{t("preview_reply")} :</strong> {formData.response}
-              </p>
-            </div>
-          </div>
-        )}
+          );
+        })}
+
+        {/* زر إضافة مجموعة جديدة */}
+        <div className="flex justify-center mt-4">
+          <Button
+            variant="outline"
+            onClick={addReplyGroup}
+            className="flex items-center gap-2"
+          >
+            <Plus />
+            <span>{t("add_new_reply_group")}</span>
+          </Button>
+        </div>
       </div>
 
       {/* Modal Footer */}
@@ -155,9 +195,11 @@ export const ModalForm = ({
           variant="primary"
           onClick={onSave}
           disabled={
-            formData.keywords.length === 0 ||
-            !formData.response.trim() ||
-            isLoading
+            // تعطيل الزر إذا كل المجموعات فارغة أو غير مكتملة
+            formData.every(
+              (group) =>
+                group.keywords.length === 0 || !group.response.trim()
+            ) || isLoading
           }
         >
           {isLoading ? (
@@ -168,9 +210,7 @@ export const ModalForm = ({
           ) : (
             <>
               <Save />
-              <span>
-                {isEditing ? `${t("button_update")}` : `${t("button_save")}`}
-              </span>
+              <span>{isEditing ? t("button_update") : t("button_save")}</span>
             </>
           )}
         </Button>
