@@ -37,3 +37,16 @@ export const sendWhatsappMessagesBatch = async (
     throw error;
   }
 };
+
+
+// جلب جهات الاتصال
+export const fetchContacts = async () => {
+  try {
+    const response = await apiClient.get("/contacts");
+    console.log("جهات اتصالي", response.data.contacts);
+    return response.data.contacts; // ✅ التعديل هنا
+  } catch (error) {
+    console.error("فشل في جلب جهات الاتصال:", error);
+    throw error;
+  }
+};

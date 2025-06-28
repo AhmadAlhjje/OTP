@@ -13,6 +13,7 @@ interface RecipientInputProps {
   setRecipientNumbers: (nums: string[]) => void;
   handleKeyPress: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   handleAddNumber: () => void;
+  onSelectContact?: () => void;
 }
 
 const RecipientInput: React.FC<RecipientInputProps> = ({
@@ -22,6 +23,7 @@ const RecipientInput: React.FC<RecipientInputProps> = ({
   setRecipientNumbers,
   handleKeyPress,
   handleAddNumber,
+  onSelectContact,
 }) => {
   const { t } = useTranslation();
 
@@ -49,7 +51,12 @@ const RecipientInput: React.FC<RecipientInputProps> = ({
     <>
       <div className="flex gap-3">
         <div className="relative w-full">
-          <IconWrapper icon={X} size={20} color="#9CA3AF" className="absolute left-3 top-1/2 -translate-y-1/2" />
+          <IconWrapper
+            icon={X}
+            size={20}
+            color="#9CA3AF"
+            className="absolute left-3 top-1/2 -translate-y-1/2"
+          />
           <Input
             type="text"
             value={currentNumber}
@@ -65,17 +72,37 @@ const RecipientInput: React.FC<RecipientInputProps> = ({
             className="flex-1 h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 rounded-xl pl-10"
           />
         </div>
-        <Button onClick={addMultipleNumbers} variant="success" className="h-12 px-6">
+        <Button
+          onClick={addMultipleNumbers}
+          variant="success"
+          className="h-12 px-6"
+        >
           {t("add")}
+        </Button>
+        <Button
+          onClick={onSelectContact}
+          variant="secondary"
+          className="h-12 px-4"
+        >
+          {t("select_from_contacts")}
         </Button>
       </div>
 
       {recipientNumbers.length > 0 && (
         <div className="space-y-2 max-h-32 overflow-y-auto mt-2">
           {recipientNumbers.map((number) => (
-            <div key={number} className="flex items-center justify-between bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+            <div
+              key={number}
+              className="flex items-center justify-between bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg"
+            >
               <span className="text-sm font-medium">{number}</span>
-              <button onClick={() => setRecipientNumbers(recipientNumbers.filter(n => n !== number))}>
+              <button
+                onClick={() =>
+                  setRecipientNumbers(
+                    recipientNumbers.filter((n) => n !== number)
+                  )
+                }
+              >
                 <IconWrapper icon={X} size={16} color="#EF4444" />
               </button>
             </div>

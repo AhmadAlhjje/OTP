@@ -590,4 +590,7 @@ export default {
     "لأي استفسارات، يرجى التواصل معنا عبر support@example.com",
     add_new_reply_group:"إضافة مجموعة ردود جديدة",
     select_from_contacts: "جهات الاتصال",
+    search_by_name_or_number:"ابحث بالاسم أو الرقم",
+    add_selected_people:"أضف الأشخاص المحددين",
+    
 };

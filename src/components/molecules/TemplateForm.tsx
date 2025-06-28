@@ -1,16 +1,23 @@
 // TemplateForm.tsx
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
 import { Users, Phone, X } from "lucide-react";
 import useTranslation from "@/hooks/useTranslation";
+import { fetchContacts } from "@/services/message-service";
 
 type Person = {
   id: number;
   name: string;
   phone: string;
+};
+
+type Contact = {
+  _id: string;
+  name: string;
+  phone_number: string;
 };
 
 interface TemplateFormProps {
@@ -50,7 +57,22 @@ const TemplateForm: React.FC<TemplateFormProps> = ({
   handleSaveTemplate,
   resetForm,
 }) => {
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [showContactsModal, setShowContactsModal] = useState(false);
+  const [filterText, setFilterText] = useState("");
+  const [selectedContacts, setSelectedContacts] = useState<Contact[]>([]);
   const { t } = useTranslation();
+
+  // جلب جهات الاتصال وفتح النافذة
+  const openContactsModal = async () => {
+    try {
+      const data = await fetchContacts();
+      setContacts(data || []); // لا تستخدم data.contacts بل data مباشرة
+      setShowContactsModal(true);
+    } catch (error) {
+      showToast("فشل في جلب جهات الاتصال", "error");
+    }
+  };
 
   return (
     <>
@@ -61,6 +83,7 @@ const TemplateForm: React.FC<TemplateFormProps> = ({
           </h2>
 
           <div className="space-y-4">
+            {/* اسم القالب */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -80,6 +103,7 @@ const TemplateForm: React.FC<TemplateFormProps> = ({
                 {t("templatePeoplePageaddPeople")}
               </h3>
 
+              {/* إضافة شخص يدويًا */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <Input
                   placeholder={t("templatePeoplePagepersonNamePlaceholder")}
@@ -107,6 +131,15 @@ const TemplateForm: React.FC<TemplateFormProps> = ({
                 className="bg-green-600 hover:bg-green-700 text-white mb-4"
               >
                 {t("templatePeoplePageaddPerson")}
+              </Button>
+
+              {/* زر فتح نافذة اختيار جهات الاتصال */}
+              <Button
+                onClick={openContactsModal}
+                variant="secondary"
+                className="mb-4"
+              >
+                {t("select_from_contacts")}
               </Button>
 
               {/* قائمة الأشخاص المضافين */}
@@ -148,6 +181,7 @@ const TemplateForm: React.FC<TemplateFormProps> = ({
               )}
             </div>
 
+            {/* أزرار الحفظ والإلغاء */}
             <div className="flex justify-end space-x-3 rtl:space-x-reverse pt-4 border-t">
               <Button
                 onClick={resetForm}
@@ -162,6 +196,111 @@ const TemplateForm: React.FC<TemplateFormProps> = ({
               >
                 {t("templatePeoplePagesaveTemplate")}
               </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* نافذة اختيار جهات الاتصال */}
+      {showContactsModal && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-xl w-[90%] max-w-md space-y-4">
+            <h2 className="text-lg font-bold mb-2 text-center">
+              {t("select_from_contacts")}
+            </h2>
+
+            {/* حقل البحث */}
+            <input
+              type="text"
+              placeholder={
+                t("search_by_name_or_number") || "ابحث بالاسم أو الرقم..."
+              }
+              value={filterText}
+              onChange={(e) => setFilterText(e.target.value)}
+              className="w-full p-2 border rounded mb-3 dark:bg-gray-800 dark:text-white"
+            />
+
+            {/* قائمة جهات الاتصال مع الفلترة */}
+            <div className="max-h-64 overflow-y-auto space-y-2">
+              {contacts
+                .filter((contact) => {
+                  const text = filterText.toLowerCase();
+                  return (
+                    contact.name.toLowerCase().includes(text) ||
+                    contact.phone_number.toLowerCase().includes(text)
+                  );
+                })
+                .map((contact) => {
+                  const isSelected = selectedContacts.some(
+                    (c) => c.phone_number === contact.phone_number
+                  );
+                  return (
+                    <button
+                      key={contact.phone_number}
+                      className={`w-full text-right p-3 rounded cursor-pointer ${
+                        isSelected
+                          ? "bg-blue-500 text-white"
+                          : "bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
+                      }`}
+                      onClick={() => {
+                        if (isSelected) {
+                          setSelectedContacts(
+                            selectedContacts.filter(
+                              (c) => c.phone_number !== contact.phone_number
+                            )
+                          );
+                        } else {
+                          setSelectedContacts([...selectedContacts, contact]);
+                        }
+                      }}
+                    >
+                      {contact.name} - {contact.phone_number}
+                    </button>
+                  );
+                })}
+            </div>
+
+            {/* أزرار الإضافة والإلغاء */}
+            <div className="flex gap-2 mt-4">
+              <button
+                disabled={selectedContacts.length === 0}
+                onClick={() => {
+                  // أضف جهات الاتصال المحددة إلى newPeople مع تجنب التكرار
+                  const newSelected = selectedContacts
+                    .filter(
+                      (sc) =>
+                        !newPeople.some((np) => np.phone === sc.phone_number)
+                    )
+                    .map((sc) => ({
+                      id: Date.now() + Math.random(),
+                      name: sc.name,
+                      phone: sc.phone_number,
+                    }));
+
+                  setNewPeople([...newPeople, ...newSelected]);
+                  setSelectedContacts([]);
+                  setShowContactsModal(false);
+                  setFilterText("");
+                }}
+                className={`flex-1 py-2 rounded text-white ${
+                  selectedContacts.length === 0
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-green-600 hover:bg-green-700"
+                }`}
+              >
+                {t("add_selected_people")}
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowContactsModal(false);
+                  setSelectedContacts([]);
+                  setFilterText("");
+                }}
+                className="flex-1 py-2 rounded bg-red-500 hover:bg-red-600 text-white"
+              >
+                {t("cancel")}
+              </button>
             </div>
           </div>
         </div>
