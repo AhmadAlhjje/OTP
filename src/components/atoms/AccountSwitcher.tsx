@@ -1,4 +1,3 @@
-// AccountSwitcher.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -82,7 +81,23 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({
       >
         {/* زر القائمة الرئيسي */}
         <button
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={async () => {
+            if (!isOpen) {
+              const updatedAccounts = await getWhatsappAccounts();
+              const activeAccountData = await getActiveAccount();
+              setAccounts(updatedAccounts);
+
+              if (activeAccountData?.id) {
+                const fullAccount = updatedAccounts.find(
+                  (acc: any) => acc.id === activeAccountData.id
+                );
+                setActive(fullAccount || null);
+              } else {
+                setActive(null);
+              }
+            }
+            setIsOpen(!isOpen);
+          }}
           className="w-full px-6 py-3 flex items-center justify-between gap-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
         >
           <div className="flex items-center gap-3">
