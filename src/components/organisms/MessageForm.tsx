@@ -129,6 +129,7 @@ const MessageForm: React.FC<MessageFormProps> = ({
   const handleSelectContact = async () => {
     try {
       const data = await fetchContacts();
+      console.log("data" ,data);
       setContacts(data);
       setShowContactsModal(true);
     } catch (error) {
