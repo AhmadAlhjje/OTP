@@ -488,8 +488,8 @@ export default {
   manageYourWhatsappLikeNeverBefore: "إدارة واتساب الخاص بك كما لم تفعل من قبل",
   welcomeBack: "مرحباً بعودتك",
   loginToAccessYourAccount: "سجّل الدخول للوصول إلى حسابك",
-  emailOrUsername: "البريد الإلكتروني أو اسم المستخدم",
-  enterEmailOrUsername: "أدخل البريد الإلكتروني أو اسم المستخدم",
+  emailOrUsername: "البريد الإلكتروني",
+  enterEmailOrUsername: "أدخل البريد الإلكتروني",
 
   WhatsApp_Dashboard: "لوحة تحكم واتساب",
   Business_Communication_Hub: "مركز التواصل التجاري",

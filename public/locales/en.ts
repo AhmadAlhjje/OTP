@@ -495,8 +495,8 @@ export default {
   manageYourWhatsappLikeNeverBefore: "Manage your WhatsApp like never before",
   welcomeBack: "Welcome back",
   loginToAccessYourAccount: "Login to access your account",
-  emailOrUsername: "Email or username",
-  enterEmailOrUsername: "Enter email or username",
+  emailOrUsername: "Email",
+  enterEmailOrUsername: "Enter email",
 
   WhatsApp_Dashboard: "WhatsApp Dashboard",
   Business_Communication_Hub: "Business Communication Hub",
