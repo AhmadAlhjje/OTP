@@ -599,4 +599,5 @@ export default {
   privacyPolicycontactUs:
     "For any inquiries, please contact us at support@example.com",
     add_new_reply_group:"add new reply group",
+    select_from_contacts: "Select from contacts",
 };
