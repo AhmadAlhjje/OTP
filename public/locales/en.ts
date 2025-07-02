@@ -391,7 +391,7 @@ export default {
   featuresexceptional_features: "Exceptional Features",
   featurescomprehensive_features:
     "Discover a comprehensive set of advanced features that make sending WhatsApp messages easier and more efficient",
-  featureslearn_more: "Learn More",
+  featureslearn_more: "More",
   featureseasy_api_integration: "Easy API Integration",
   featureseasy_api_integration_desc:
     "A powerful and flexible API that can be easily integrated with your existing systems",

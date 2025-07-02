@@ -33,8 +33,8 @@ const PricingSection = () => {
         t("pricingfeature_4_basic"),
         t("pricingfeature_5_basic"),
       ],
-      popular: false,
-      color: "border-green-200 dark:border-green-800",
+      popular: true,
+      color: "border-green-400",
     },
     {
       name: t("pricingplan_pro"),
@@ -48,16 +48,16 @@ const PricingSection = () => {
         t("pricingfeature_5_pro"),
         t("pricingfeature_6_pro"),
       ],
-      popular: true,
-      color: "border-green-500 dark:border-green-400",
+      popular: false,
+      color: "border-gray-200 dark:border-gray-700",
     },
   ];
 
   return (
-    <section id="pricing" className="py-20 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-gray-900 dark:to-gray-800">
+    <section id="pricing" className="py-20 bg-[#F6F9FB] dark:bg-[#202a30]">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+          <h2 className="text-4xl font-bold mb-4 text-gray-900 dark:text-white">
             {t("pricingsection_title")}
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
@@ -69,36 +69,35 @@ const PricingSection = () => {
           {plans.map((plan, index) => (
             <div
               key={index}
-              className={`relative bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-lg border-2 ${plan.color} transition-all hover:shadow-2xl hover:scale-105 ${
-                plan.popular ? "ring-4 ring-green-500/20" : ""
+              className={`relative bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-sm border ${plan.color} transition-all hover:shadow-md hover:scale-[1.02] ${
+                plan.popular ? "border-2 shadow-lg" : ""
               }`}
             >
-              {/* الشعار "الأكثر شعبية" */}
-              {plan.popular && (
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-2 rounded-full text-sm font-semibold">
-                    {t("pricingmost_popular")}
-                  </div>
-                </div>
-              )}
-
               {/* تفاصيل الخطة */}
-              <div className="text-center mb-8">
-                <h3 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
+              <div className="text-center mb-6">
+                <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
                   {plan.name}
                 </h3>
                 <div className="mb-2">
-                  <span className="text-4xl font-bold text-green-600">{plan.price}</span>
-                  <span className="text-gray-600 dark:text-gray-400 mr-2">/{plan.period}</span>
+                  <span className="text-3xl font-bold text-green-600">
+                    {plan.price}
+                  </span>
+                  <span className="text-gray-600 dark:text-gray-400 mr-1">
+                    /{plan.period}
+                  </span>
                 </div>
               </div>
 
               {/* الميزات */}
-              <ul className="space-y-4 mb-8">
+              <ul className="space-y-3 mb-6">
                 {plan.features.map((feature, idx) => (
-                  <li key={idx} className="flex items-center gap-3">
-                    <Check className="h-5 w-5 text-green-500 flex-shrink-0" />
-                    <span className="text-gray-700 dark:text-gray-300">{feature}</span>
+                  <li key={idx} className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-green-700 flex items-center justify-center">
+                      <Check className="h-4 w-4 text-white" />
+                    </div>
+                    <span className="text-gray-700 dark:text-gray-300 text-sm">
+                      {feature}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -108,9 +107,15 @@ const PricingSection = () => {
                 variant={plan.popular ? "success" : "outline"}
                 fullWidth
                 loading={false}
-                className={`${plan.popular ? "dark:bg-green-600 dark:hover:bg-green-700" : "dark:text-green-400 dark:border-green-500 dark:hover:bg-green-900/20"}`}
+                className={`${
+                  plan.popular
+                    ? "dark:bg-green-600 dark:hover:bg-green-700 bg-green-600 text-white hover:bg-green-700"
+                    : "border border-gray-300 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                } rounded-lg`}
               >
-                {plan.price === t("pricingplan_start_price") ? t("pricingget_started_free") : t("pricingsubscribe_now")}
+                {plan.price === t("pricingplan_start_price")
+                  ? t("pricingget_started_free")
+                  : t("pricingsubscribe_now")}
               </Button>
             </div>
           ))}

@@ -8,6 +8,8 @@ import FAQSection from "../components/organisms/FAQSection";
 import ContactSection from "../components/organisms/ContactSection";
 import HeroSection from "../components/organisms/HeroSection";
 import Footer from "../components/organisms/Footer";
+import PartnersSection from "@/components/organisms/PartnersSection";
+import StatsSection from "@/components/organisms/StatsSection";
 
 const HomePageTemplate = () => {
   const scrollToSection = (sectionId: string) => {
@@ -15,10 +17,12 @@ const HomePageTemplate = () => {
   };
 
   return (
-    <div>
+    <div className="dark:bg-[#202a30] pt-10">
       <Navbar1 scrollToSection={scrollToSection} />
       <HeroSection />
+      <PartnersSection/>
       <FeaturesSection />
+      <StatsSection/>
       <PricingSection />
       <FAQSection />
       <ContactSection />

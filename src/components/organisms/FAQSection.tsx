@@ -33,11 +33,11 @@ const FAQSection = () => {
   ];
 
   return (
-    <section id="faq" className="py-20 bg-white dark:bg-gray-900">
+    <section id="faq" className="py-20 bg-white dark:bg-[#263238]">
       <div className="container mx-auto px-4">
         {/* رأس القسم */}
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+          <h2 className="text-4xl font-bold mb-6 text-gray-900 dark:text-white">
             {t("faqcommon_questions")}
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto dark:text-gray-300">
@@ -54,11 +54,15 @@ const FAQSection = () => {
             >
               <button
                 onClick={() => setOpenFaq(openFaq === index ? null : index)}
-                className="w-full p-6 text-right flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="w-full p-6 text-right flex items-center justify-between hover:bg-gray-100 dark:hover:bg-[#37474F] transition-colors"
               >
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{faq.question}</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {faq.question}
+                </h3>
                 <ChevronDown
-                  className={`h-5 w-5 text-gray-500 transition-transform ${openFaq === index ? "rotate-180" : ""}`}
+                  className={`h-5 w-5 text-gray-500 dark:text-gray-300 transition-transform ${
+                    openFaq === index ? "rotate-180" : ""
+                  }`}
                 />
               </button>
               {openFaq === index && (
@@ -81,13 +85,14 @@ const FAQSection = () => {
             variant="success"
             icon={<MessageSquare />}
             iconPosition="left"
-            className="dark:from-green-600 dark:to-emerald-600"
+            className="dark:from-green-600 dark:to-emerald-600 mx-auto block"
           >
             {t("faqcontact_support")}
           </Button>
         </div>
       </div>
     </section>
-)}
+  );
+};
 
 export default FAQSection;

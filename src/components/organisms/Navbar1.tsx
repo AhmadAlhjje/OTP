@@ -3,10 +3,9 @@
 import React, { useState, useEffect } from "react";
 import Button from "../atoms/Button";
 import Link from "../atoms/Link";
-import { MessageSquare, X, Menu } from "lucide-react";
+import { MessageSquare, X, Menu, Globe, Moon, Sun } from "lucide-react";
 import NavLink from "../atoms/NavLink";
 import useTranslation from "@/hooks/useTranslation";
-import { Globe, Moon, Sun } from "lucide-react";
 import useTheme from "@/hooks/useTheme";
 import useLanguage from "@/hooks/useLanguage";
 
@@ -21,7 +20,6 @@ const Navbar = ({
   const { language, toggleLanguage } = useLanguage();
   const { t } = useTranslation();
 
-  // إغلاق القائمة عند تغيير حجم الشاشة
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 768) {
@@ -33,7 +31,6 @@ const Navbar = ({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // تتبع التمرير لتغيير مظهر الشريط
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -43,7 +40,6 @@ const Navbar = ({
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // التنقل السلس مع تعويض ارتفاع الشريط
   const handleNavClick = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
@@ -60,14 +56,8 @@ const Navbar = ({
     setIsMenuOpen(false);
   };
 
-  // منع التمرير في الخلفية عند فتح القائمة
   useEffect(() => {
-    if (isMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-
+    document.body.style.overflow = isMenuOpen ? "hidden" : "unset";
     return () => {
       document.body.style.overflow = "unset";
     };
@@ -75,12 +65,12 @@ const Navbar = ({
 
   return (
     <>
-      {/* شريط التنقل العلوي */}
+      {/* شريط التنقل */}
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled
-            ? "bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-100 dark:bg-gray-900/95 dark:border-gray-700"
-            : "bg-white/90 backdrop-blur-sm dark:bg-gray-900/90 dark:border-gray-700"
+            ? "bg-light backdrop-blur-md shadow-lg border-b border-gray-100 dark:bg-[#263238]/95 dark:border-gray-700"
+            : "bg-light backdrop-blur-sm dark:bg-[#263238]/90 dark:border-gray-700"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -98,7 +88,7 @@ const Navbar = ({
               </Link>
             </div>
 
-            {/* روابط التنقل - ديسيتك */}
+            {/* روابط التنقل - ديسكتوب */}
             <div className="hidden md:flex items-center space-x-8 rtl:space-x-reverse dark:text-white">
               <NavLink onClick={() => handleNavClick("features")}>
                 {t("navbarfeatures")}
@@ -114,49 +104,39 @@ const Navbar = ({
               </NavLink>
             </div>
 
-            {/* أزرار العمل - ديسيتك */}
+            {/* إعدادات وأزرار - ديسكتوب */}
             <div className="hidden md:flex items-center space-x-4 rtl:space-x-reverse">
-              {/* زر تبديل اللغة */}
               <Button
                 variant="ghost"
                 onClick={toggleLanguage}
                 icon={<Globe size={18} />}
-                className="text-gray-700 hover:text-green-600 dark:text-white dark:hover:text-green-400"
-                aria-label="تبديل اللغة"
+                className="text-gray-700 border-none hover:text-green-600 dark:text-white dark:hover:text-green-400"
               >
                 <span className="text-sm hidden sm:block">
                   {language === "ar" ? "EN" : "AR"}
                 </span>
               </Button>
 
-              {/* زر تبديل المظهر (داكن/مضيء) */}
               <Button
                 variant="icon"
                 onClick={toggleTheme}
                 icon={theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
                 className="text-gray-700 hover:text-green-600 dark:text-white dark:hover:text-green-400"
-                aria-label="تبديل المظهر"
-                children={undefined}
+                aria-label="Toggle Theme"
               />
+
               <Link
                 href="/login"
-                className="text-gray-700 hover:text-green-600 font-medium transition-colors duration-200 dark:text-white dark:hover:text-green-600"
+                className="px-4 py-2 rounded-md border border-gray-300 bg-gradient-to-r from-green-100 to-blue-100 text-black font-medium transition duration-200 hover:from-green-200 hover:to-blue-200"
               >
                 {t("navbarlogin")}
               </Link>
-              <Button
-                variant="primary"
-                size="sm"
-                className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
-              >
-                <Link href="/login">{t("navbarget_started")}</Link>
-              </Button>
             </div>
 
             {/* زر القائمة - جوال */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden relative p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="md:hidden relative p-2 rounded-lg hover:bg-gray-100 transition duration-200 focus:outline-none focus:ring-2 focus:ring-green-500"
               aria-label="Toggle menu"
             >
               <div className="relative w-6 h-6">
@@ -176,7 +156,7 @@ const Navbar = ({
         </div>
       </nav>
 
-      {/* خلفية ضبابية عند فتح القائمة */}
+      {/* خلفية مظللة عند فتح القائمة */}
       {isMenuOpen && (
         <div
           className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
@@ -184,9 +164,9 @@ const Navbar = ({
         />
       )}
 
-      {/* القائمة الجانبية - جوال */}
+      {/* القائمة الجانبية للجوال */}
       <div
-        className={`fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-2xl dark:bg-gray-900 z-50 md:hidden transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-2xl dark:bg-[#263238] z-50 md:hidden transform transition-transform duration-300 ease-in-out ${
           isMenuOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -196,67 +176,50 @@ const Navbar = ({
             <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center">
               <MessageSquare className="w-4 h-4 text-white" />
             </div>
-            <span className="font-bold text-gray-900">WhatsApp</span>
+            <span className="font-bold text-gray-900 dark:text-white">WhatsApp</span>
           </div>
-          {/* <button
-            onClick={() => setIsMenuOpen(false)}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-          >
-            <X className="w-5 h-5 text-gray-700" />
-          </button> */}
         </div>
 
         {/* روابط التنقل */}
         <div className="py-6">
           <div className="space-y-1 px-6">
-            {[
-              { label: t("navbarfeatures"), id: "features" },
-              { label: t("navbarpricing"), id: "pricing" },
-              { label: t("navbarfaq"), id: "faq" },
-              { label: t("navbarcontact_us"), id: "contact" },
-            ].map((item, index) => (
-              <button
-                key={item.id}
-                onClick={() => handleNavClick(item.id)}
-                className="w-full text-right py-3 px-4 text-gray-700 dark:text-gray-200 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-gray-800 rounded-lg ..."
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
-                {item.label}
-              </button>
-            ))}
+            {[t("navbarfeatures"), t("navbarpricing"), t("navbarfaq"), t("navbarcontact_us")].map(
+              (label, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleNavClick(["features", "pricing", "faq", "contact"][index])}
+                  className="w-full text-right py-3 px-4 text-gray-700 dark:text-gray-200 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-[#263238] rounded-lg"
+                >
+                  {label}
+                </button>
+              )
+            )}
           </div>
 
-          {/* فاصل بين الروابط وأزرار الإعدادات */}
           <div className="my-6 mx-6 border-t border-gray-200"></div>
 
-          {/* أزرار الإعدادات - وضع العرض واللغة */}
+          {/* إعدادات المظهر واللغة */}
           <div className="px-6 space-y-4">
-            {/* زر تبديل المظهر */}
             <button
               onClick={toggleTheme}
-              className="flex items-center justify-between w-full py-3 px-4 text-gray-700 dark:text-gray-200 hover:text-green-600 dark:hover:text-green-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg ..."
+              className="flex items-center justify-between w-full py-3 px-4 text-gray-700 dark:text-gray-200 hover:text-green-600 dark:hover:text-green-400 hover:bg-gray-50 dark:hover:bg-[#263238] rounded-lg"
             >
               <span>{t("navbartheme")}</span>
               {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
             </button>
 
-            {/* زر تبديل اللغة */}
             <button
               onClick={toggleLanguage}
-              className="flex items-center justify-between w-full py-3 px-4 text-gray-700 dark:text-gray-200 hover:text-green-600 dark:hover:text-green-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg ..."
+              className="flex items-center justify-between w-full py-3 px-4 text-gray-700 dark:text-gray-200 hover:text-green-600 dark:hover:text-green-400 hover:bg-gray-50 dark:hover:bg-[#263238] rounded-lg"
             >
               <span>{t("navbarlanguage")}</span>
               <Globe size={20} />
-              {/* <span className="text-sm bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
-                {language === "ar" ? "EN" : "AR"}
-              </span> */}
             </button>
           </div>
 
-          {/* فاصل */}
           <div className="my-6 mx-6 border-t border-gray-200"></div>
 
-          {/* أزرار العمل */}
+          {/* أزرار تسجيل الدخول */}
           <div className="px-6 space-y-3">
             <Link
               href="/login"
@@ -276,8 +239,8 @@ const Navbar = ({
           </div>
         </div>
 
-        {/* معلومات إضافية */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+        {/* تذييل */}
+        <div className="absolute bottom-0 left-0 right-0 p-6 bg-gray-50 dark:bg-[#263238] border-t border-gray-200 dark:border-gray-700">
           <div className="text-center">
             <p className="text-sm text-gray-600 mb-2">{t("navbarneed_help")}</p>
             <Link

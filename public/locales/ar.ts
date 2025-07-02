@@ -390,7 +390,7 @@ export default {
   featuresexceptional_features: "مميزات استثنائية",
   featurescomprehensive_features:
     "اكتشف مجموعة شاملة من المميزات المتقدمة التي تجعل إرسال رسائل واتساب أسهل وأكثر فعالية",
-  featureslearn_more: "تعرف على المزيد",
+  featureslearn_more: "المزيد",
   featureseasy_api_integration: "واجهة برمجية سهلة الاستخدام والتكامل",
   featureseasy_api_integration_desc:
     "API قوي ومرن يمكن دمجه بسهولة مع أنظمتك الحالية",
@@ -420,7 +420,7 @@ export default {
   pricingfeature_4_start: "واجهة برمجية محدودة",
   pricingget_started_free: "ابدأ مجاناً",
   pricingplan_basic: "الخطة الأساسية",
-  pricingplan_basic_price: "18 ل.س",
+  pricingplan_basic_price: "18$",
   pricingplan_basic_period: "شهرياً",
   pricingfeature_1_basic: "استخدام أي رقم هاتف",
   pricingfeature_2_basic: "5,000 رسالة شهرياً",
@@ -428,7 +428,7 @@ export default {
   pricingfeature_4_basic: "دعم فني متقدم",
   pricingfeature_5_basic: "تقارير مفصلة",
   pricingplan_pro: "الخطة الاحترافية",
-  pricingplan_pro_price: "30 ل.س",
+  pricingplan_pro_price: "30$",
   pricingplan_pro_period: "شهرياً",
   pricingfeature_1_pro: "أرقام غير محدودة",
   pricingfeature_2_pro: "رسائل غير محدودة",
